@@ -27,7 +27,7 @@ buildscript {
     }
 }
 
-val javaVersion = JavaVersion.VERSION_21
+val javaVersion = JavaVersion.VERSION_25
 
 extra.apply {
     set("sdkVersion", 36)
