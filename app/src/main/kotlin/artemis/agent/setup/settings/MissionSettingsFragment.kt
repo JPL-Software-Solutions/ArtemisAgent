@@ -81,6 +81,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
 
     private fun prepareRewardSettingButtons() {
         val context = binding.root.context
+
         listOf(binding.rewardsAllButton to true, binding.rewardsNoneButton to false).forEach {
             (button, isOn) ->
             button.setOnClickListener {

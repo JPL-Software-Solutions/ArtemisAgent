@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
@@ -6,7 +7,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
-    kotlin("android")
     kotlin("plugin.serialization")
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
@@ -37,7 +37,7 @@ val changelog =
 val versionProperties =
     Properties().apply { rootProject.file("version.properties").inputStream().use { load(it) } }
 
-android {
+extensions.configure<ApplicationExtension> {
     namespace = appId
     compileSdk = sdkVersion
 
@@ -47,7 +47,6 @@ android {
         targetSdk = sdkVersion
         versionCode = versionProperties.getProperty("versionCode").toInt()
         versionName = versionProperties.getProperty("versionName")
-        multiDexEnabled = true
 
         testInstrumentationRunner = "com.kaspersky.kaspresso.runner.KaspressoRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
@@ -105,22 +104,25 @@ android {
 
     packaging.jniLibs.excludes.add("lib/*/libdatastore_shared_counter.so")
 
-    applicationVariants.all {
-        val variant = name[0].uppercase() + name.substring(1)
-        tasks.named("assemble$variant").dependsOn(":app:konsist:test${variant}UnitTest")
-    }
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        resValues = true
     }
 
     tasks.preBuild.dependsOn(":IAN:konsistCollect")
+}
 
-    project.afterEvaluate {
+androidComponents {
+    onVariants { variant ->
+        val variantName = variant.name.let { name -> name[0].uppercase() + name.substring(1) }
+
         tasks
-            .named { it.startsWith("ksp") && it.endsWith("Kotlin") }
-            .configureEach { mustRunAfter("generate${name.substring(3, name.length - 6)}Proto") }
+            .named { it == "assemble${variantName}" }
+            .configureEach { dependsOn(":app:konsist:test${variantName}UnitTest") }
+        tasks
+            .named { it.startsWith("ksp$variantName") && it.endsWith("Kotlin") }
+            .configureEach { mustRunAfter("generate${variantName}Proto") }
     }
 }
 
@@ -189,8 +191,8 @@ protobuf {
     protoc { artifact = libs.protoc.get().toString() }
 
     generateProtoTasks {
-        all().forEach {
-            it.builtins {
+        all().configureEach {
+            builtins {
                 create("java") { option("lite") }
                 create("kotlin") { option("lite") }
             }

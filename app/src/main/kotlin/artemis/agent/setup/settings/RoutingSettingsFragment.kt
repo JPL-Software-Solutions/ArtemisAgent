@@ -184,6 +184,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
                 viewModel.playSound(SoundEffect.BEEP_2)
                 clearFocus()
             }
+
             button.setOnCheckedChangeListener { _, isChecked ->
                 viewModel.viewModelScope.launch {
                     button.context.userSettings.updateData { settings ->
