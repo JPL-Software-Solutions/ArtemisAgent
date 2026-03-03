@@ -6,7 +6,6 @@ import artemis.agent.MainActivity
 import artemis.agent.R
 import artemis.agent.isDisplayedWithText
 import artemis.agent.isRemoved
-import com.kaspersky.kaspresso.device.Device
 import com.kaspersky.kaspresso.device.permissions.Permissions
 import com.kaspersky.kaspresso.screens.KScreen
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
@@ -27,14 +26,18 @@ object MainScreen : KScreen<MainScreen>() {
 
     val alertDialog = KAlertDialog()
 
-    private val isTiramisu by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
+    val numPermissionDialogs by lazy {
+        listOf(Build.VERSION_CODES.TIRAMISU, Build.VERSION_CODES.CINNAMON_BUN).count {
+            Build.VERSION.SDK_INT >= it
+        }
+    }
 
     inline fun TestContext<*>.mainScreenTest(
         backButtonShouldCloseApp: Boolean = true,
         crossinline test: MainScreen.() -> Unit,
     ) {
         this@MainScreen {
-            step("Accept permissions") { acceptPermissions(device) }
+            acceptPermissions()
             step("Dismiss changelog") {
                 alertDialog.isCompletelyDisplayed()
                 pressBack()
@@ -54,27 +57,36 @@ object MainScreen : KScreen<MainScreen>() {
         }
     }
 
-    fun acceptPermissions(device: Device) {
-        if (!isTiramisu) return
-        device.permissions.allowViaDialog()
+    fun TestContext<*>.acceptPermissions() {
+        repeat(numPermissionDialogs) { i ->
+            val time = i + 1
+            step("Check #$time that permissions dialog is open") { assertPermissionsDialogOpen() }
+            step("Accept permissions #$time") { device.permissions.allowViaDialog() }
+        }
     }
 
-    fun denyPermissions(device: Device, isFirstTime: Boolean) {
-        if (!isTiramisu) return
-        device.permissions.denyViaDialog(
-            if (isFirstTime) Permissions.Button.DENY else Permissions.Button.DENY_AND_DONT_ASK_AGAIN
-        )
+    fun TestContext<*>.denyPermissions(isFirstTime: Boolean) {
+        repeat(if (isFirstTime) numPermissionDialogs else 1) { i ->
+            val time = i + 1
+            step("Check #$time that permissions dialog is open") { assertPermissionsDialogOpen() }
+            step("Deny permissions #$time") {
+                device.permissions.denyViaDialog(
+                    if (isFirstTime) Permissions.Button.DENY
+                    else Permissions.Button.DENY_AND_DONT_ASK_AGAIN
+                )
+            }
+        }
     }
 
-    fun assertPermissionsDialogOpen(device: Device) {
-        Assert.assertEquals(device.permissions.isDialogVisible(), isTiramisu)
+    fun TestContext<*>.assertPermissionsDialogOpen() {
+        Assert.assertTrue(device.permissions.isDialogVisible())
     }
 
     fun assertPermissionRationaleDialogOpen() {
         alertDialog {
             isCompletelyDisplayed()
             title.isRemoved()
-            message.isDisplayedWithText(R.string.permission_rationale)
+            message.isDisplayedWithText(R.string.notification_rationale)
             positiveButton.isDisplayedWithText(R.string.yes)
             negativeButton.isDisplayedWithText(R.string.no)
             neutralButton.isRemoved()
