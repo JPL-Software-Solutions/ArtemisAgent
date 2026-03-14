@@ -1063,8 +1063,14 @@ class AgentViewModel(application: Application) :
                 borderWarStatus.value = WarStatus.TENSION
                 isBorderWarPossible = true
             }
+
             GameType.DEEP_STRIKE -> isDeepStrikePossible = true
-            else -> {} // make `when` exhaustive
+
+            GameType.SIEGE,
+            GameType.SINGLE_FRONT,
+            GameType.DOUBLE_FRONT,
+            GameType.PEACETIME,
+            GameType.INFESTATION -> {}
         }
     }
 

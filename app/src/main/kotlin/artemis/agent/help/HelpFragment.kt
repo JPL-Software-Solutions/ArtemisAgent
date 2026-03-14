@@ -153,18 +153,13 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
         override fun getItemViewType(position: Int): Int = contents[position].viewType
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HelpTopicsViewHolder {
-            return checkNotNull(
-                when (viewType) {
-                    MENU -> HelpTopicsViewHolder.MenuButton(parent.context)
-                    IMAGE -> HelpTopicsViewHolder.Image(parent.context)
-                    TEXT -> HelpTopicsViewHolder.Text(parent.context)
-                    else -> null
-                }
-            ) {
-                "Unrecognized view type: $viewType"
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HelpTopicsViewHolder =
+            when (viewType) {
+                MENU -> HelpTopicsViewHolder.MenuButton(parent.context)
+                IMAGE -> HelpTopicsViewHolder.Image(parent.context)
+                TEXT -> HelpTopicsViewHolder.Text(parent.context)
+                else -> error("Unrecognized view type: $viewType")
             }
-        }
 
         override fun onBindViewHolder(holder: HelpTopicsViewHolder, position: Int) {
             when (holder) {

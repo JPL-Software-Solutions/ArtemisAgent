@@ -50,7 +50,7 @@ class VesselDataManager(context: Context) {
                 0 -> defaultVesselData
                 1 -> internalStorageVesselData
                 2 -> externalStorageVesselData
-                else -> require(false) { "Invalid index: $index" }
+                else -> throw IllegalArgumentException("Invalid index: $index")
             }
 
         if (vesselDataAtIndex is VesselData.Error) {
