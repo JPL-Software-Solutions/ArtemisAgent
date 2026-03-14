@@ -66,7 +66,7 @@ class PermissionRationaleTest : TestCase() {
         const val DENY_AND_DONT_ASK_BUTTON =
             "com.android.permissioncontroller:id/permission_deny_and_dont_ask_again_button"
 
-        fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
+        inline fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
             MainScreen.alertDialog.button().click()
         }
 

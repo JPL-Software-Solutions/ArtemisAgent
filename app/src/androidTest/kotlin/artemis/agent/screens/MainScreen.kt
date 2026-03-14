@@ -28,9 +28,9 @@ object MainScreen : KScreen<MainScreen>() {
 
     private val isTiramisu by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
 
-    fun TestContext<*>.mainScreenTest(
+    inline fun TestContext<*>.mainScreenTest(
         backButtonShouldCloseApp: Boolean = true,
-        test: MainScreen.() -> Unit,
+        crossinline test: MainScreen.() -> Unit,
     ) {
         this@MainScreen {
             step("Accept permissions") { acceptPermissions(device) }
@@ -44,7 +44,7 @@ object MainScreen : KScreen<MainScreen>() {
         }
     }
 
-    private fun assertCloseOnBackButton() {
+    fun assertCloseOnBackButton() {
         try {
             pressBack()
             Assert.fail("Expected back button to close the app")

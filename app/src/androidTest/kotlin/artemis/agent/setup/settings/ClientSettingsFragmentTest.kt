@@ -63,7 +63,10 @@ class ClientSettingsFragmentTest : TestCase() {
         }
     }
 
-    private fun testWithSettings(shouldTestSettings: Boolean, closeSubmenu: () -> Unit) {
+    private inline fun testWithSettings(
+        shouldTestSettings: Boolean,
+        crossinline closeSubmenu: () -> Unit,
+    ) {
         run {
             mainScreenTest {
                 val expectedPort = AtomicInteger()
@@ -112,10 +115,10 @@ class ClientSettingsFragmentTest : TestCase() {
         }
     }
 
-    private fun testVesselDataWarningDialog(
+    private inline fun testVesselDataWarningDialog(
         shouldChange: Boolean,
         @StringRes connectedString: Int,
-        button: KAlertDialog.() -> KButton,
+        crossinline button: KAlertDialog.() -> KButton,
     ) {
         run {
             mainScreenTest(shouldChange) {
