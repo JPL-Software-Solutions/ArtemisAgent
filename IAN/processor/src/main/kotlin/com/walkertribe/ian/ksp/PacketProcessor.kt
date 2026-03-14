@@ -210,7 +210,7 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
         }
 
         @KspExperimental
-        private fun <T : Annotation, R : Comparable<R>> Resolver.getAnnotatedSymbolsMap(
+        private inline fun <T : Annotation, R : Comparable<R>> Resolver.getAnnotatedSymbolsMap(
             kClass: KClass<T>,
             associateFn: (T) -> R,
         ): Map<R, KSClassDeclaration> =
