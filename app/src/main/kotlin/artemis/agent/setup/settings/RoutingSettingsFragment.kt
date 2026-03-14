@@ -85,7 +85,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
         }
     }
 
-    private fun <T> setMasterButtonsEnabled(
+    private inline fun <T> setMasterButtonsEnabled(
         allButton: Button,
         noneButton: Button,
         data: Collection<T>,
@@ -194,11 +194,11 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
         }
     }
 
-    private fun prepareMasterButtons(
+    private inline fun prepareMasterButtons(
         allButton: Button,
         noneButton: Button,
         maintainFocus: Boolean = false,
-        update: UserSettingsKt.Dsl.(Boolean) -> Unit,
+        crossinline update: UserSettingsKt.Dsl.(Boolean) -> Unit,
     ) {
         listOf(allButton to true, noneButton to false).forEach { (button, isOn) ->
             button.setOnClickListener {

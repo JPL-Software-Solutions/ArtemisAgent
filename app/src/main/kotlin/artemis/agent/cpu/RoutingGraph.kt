@@ -652,7 +652,7 @@ internal class RoutingGraph(
             }
 
         /** Helper function to heuristically select a random entry from a collection. */
-        private fun <T> Collection<T>.randomByWeight(weightFn: (T) -> Double): T {
+        private inline fun <T> Collection<T>.randomByWeight(weightFn: (T) -> Double): T {
             // Map entries to weights
             val weighted = map { it to weightFn(it) }
 

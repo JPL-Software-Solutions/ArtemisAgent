@@ -16,14 +16,14 @@ class VesselDataManager(context: Context) {
 
     private val assetsResolver = AssetsResolver(context.assets)
 
-    private val defaultVesselData by lazy { VesselData.load(assetsResolver) }
+    val defaultVesselData by lazy { VesselData.load(assetsResolver) }
 
-    private val internalStorageVesselData: VesselData? by lazy {
+    val internalStorageVesselData: VesselData? by lazy {
         if (storageDirectories.isEmpty()) null
         else setupFilePathResolver(storageDirectories[0])?.let(VesselData.Companion::load)
     }
 
-    private val externalStorageVesselData: VesselData? by lazy {
+    val externalStorageVesselData: VesselData? by lazy {
         if (externalCount <= 1) null
         else setupFilePathResolver(storageDirectories[1])?.let(VesselData.Companion::load)
     }
@@ -44,7 +44,7 @@ class VesselDataManager(context: Context) {
     var vesselData: VesselData = defaultVesselData
         private set
 
-    fun checkContext(index: Int, ifError: (String) -> Unit) {
+    inline fun checkContext(index: Int, ifError: (String) -> Unit) {
         val vesselDataAtIndex =
             when (index) {
                 0 -> defaultVesselData

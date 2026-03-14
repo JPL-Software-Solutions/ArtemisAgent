@@ -517,7 +517,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun buildNotification(
+    private inline fun buildNotification(
         info: NotificationInfo,
         onIntent: Intent.() -> Unit = {},
         setBuilder: (NotificationCompat.Builder) -> Unit = {},

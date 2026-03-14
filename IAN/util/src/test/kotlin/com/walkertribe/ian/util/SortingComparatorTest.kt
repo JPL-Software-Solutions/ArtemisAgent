@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.equals.shouldBeEqual
-import kotlinx.coroutines.launch
 
 class SortingComparatorTest :
     DescribeSpec({
@@ -25,21 +24,6 @@ class SortingComparatorTest :
         val thirdComparator = compareBy<Triple<String, Int, Boolean>> { it.third }
 
         describe("buildSortingComparator") {
-            fun DescribeSpecContainerScope.testSortingComparators(
-                name: String,
-                testCases: Collection<SortingTestCase>,
-                partitionFn: (SortingTestCase) -> Boolean,
-                testFn: suspend DescribeSpecContainerScope.(List<SortingTestCase>) -> Unit,
-            ) = launch {
-                withData(
-                    nameFn = { it.first },
-                    listOf("Sort $name", "Don't sort $name")
-                        .zip(testCases.partition(partitionFn).toList()),
-                ) {
-                    testFn(it.second)
-                }
-            }
-
             testSortingComparators(
                 name = "first",
                 testCases = SortingTestCase.entries,
@@ -89,3 +73,16 @@ enum class SortingTestCase(
     THIRD(false, false, true, 1, 4, 5, 7, 0, 2, 3, 6),
     NO_SORT(false, false, false, 0, 1, 2, 3, 4, 5, 6, 7),
 }
+
+suspend inline fun DescribeSpecContainerScope.testSortingComparators(
+    name: String,
+    testCases: Collection<SortingTestCase>,
+    partitionFn: (SortingTestCase) -> Boolean,
+    crossinline testFn: suspend DescribeSpecContainerScope.(List<SortingTestCase>) -> Unit,
+) =
+    withData(
+        nameFn = { it.first },
+        listOf("Sort $name", "Don't sort $name").zip(testCases.partition(partitionFn).toList()),
+    ) {
+        testFn(it.second)
+    }
