@@ -2,7 +2,6 @@ package artemis.agent.setup.settings
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ToggleButton
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,11 +20,7 @@ import artemis.agent.databinding.fragmentViewBinding
 import artemis.agent.util.BackPreview
 import artemis.agent.util.SoundEffect
 import artemis.agent.util.collectLatestWhileStarted
-import kotlin.reflect.KMutableProperty1
 import kotlinx.coroutines.launch
-
-internal typealias ToggleButtonMap =
-    Map<ToggleButton, KMutableProperty1<UserSettingsKt.Dsl, Boolean>>
 
 class SettingsFragment : Fragment(R.layout.settings_fragment) {
     private val viewModel: AgentViewModel by activityViewModels()
