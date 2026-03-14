@@ -193,7 +193,12 @@ class UserSettingsTest :
                 val settings = UserSettingsSerializer.defaultValue
 
                 describe("Newer version") {
-                    val newMigration = UserSettingsSerializer.Migration(1000) { serverPort = 3000 }
+                    val newMigration =
+                        object : UserSettingsSerializer.Migration(1000) {
+                            override fun execute(dsl: UserSettingsKt.Dsl) {
+                                dsl.serverPort = 3000
+                            }
+                        }
 
                     it("Should migrate") { newMigration.shouldMigrate(settings).shouldBeTrue() }
 
@@ -205,7 +210,12 @@ class UserSettingsTest :
                 }
 
                 describe("Older version") {
-                    val skippedMigration = UserSettingsSerializer.Migration(-1) {}
+                    val skippedMigration =
+                        object : UserSettingsSerializer.Migration(-1) {
+                            override fun execute(dsl: UserSettingsKt.Dsl) {
+                                // Skip
+                            }
+                        }
 
                     it("Should not migrate") {
                         skippedMigration.shouldMigrate(settings).shouldBeFalse()

@@ -141,25 +141,28 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
         t.writeTo(output)
     }
 
-    class Migration(val version: Int, private val migrateFn: UserSettingsKt.Dsl.() -> Unit) :
+    @VisibleForTesting
+    abstract class Migration(val version: Int) :
         DataMigration<UserSettingsOuterClass.UserSettings> {
-        override suspend fun shouldMigrate(currentData: UserSettingsOuterClass.UserSettings) =
+        final override suspend fun shouldMigrate(currentData: UserSettingsOuterClass.UserSettings) =
             currentData.version < version
 
-        override suspend fun migrate(
+        final override suspend fun migrate(
             currentData: UserSettingsOuterClass.UserSettings
         ): UserSettingsOuterClass.UserSettings =
             currentData.copy {
                 this.version = this@Migration.version
-                this.migrateFn()
+                execute(this)
             }
 
-        override suspend fun cleanUp() {
+        final override suspend fun cleanUp() {
             // Nothing to clean up
         }
 
+        abstract fun execute(dsl: UserSettingsKt.Dsl)
+
         companion object {
-            private var versionCount = 0
+            var versionCount = 0
 
             val LIST =
                 listOf(
@@ -172,8 +175,12 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
                 )
 
             @VisibleForTesting
-            fun migration(migrateFn: UserSettingsKt.Dsl.() -> Unit) =
-                Migration(++versionCount, migrateFn)
+            inline fun migration(crossinline migrateFn: UserSettingsKt.Dsl.() -> Unit) =
+                object : Migration(++versionCount) {
+                    override fun execute(dsl: UserSettingsKt.Dsl) {
+                        dsl.migrateFn()
+                    }
+                }
         }
     }
 }
