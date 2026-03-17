@@ -444,50 +444,48 @@ class AgentViewModel(application: Application) :
 
     /** Populates the RecyclerView in the route fragment. */
     private suspend fun calculateRoute() {
-        routeObjective.value.also { objective ->
-            routeMap[objective] =
-                when (objective) {
-                    is RouteObjective.Tasks -> {
-                        routeMap[objective].orEmpty()
-                    }
-                    is RouteObjective.ReplacementFighters -> {
-                        livingStations.values
-                            .filter { it.fighters > 0 }
-                            .let { stations ->
-                                stations.zip(
-                                    stations.map {
-                                        playerShip?.let { player ->
-                                            withContext(cpu.coroutineContext) {
-                                                graph.calculateRouteCost(player, it.obj)
-                                            }
-                                        } ?: Float.POSITIVE_INFINITY
-                                    }
-                                )
+        val objective = routeObjective.value
+        if (objective is RouteObjective.Tasks) {
+            routeMap[objective] = routeMap[objective].orEmpty()
+            return
+        }
+
+        val stations = livingStations.values
+        val player = playerShip
+        if (player == null) {
+            routeMap[objective] = stations.map { RouteEntry(it) }
+            return
+        }
+
+        val stationRouteCosts =
+            when (objective) {
+                is RouteObjective.ReplacementFighters -> {
+                    stations.mapNotNull { station ->
+                        if (station.fighters <= 0) return@mapNotNull null
+
+                        val routeCost =
+                            withContext(cpu.coroutineContext) {
+                                graph.calculateRouteCost(player, station.obj)
                             }
-                            .sortedBy { it.second }
-                            .map { RouteEntry(it.first) }
-                    }
-                    is RouteObjective.Ordnance -> {
-                        livingStations.values
-                            .let { stations ->
-                                stations.zip(
-                                    stations.map {
-                                        if (it.ordnanceStock[objective.ordnanceType] == 0)
-                                            Float.POSITIVE_INFINITY
-                                        else
-                                            playerShip?.let { player ->
-                                                withContext(cpu.coroutineContext) {
-                                                    graph.calculateRouteCost(player, it.obj)
-                                                }
-                                            } ?: Float.POSITIVE_INFINITY
-                                    }
-                                )
-                            }
-                            .sortedBy { it.second }
-                            .map { RouteEntry(it.first) }
+
+                        station to routeCost
                     }
                 }
-        }
+                is RouteObjective.Ordnance -> {
+                    stations.map { station ->
+                        val routeCost =
+                            if (station.ordnanceStock[objective.ordnanceType] == 0)
+                                Float.POSITIVE_INFINITY
+                            else
+                                withContext(cpu.coroutineContext) {
+                                    graph.calculateRouteCost(player, station.obj)
+                                }
+
+                        station to routeCost
+                    }
+                }
+            }
+        routeMap[objective] = stationRouteCosts.sortedBy { it.second }.map { RouteEntry(it.first) }
     }
 
     /** Returns the string that displays time left for an ally to finish building torpedoes. */
@@ -848,11 +846,16 @@ class AgentViewModel(application: Application) :
         focusedAlly.value = ally
         defendableTargets.tryEmit(
             buildList {
-                if (ally != null) {
-                    addAll(livingStationNameIndex.values.mapNotNull { livingStations[it]?.obj })
-                    addAll(allyShipList.filter { it != ally }.map { it.obj })
-                    addAll(players.values)
+                if (ally == null) return@buildList
+
+                livingStationNameIndex.values.forEach { stationName ->
+                    val station = livingStations[stationName] ?: return@forEach
+                    add(station.obj)
                 }
+
+                allyShipList.forEach { ship -> if (ship != ally) add(ship.obj) }
+
+                addAll(players.values)
             }
         )
 
@@ -926,11 +929,11 @@ class AgentViewModel(application: Application) :
                                     }
                                 }
 
-                                allyShips.values
-                                    .filter { ally ->
-                                        !ally.isTrap && routeIncentives.any { it.matches(ally) }
-                                    }
-                                    .forEach { routeGraph.addPath(it) }
+                                allyShips.values.forEach { ally ->
+                                    if (ally.isTrap || routeIncentives.none { it.matches(ally) })
+                                        return@forEach
+                                    routeGraph.addPath(ally)
+                                }
 
                                 routeGraph.purgePaths()
                                 routeGraph.testRoute(routeMap[objective])
