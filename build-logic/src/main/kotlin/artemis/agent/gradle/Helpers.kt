@@ -30,7 +30,7 @@ fun PitestPluginExtension.configure(rootPackage: String, threads: Int) {
     this.threads.set(threads)
     timeoutFactor.set(BigDecimal(TIMEOUT_FACTOR))
     outputFormats.set(listOf("HTML", "CSV", "XML"))
-    features.set(listOf("+GIT(from[HEAD~1])"))
+    features.set(listOf("+GIT(from[HEAD~1])", "+arcmutate_hisory(run_tests[false])"))
     timestampedReports.set(false)
     setWithHistory(true)
     mutators.addAll(MUTATORS)
