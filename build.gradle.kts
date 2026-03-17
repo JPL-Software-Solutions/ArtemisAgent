@@ -76,4 +76,4 @@ detekt {
     parallel = true
 }
 
-gitHooks { setHooks(mapOf("pre-push" to "detekt ktfmtCheck")) }
+gitHooks { setHooks(mapOf("pre-push" to "detekt ktfmtCheck compileDebugKotlin")) }
