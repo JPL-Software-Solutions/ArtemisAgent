@@ -198,10 +198,14 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
                         KModifier.PRIVATE,
                     )
                     .initializer(
-                        symbols.values.joinToString(prefix = "mapOf(", postfix = "\n)") { cls ->
+                        symbols.values.joinToString(
+                            separator = "",
+                            prefix = "mapOf(",
+                            postfix = "\n)",
+                        ) { cls ->
                             if (cls.isAbstract()) return@joinToString ""
                             val factoryName = makeFactoryClassName(cls)
-                            "\n${typeName}${makeConstantName(cls)} to $factoryName"
+                            "\n${typeName}${makeConstantName(cls)} to $factoryName,"
                         }
                     )
 
