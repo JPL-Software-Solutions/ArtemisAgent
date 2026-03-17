@@ -43,37 +43,30 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
         packetClasses.forEach { it.accept(visitor, Unit) }
 
         val abstractSymbols =
-            symbols.values.filter { it.isAbstract() }.map { it.simpleName.asString() }.toSortedSet()
+            symbols.values
+                .mapNotNull { if (it.isAbstract()) it.simpleName.asString() else null }
+                .toSortedSet()
         val subtypeMap =
             subtypeSymbols.values.groupBy { cls ->
-                cls.superTypes
-                    .map { superType -> superType.resolve().declaration.simpleName.asString() }
-                    .first(abstractSymbols::contains)
+                cls.superTypes.firstNotNullOf { superType ->
+                    superType
+                        .resolve()
+                        .declaration
+                        .simpleName
+                        .asString()
+                        .takeIf(abstractSymbols::contains)
+                }
             }
 
         val fileSpecBuilder = FileSpec.builder(MAIN_PACKAGE, FILENAME)
-        packetClasses
-            .filterNot { it.packageName.asString() == MAIN_PACKAGE }
-            .forEach {
-                fileSpecBuilder.addImport(it.packageName.asString(), makeFactoryClassName(it))
+        packetClasses.forEach { cls ->
+            val packageName = cls.packageName.asString()
+            if (packageName != MAIN_PACKAGE) {
+                fileSpecBuilder.addImport(packageName, makeFactoryClassName(cls))
             }
-
-        val getFactoryFunBuilder =
-            FunSpec.builder("getFactory")
-                .addModifiers(KModifier.OVERRIDE)
-                .addParameter("type", Int::class)
-                .addParameter("subtype", Byte::class)
-                .returns(factoryClassWildcardName.copy(nullable = true))
-                .beginControlFlow("return when (type)")
-
-        abstractSymbols.forEach { cls ->
-            getFactoryFunBuilder.addStatement(
-                "%1L -> %1L_FACTORY_MAP[subtype]",
-                makeConstantName(cls),
-            )
         }
 
-        getFactoryFunBuilder.addStatement("else -> FACTORY_MAP[type]").endControlFlow()
+        val getFactoryFunBuilder = makeFactoryFunBuilder(abstractSymbols)
 
         val protocolCompanionBuilder = makeCompanionBuilder(symbols, subtypeMap)
 
@@ -134,15 +127,34 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
             if (constantName != null) return constantName
 
             val uppercase = className.indices.filter { className[it].isUpperCase() }.drop(1).toSet()
-            val newConstantName =
-                className
-                    .toCharArray()
-                    .mapIndexed { index, c ->
-                        if (uppercase.contains(index)) "_$c" else "$c".uppercase()
-                    }
-                    .joinToString("")
+            val newConstantName = buildString {
+                repeat(className.length) { index ->
+                    val ch = className[index]
+                    append(if (uppercase.contains(index)) "_$ch" else ch.uppercase())
+                }
+            }
+
             constantNames[className] = newConstantName
             return newConstantName
+        }
+
+        private fun makeFactoryFunBuilder(abstractSymbols: Collection<String>): FunSpec.Builder {
+            val factoryFunBuilder =
+                FunSpec.builder("getFactory")
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addParameter("type", Int::class)
+                    .addParameter("subtype", Byte::class)
+                    .returns(factoryClassWildcardName.copy(nullable = true))
+                    .beginControlFlow("return when (type)")
+
+            abstractSymbols.forEach { cls ->
+                factoryFunBuilder.addStatement(
+                    "%1L -> %1L_FACTORY_MAP[subtype]",
+                    makeConstantName(cls),
+                )
+            }
+
+            return factoryFunBuilder.addStatement("else -> FACTORY_MAP[type]").endControlFlow()
         }
 
         @OptIn(KspExperimental::class)
@@ -186,12 +198,11 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
                         KModifier.PRIVATE,
                     )
                     .initializer(
-                        symbols.values
-                            .filter { !it.isAbstract() }
-                            .joinToString(prefix = "mapOf(", postfix = "\n)") {
-                                val factoryName = makeFactoryClassName(it)
-                                "\n${typeName}${makeConstantName(it)} to $factoryName"
-                            }
+                        symbols.values.joinToString(prefix = "mapOf(", postfix = "\n)") { cls ->
+                            if (cls.isAbstract()) return@joinToString ""
+                            val factoryName = makeFactoryClassName(cls)
+                            "\n${typeName}${makeConstantName(cls)} to $factoryName"
+                        }
                     )
 
             return addProperties(
