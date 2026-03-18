@@ -115,11 +115,14 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
         fun initContents(res: Resources) {
             if (contents.isEmpty()) {
+                val textArray = res.getStringArray(paragraphs)
                 contents =
-                    res.getStringArray(paragraphs)
-                        .map { HelpTopicContent.Text(it) }
-                        .toMutableList<HelpTopicContent>()
-                        .apply { insert(res) }
+                    buildList(textArray.size) {
+                        for (text in textArray) {
+                            add(HelpTopicContent.Text(text))
+                        }
+                        insert(res)
+                    }
             }
         }
     }
