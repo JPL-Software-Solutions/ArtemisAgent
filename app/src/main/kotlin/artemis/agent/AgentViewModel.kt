@@ -635,9 +635,7 @@ class AgentViewModel(application: Application) :
 
     /** When a server is discovered via UDP, adds it to the current list of discovered servers. */
     override suspend fun onDiscovered(server: Server) {
-        val servers = discoveredServers.value.toMutableList()
-        servers.add(server)
-        discoveredServers.value = servers
+        discoveredServers.value += server
     }
 
     /** Called when the UDP server discovery requester is finished listening. */

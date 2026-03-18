@@ -806,17 +806,21 @@ class MainActivity : AppCompatActivity() {
 
         collectLatestWhileStarted(viewModel.connectedUrl) { newUrl ->
             if (newUrl.isNotBlank()) {
-                userSettings.updateData {
-                    val serversList = it.recentServersList.toMutableList()
-                    serversList.remove(newUrl)
-                    serversList.add(0, newUrl)
+                userSettings.updateData { settings ->
+                    val oldList = settings.recentServersList
+                    val newList =
+                        buildList(oldList.size + 1) {
+                            addAll(oldList)
+                            remove(newUrl)
+                            add(0, newUrl)
+                        }
 
-                    it.copy {
+                    settings.copy {
                         recentServers.clear()
 
                         recentServers +=
-                            if (recentAddressLimitEnabled) serversList.take(recentAddressLimit)
-                            else serversList
+                            if (recentAddressLimitEnabled) newList.take(recentAddressLimit)
+                            else newList
                     }
                 }
             }

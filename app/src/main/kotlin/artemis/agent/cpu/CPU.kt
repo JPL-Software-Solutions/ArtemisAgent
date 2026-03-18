@@ -395,9 +395,7 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
             val npc = ally.obj
             npc.name.value?.also(viewModel.allyShipIndex::remove)
 
-            val destroyedAllyList = viewModel.destroyedAllies.value.toMutableList()
-            destroyedAllyList.add(ally.fullName)
-            viewModel.destroyedAllies.value = destroyedAllyList
+            viewModel.destroyedAllies.value += ally.fullName
 
             if (viewModel.focusedAlly.value == ally) {
                 viewModel.focusedAlly.value = null
