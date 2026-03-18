@@ -147,10 +147,9 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
     private inner class HelpTopicsAdapter : RecyclerView.Adapter<HelpTopicsViewHolder>() {
         private val contents: List<ViewProvider>
-            get() =
-                currentHelpTopicIndex.let {
-                    if (it == MENU) helpTopics else helpTopics[it].contents
-                }
+            get() = currentHelpTopicIndex.let {
+                if (it == MENU) helpTopics else helpTopics[it].contents
+            }
 
         override fun getItemCount(): Int = contents.size
 

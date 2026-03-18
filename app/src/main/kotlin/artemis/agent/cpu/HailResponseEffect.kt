@@ -49,8 +49,9 @@ enum class HailResponseEffect(private val prefix: String) {
     OTHER("") {
         private val antiprefixes = arrayOf("We appreciate your help. ", "We're heading to the stat")
 
-        override fun appliesTo(response: String): Boolean =
-            antiprefixes.none { response.startsWith(it) }
+        override fun appliesTo(response: String): Boolean = antiprefixes.none {
+            response.startsWith(it)
+        }
 
         override fun getAllyStatus(response: String): AllyStatus = AllyStatus.NORMAL
     };

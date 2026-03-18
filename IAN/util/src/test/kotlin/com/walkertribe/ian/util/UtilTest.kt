@@ -37,10 +37,9 @@ class UtilTest :
                         tokens shouldHaveSize tokenCount
 
                         val spaceIndices = s.indices.filter { s[it] == ' ' } + listOf(s.length)
-                        val tokenLengths =
-                            spaceIndices.mapIndexed { i, index ->
-                                index - 1 - if (i == 0) -1 else spaceIndices[i - 1]
-                            }
+                        val tokenLengths = spaceIndices.mapIndexed { i, index ->
+                            index - 1 - if (i == 0) -1 else spaceIndices[i - 1]
+                        }
                         tokens.map { it.length } shouldContainExactly tokenLengths
 
                         var startIndex = 0

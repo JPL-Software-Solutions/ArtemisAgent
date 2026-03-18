@@ -32,135 +32,126 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
         val onToggle: (UserSettingsKt.Dsl.(Boolean) -> Unit)? = null,
     ) {
         CLIENT(R.string.settings_menu_client, ClientSettingsFragment::class.java) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    vesselDataLocation =
-                        UserSettings.VesselDataLocation.VESSEL_DATA_LOCATION_DEFAULT
-                    serverPort = UserSettingsSerializer.DEFAULT_SERVER_PORT
-                    showNetworkInfo = true
-                    recentAddressLimit = UserSettingsSerializer.DEFAULT_ADDRESS_LIMIT
-                    recentAddressLimitEnabled = false
-                    updateInterval = UserSettingsSerializer.DEFAULT_UPDATE_INTERVAL
-                }
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                vesselDataLocation = UserSettings.VesselDataLocation.VESSEL_DATA_LOCATION_DEFAULT
+                serverPort = UserSettingsSerializer.DEFAULT_SERVER_PORT
+                showNetworkInfo = true
+                recentAddressLimit = UserSettingsSerializer.DEFAULT_ADDRESS_LIMIT
+                recentAddressLimitEnabled = false
+                updateInterval = UserSettingsSerializer.DEFAULT_UPDATE_INTERVAL
+            }
         },
         CONNECTION(R.string.settings_menu_connection, ConnectionSettingsFragment::class.java) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    connectionTimeoutSeconds = UserSettingsSerializer.DEFAULT_CONNECTION_TIMEOUT
-                    serverTimeoutSeconds = UserSettingsSerializer.DEFAULT_HEARTBEAT_TIMEOUT
-                    scanTimeoutSeconds = UserSettingsSerializer.DEFAULT_SCAN_TIMEOUT
-                    alwaysScanPublic = false
-                }
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                connectionTimeoutSeconds = UserSettingsSerializer.DEFAULT_CONNECTION_TIMEOUT
+                serverTimeoutSeconds = UserSettingsSerializer.DEFAULT_HEARTBEAT_TIMEOUT
+                scanTimeoutSeconds = UserSettingsSerializer.DEFAULT_SCAN_TIMEOUT
+                alwaysScanPublic = false
+            }
         },
         MISSION(
             R.string.settings_menu_missions,
             MissionSettingsFragment::class.java,
             onToggle = { isChecked -> missionsEnabled = isChecked },
         ) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    displayRewardBattery = true
-                    displayRewardCoolant = true
-                    displayRewardNukes = true
-                    displayRewardProduction = true
-                    displayRewardShield = true
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                displayRewardBattery = true
+                displayRewardCoolant = true
+                displayRewardNukes = true
+                displayRewardProduction = true
+                displayRewardShield = true
 
-                    completedMissionDismissalEnabled = true
-                    completedMissionDismissalSeconds =
-                        UserSettingsSerializer.DEFAULT_AUTO_DISMISSAL_SECONDS
-                }
+                completedMissionDismissalEnabled = true
+                completedMissionDismissalSeconds =
+                    UserSettingsSerializer.DEFAULT_AUTO_DISMISSAL_SECONDS
+            }
         },
         ALLIES(
             R.string.settings_menu_allies,
             AllySettingsFragment::class.java,
             onToggle = { isChecked -> alliesEnabled = isChecked },
         ) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    allySortClassFirst = false
-                    allySortStatus = false
-                    allySortClassSecond = false
-                    allySortName = false
-                    allySortEnergyFirst = false
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                allySortClassFirst = false
+                allySortStatus = false
+                allySortClassSecond = false
+                allySortName = false
+                allySortEnergyFirst = false
 
-                    allyCommandManualReturn = false
-                    showDestroyedAllies = true
-                    allyRecapsEnabled = true
-                    allyBackEnabled = true
-                }
+                allyCommandManualReturn = false
+                showDestroyedAllies = true
+                allyRecapsEnabled = true
+                allyBackEnabled = true
+            }
         },
         ENEMIES(
             R.string.settings_menu_enemies,
             EnemySettingsFragment::class.java,
             onToggle = { isChecked -> enemiesEnabled = isChecked },
         ) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    enemySortSurrendered = false
-                    enemySortFaction = false
-                    enemySortFactionReversed = false
-                    enemySortName = false
-                    enemySortDistance = false
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                enemySortSurrendered = false
+                enemySortFaction = false
+                enemySortFactionReversed = false
+                enemySortName = false
+                enemySortDistance = false
 
-                    surrenderRange = UserSettingsSerializer.DEFAULT_SURRENDER_RANGE
-                    surrenderRangeEnabled = true
-                    surrenderBurstCount = UserSettingsSerializer.DEFAULT_SURRENDER_BURST_COUNT
-                    surrenderBurstInterval = UserSettingsSerializer.DEFAULT_SURRENDER_BURST_INTERVAL
+                surrenderRange = UserSettingsSerializer.DEFAULT_SURRENDER_RANGE
+                surrenderRangeEnabled = true
+                surrenderBurstCount = UserSettingsSerializer.DEFAULT_SURRENDER_BURST_COUNT
+                surrenderBurstInterval = UserSettingsSerializer.DEFAULT_SURRENDER_BURST_INTERVAL
 
-                    showEnemyIntel = true
-                    showTauntStatuses = true
-                    disableIneffectiveTaunts = true
-                }
+                showEnemyIntel = true
+                showTauntStatuses = true
+                disableIneffectiveTaunts = true
+            }
         },
         BIOMECHS(
             R.string.settings_menu_biomechs,
             BiomechSettingsFragment::class.java,
             onToggle = { isChecked -> biomechsEnabled = isChecked },
         ) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    biomechSortClassFirst = false
-                    biomechSortStatus = false
-                    biomechSortClassSecond = false
-                    biomechSortName = false
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                biomechSortClassFirst = false
+                biomechSortStatus = false
+                biomechSortClassSecond = false
+                biomechSortName = false
 
-                    freezeDurationSeconds = UserSettingsSerializer.DEFAULT_FREEZE_DURATION
-                }
+                freezeDurationSeconds = UserSettingsSerializer.DEFAULT_FREEZE_DURATION
+            }
         },
         ROUTING(
             R.string.settings_menu_routing,
             RoutingSettingsFragment::class.java,
             onToggle = { isChecked -> routingEnabled = isChecked },
         ) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    routeMissions = true
-                    routeNeedsDamcon = true
-                    routeNeedsEnergy = true
-                    routeHasEnergy = true
-                    routeMalfunction = true
-                    routeAmbassador = true
-                    routeHostage = true
-                    routeCommandeered = true
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                routeMissions = true
+                routeNeedsDamcon = true
+                routeNeedsEnergy = true
+                routeHasEnergy = true
+                routeMalfunction = true
+                routeAmbassador = true
+                routeHostage = true
+                routeCommandeered = true
 
-                    avoidBlackHoles = true
-                    avoidMines = true
-                    avoidTyphon = true
+                avoidBlackHoles = true
+                avoidMines = true
+                avoidTyphon = true
 
-                    blackHoleClearance = UserSettingsSerializer.DEFAULT_BLACK_HOLE_CLEARANCE
-                    mineClearance = UserSettingsSerializer.DEFAULT_MINE_CLEARANCE
-                    typhonClearance = UserSettingsSerializer.DEFAULT_TYPHON_CLEARANCE
-                }
+                blackHoleClearance = UserSettingsSerializer.DEFAULT_BLACK_HOLE_CLEARANCE
+                mineClearance = UserSettingsSerializer.DEFAULT_MINE_CLEARANCE
+                typhonClearance = UserSettingsSerializer.DEFAULT_TYPHON_CLEARANCE
+            }
         },
         PERSONAL(R.string.settings_menu_personal, PersonalSettingsFragment::class.java) {
-            override fun reset(settings: UserSettings): UserSettings =
-                settings.copy {
-                    theme = UserSettings.Theme.THEME_DEFAULT
-                    threeDigitDirections = true
-                    soundVolume = UserSettingsSerializer.DEFAULT_SOUND_VOLUME
-                    soundMuted = false
-                    hapticsEnabled = true
-                }
+            override fun reset(settings: UserSettings): UserSettings = settings.copy {
+                theme = UserSettings.Theme.THEME_DEFAULT
+                threeDigitDirections = true
+                soundVolume = UserSettingsSerializer.DEFAULT_SOUND_VOLUME
+                soundMuted = false
+                hapticsEnabled = true
+            }
         };
 
         abstract fun reset(settings: UserSettings): UserSettings

@@ -109,8 +109,9 @@ class IncentiveSettingTest :
 
                         withData(nameFn = { it.first }, "On" to true, "Off" to false) {
                             (_, isChecked) ->
-                            currentSettings =
-                                currentSettings.copy { entry.onCheckedChanged(this, isChecked) }
+                            currentSettings = currentSettings.copy {
+                                entry.onCheckedChanged(this, isChecked)
+                            }
                             entry.isChecked(currentSettings) shouldBeEqual isChecked
                         }
                     }

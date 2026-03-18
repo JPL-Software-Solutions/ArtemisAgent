@@ -792,12 +792,11 @@ class AgentViewModel(application: Application) :
         val flashTime = startTime % SECONDS_TO_MILLIS
         val flashOn = flashTime < FLASH_INTERVAL
 
-        val stationShieldPercents =
-            livingStationNameIndex.mapNotNull {
-                livingStations[it.value]?.let { station ->
-                    station to station.obj.shieldsFront.percentage
-                }
+        val stationShieldPercents = livingStationNameIndex.mapNotNull {
+            livingStations[it.value]?.let { station ->
+                station to station.obj.shieldsFront.percentage
             }
+        }
         val stationMinimumShieldPercent =
             stationShieldPercents
                 .takeIf { flashOn }
@@ -873,74 +872,71 @@ class AgentViewModel(application: Application) :
         )
 
         gamePages.value = pagesWithFlash
-        flashingStations.value =
-            stationShieldPercents.map { (station, percent) ->
-                Pair(station, flashOn && percent < 1f)
-            }
+        flashingStations.value = stationShieldPercents.map { (station, percent) ->
+            Pair(station, flashOn && percent < 1f)
+        }
         stationSelectorFlashPercent.value = stationMinimumShieldPercent
 
-        doubleAgentText.value =
-            doubleAgentSecondsLeft.let {
-                if (it < 0) "${playerShip?.doubleAgentCount?.value?.coerceAtLeast(0) ?: 0}"
-                else it.seconds.timerString(false)
-            }
+        doubleAgentText.value = doubleAgentSecondsLeft.let {
+            if (it < 0) "${playerShip?.doubleAgentCount?.value?.coerceAtLeast(0) ?: 0}"
+            else it.seconds.timerString(false)
+        }
 
         if (routingEnabled && gameIsRunning.value) {
             val objective = routeObjective.value
 
             if (!routeRunning) {
                 routeRunning = true
-                routeJob =
-                    cpu.launch {
-                        while (routeRunning) {
-                            val routeGraph =
-                                graph
-                                    ?: playerShip?.let { RoutingGraph(this@AgentViewModel, it) }
-                                    ?: continue
+                routeJob = cpu.launch {
+                    while (routeRunning) {
+                        val routeGraph =
+                            graph
+                                ?: playerShip?.let { RoutingGraph(this@AgentViewModel, it) }
+                                ?: continue
 
-                            if (graph == null) {
-                                graph = routeGraph
-                            }
-                            if (objective == RouteObjective.Tasks) {
-                                routeGraph.preprocessObjectsToAvoid()
-                                routeGraph.resetGraph()
+                        if (graph == null) {
+                            graph = routeGraph
+                        }
+                        if (objective == RouteObjective.Tasks) {
+                            routeGraph.preprocessObjectsToAvoid()
+                            routeGraph.resetGraph()
 
-                                if (routeIncludesMissions) {
-                                    missionManager.allMissions.forEach { mission ->
-                                        if (
-                                            missionManager.displayedRewards.none {
-                                                mission.rewards[it.ordinal] > 0
-                                            } ||
-                                                mission.isCompleted ||
-                                                !checkRoutePointExists(mission.destination)
-                                        ) {
+                            if (routeIncludesMissions) {
+                                missionManager.allMissions.forEach { mission ->
+                                    if (
+                                        missionManager.displayedRewards.none {
+                                            mission.rewards[it.ordinal] > 0
+                                        } ||
+                                            mission.isCompleted ||
+                                            !checkRoutePointExists(mission.destination)
+                                    ) {
+                                        return@forEach
+                                    }
+                                    if (mission.isStarted) {
+                                        if (mission.associatedShipName != playerName) {
                                             return@forEach
                                         }
-                                        if (mission.isStarted) {
-                                            if (mission.associatedShipName != playerName) {
-                                                return@forEach
-                                            }
-                                            routeGraph.addPath(mission.destination)
-                                        } else if (checkRoutePointExists(mission.source)) {
-                                            routeGraph.addPath(mission.source, mission.destination)
-                                        }
+                                        routeGraph.addPath(mission.destination)
+                                    } else if (checkRoutePointExists(mission.source)) {
+                                        routeGraph.addPath(mission.source, mission.destination)
                                     }
                                 }
-
-                                allyShips.values.forEach { ally ->
-                                    if (ally.isTrap || routeIncentives.none { it.matches(ally) })
-                                        return@forEach
-                                    routeGraph.addPath(ally)
-                                }
-
-                                routeGraph.purgePaths()
-                                routeGraph.testRoute(routeMap[objective])
-
-                                routeGraph.preprocessCosts()
-                                routeGraph.searchForRoute()?.also { routeMap[objective] = it }
                             }
+
+                            allyShips.values.forEach { ally ->
+                                if (ally.isTrap || routeIncentives.none { it.matches(ally) })
+                                    return@forEach
+                                routeGraph.addPath(ally)
+                            }
+
+                            routeGraph.purgePaths()
+                            routeGraph.testRoute(routeMap[objective])
+
+                            routeGraph.preprocessCosts()
+                            routeGraph.searchForRoute()?.also { routeMap[objective] = it }
                         }
                     }
+                }
             }
 
             calculateRoute()
@@ -954,12 +950,11 @@ class AgentViewModel(application: Application) :
         if (gameIsRunning.value) return
         gameIsRunning.value = true
         if (updateJob == null) {
-            updateJob =
-                cpu.launch {
-                    while (gameIsRunning.value) {
-                        updateObjects()
-                    }
+            updateJob = cpu.launch {
+                while (gameIsRunning.value) {
+                    updateObjects()
                 }
+            }
         }
     }
 
@@ -1042,12 +1037,11 @@ class AgentViewModel(application: Application) :
         if (packet.shipIndex == shipIndex.value) {
             val durationInMillis = (SECONDS_TO_MILLIS * packet.duration).toLong()
             damageVisJob?.cancel()
-            damageVisJob =
-                viewModelScope.launch {
-                    rootOpacity.value = DAMAGED_ALPHA
-                    delay(durationInMillis)
-                    rootOpacity.value = 1f
-                }
+            damageVisJob = viewModelScope.launch {
+                rootOpacity.value = DAMAGED_ALPHA
+                delay(durationInMillis)
+                rootOpacity.value = 1f
+            }
         }
     }
 
@@ -1183,65 +1177,64 @@ class AgentViewModel(application: Application) :
         }
     }
 
-    fun revertSettings(settings: UserSettings): UserSettings =
-        settings.copy {
-            vesselDataLocationValue = vesselDataManager.index
-            serverPort = port
-            updateInterval = updateObjectsInterval
+    fun revertSettings(settings: UserSettings): UserSettings = settings.copy {
+        vesselDataLocationValue = vesselDataManager.index
+        serverPort = port
+        updateInterval = updateObjectsInterval
 
-            connectionTimeoutSeconds = connectTimeout
-            scanTimeoutSeconds = scanTimeout
-            serverTimeoutSeconds = heartbeatTimeout
+        connectionTimeoutSeconds = connectTimeout
+        scanTimeoutSeconds = scanTimeout
+        serverTimeoutSeconds = heartbeatTimeout
 
-            missionManager.revertSettings(this)
+        missionManager.revertSettings(this)
 
-            alliesEnabled = this@AgentViewModel.alliesEnabled
-            allySortClassFirst = allySorter.sortByClassFirst
-            allySortEnergyFirst = allySorter.sortByEnergy
-            allySortStatus = allySorter.sortByStatus
-            allySortClassSecond = allySorter.sortByClassSecond
-            allySortName = allySorter.sortByName
-            showDestroyedAllies = showAllySelector
-            allyCommandManualReturn = manuallyReturnFromCommands
-            allyRecapsEnabled = recapsEnabled
-            allyBackEnabled = this@AgentViewModel.allyBackEnabled
+        alliesEnabled = this@AgentViewModel.alliesEnabled
+        allySortClassFirst = allySorter.sortByClassFirst
+        allySortEnergyFirst = allySorter.sortByEnergy
+        allySortStatus = allySorter.sortByStatus
+        allySortClassSecond = allySorter.sortByClassSecond
+        allySortName = allySorter.sortByName
+        showDestroyedAllies = showAllySelector
+        allyCommandManualReturn = manuallyReturnFromCommands
+        allyRecapsEnabled = recapsEnabled
+        allyBackEnabled = this@AgentViewModel.allyBackEnabled
 
-            biomechManager.revertSettings(this)
+        biomechManager.revertSettings(this)
 
-            routingEnabled = this@AgentViewModel.routingEnabled
-            routeMissions = routeIncludesMissions
+        routingEnabled = this@AgentViewModel.routingEnabled
+        routeMissions = routeIncludesMissions
 
-            enemiesManager.revertSettings(this)
+        enemiesManager.revertSettings(this)
 
-            val incentiveSettings =
-                mapOf(
-                    RouteTaskIncentive.NEEDS_ENERGY to this::routeNeedsEnergy,
-                    RouteTaskIncentive.NEEDS_DAMCON to this::routeNeedsDamcon,
-                    RouteTaskIncentive.RESET_COMPUTER to this::routeMalfunction,
-                    RouteTaskIncentive.AMBASSADOR_PICKUP to this::routeAmbassador,
-                    RouteTaskIncentive.HOSTAGE to this::routeHostage,
-                    RouteTaskIncentive.COMMANDEERED to this::routeCommandeered,
-                    RouteTaskIncentive.HAS_ENERGY to this::routeHasEnergy,
-                )
-            incentiveSettings.values.forEach { it.set(false) }
-            routeIncentives.forEach { incentiveSettings[it]?.set(true) }
+        val incentiveSettings =
+            mapOf(
+                RouteTaskIncentive.NEEDS_ENERGY to this::routeNeedsEnergy,
+                RouteTaskIncentive.NEEDS_DAMCON to this::routeNeedsDamcon,
+                RouteTaskIncentive.RESET_COMPUTER to this::routeMalfunction,
+                RouteTaskIncentive.AMBASSADOR_PICKUP to this::routeAmbassador,
+                RouteTaskIncentive.HOSTAGE to this::routeHostage,
+                RouteTaskIncentive.COMMANDEERED to this::routeCommandeered,
+                RouteTaskIncentive.HAS_ENERGY to this::routeHasEnergy,
+            )
+        incentiveSettings.values.forEach { it.set(false) }
+        routeIncentives.forEach { incentiveSettings[it]?.set(true) }
 
-            avoidBlackHoles = this@AgentViewModel.avoidBlackHoles
-            avoidMines = this@AgentViewModel.avoidMines
-            avoidTyphon = this@AgentViewModel.avoidTyphons
+        avoidBlackHoles = this@AgentViewModel.avoidBlackHoles
+        avoidMines = this@AgentViewModel.avoidMines
+        avoidTyphon = this@AgentViewModel.avoidTyphons
 
-            blackHoleClearance = this@AgentViewModel.blackHoleClearance
-            mineClearance = this@AgentViewModel.mineClearance
-            typhonClearance = this@AgentViewModel.typhonClearance
+        blackHoleClearance = this@AgentViewModel.blackHoleClearance
+        mineClearance = this@AgentViewModel.mineClearance
+        typhonClearance = this@AgentViewModel.typhonClearance
 
-            threeDigitDirections = this@AgentViewModel.threeDigitDirections
-            soundVolume = (volume * VOLUME_SCALE).toInt()
-            soundMuted = this@AgentViewModel.soundsMuted
-            themeValue = ALL_THEMES.indexOf(themeRes)
-            showNetworkInfo = showingNetworkInfo
-            alwaysScanPublic = alwaysScanPublicBroadcasts
-            hapticsEnabled = this@AgentViewModel.hapticsEnabled
-        }
+        threeDigitDirections = this@AgentViewModel.threeDigitDirections
+        soundVolume = (volume * VOLUME_SCALE).toInt()
+        soundMuted = this@AgentViewModel.soundsMuted
+        themeValue = ALL_THEMES.indexOf(themeRes)
+        showNetworkInfo = showingNetworkInfo
+        alwaysScanPublic = alwaysScanPublicBroadcasts
+        hapticsEnabled = this@AgentViewModel.hapticsEnabled
+    }
 
     companion object {
         private const val DEFAULT_PORT = 2010
