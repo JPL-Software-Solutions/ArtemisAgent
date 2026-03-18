@@ -22,7 +22,6 @@ import com.walkertribe.ian.world.ArtemisNpc
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -76,47 +75,43 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
 
     private fun onStationDelete(id: Int) {
         with(viewModel) {
-            livingEnemyStations.also { enemyStations ->
-                val enemyStation = enemyStations.remove(id)
-                if (enemyStation != null) {
-                    enemyStation.obj.name.value?.also {
-                        enemyStationNameIndex.remove(it)
-
-                        val destroyedStationList = destroyedStations.value.toMutableList()
-                        destroyedStationList.add(it)
-                        destroyedStations.value = destroyedStationList
-                    }
-                } else {
-                    livingStations.also { stations ->
-                        stations.remove(id)?.apply {
-                            obj.name.value?.also { name ->
-                                val replacementName =
-                                    livingStationNameIndex.run { higherKey(name) ?: lowerKey(name) }
-
-                                val destroyedStationList = destroyedStations.value.toMutableList()
-                                destroyedStationList.add(fullName)
-                                destroyedStations.value = destroyedStationList
-
-                                if (replacementName == null) {
-                                    stationsRemain.value = false
-                                } else if (stationName.value == name) {
-                                    stationName.value = replacementName
-                                }
-
-                                allyShips.values
-                                    .filter { it.destination == name }
-                                    .forEach {
-                                        it.destination = null
-                                        it.isMovingToStation = false
-                                    }
-                                livingStationFullNameIndex.remove(fullName)
-                                livingStationNameIndex.remove(name)
-                            }
-                            missionManager.purgeMissions(obj)
-                        }
-                    }
+            val enemyStation = livingEnemyStations.remove(id)
+            if (enemyStation != null) {
+                enemyStation.obj.name.value?.also { enemyStationName ->
+                    enemyStationNameIndex.remove(enemyStationName)
+                    destroyedStations.value += enemyStationName
                 }
+                return@with
             }
+
+            val allyStationEntry = livingStations.remove(id) ?: return@with
+
+            val station = allyStationEntry.obj
+            station.name.value?.also { allyStationName ->
+                val fullName = allyStationEntry.fullName
+                destroyedStations.value += fullName
+
+                val replacementName =
+                    livingStationNameIndex.run {
+                        higherKey(allyStationName) ?: lowerKey(allyStationName)
+                    }
+
+                if (replacementName == null) {
+                    stationsRemain.value = false
+                } else if (stationName.value == allyStationName) {
+                    stationName.value = replacementName
+                }
+
+                allyShips.values.forEach { ally ->
+                    if (ally.destination != allyStationName) return@forEach
+                    ally.destination = null
+                    ally.isMovingToStation = false
+                }
+
+                livingStationFullNameIndex.remove(fullName)
+                livingStationNameIndex.remove(allyStationName)
+            }
+            missionManager.purgeMissions(station)
         }
     }
 
