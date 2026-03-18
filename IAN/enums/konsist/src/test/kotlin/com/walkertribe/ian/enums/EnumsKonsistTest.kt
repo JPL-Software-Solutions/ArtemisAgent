@@ -82,12 +82,11 @@ class EnumsKonsistTest :
         describe("All inheritors of interfaces are in enums package") {
             withData(nameFn = { it.name }, interfaces) { int ->
                 val members = enumsScope.classes() + enumsScope.interfaces() + enumsScope.objects()
-                val inheritors =
-                    members.withParentInterface { parent ->
-                        parent.hasSourceDeclaration {
-                            it.asInterfaceDeclaration()?.fullyQualifiedName == "$enums.${int.name}"
-                        }
+                val inheritors = members.withParentInterface { parent ->
+                    parent.hasSourceDeclaration {
+                        it.asInterfaceDeclaration()?.fullyQualifiedName == "$enums.${int.name}"
                     }
+                }
                 withData(nameFn = { it.name }, inheritors) { cls ->
                     cls.assertTrue { it.resideInPackage(enums) }
                 }

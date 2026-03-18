@@ -283,10 +283,9 @@ class PositionTest :
                 val expectedHeadingToInt = (expectedHeading * 2f).roundToInt()
                 headingToInt shouldBeEqual expectedHeadingToInt
 
-                val expectedReverseHeading =
-                    expectedHeadingToInt.let { heading ->
-                        heading + 360 * if (heading >= 360) -1 else 1
-                    }
+                val expectedReverseHeading = expectedHeadingToInt.let { heading ->
+                    heading + 360 * if (heading >= 360) -1 else 1
+                }
                 val reverseHeadingToInt = (obj2.headingTo(obj1) * 2f).roundToInt()
                 reverseHeadingToInt shouldBeEqual expectedReverseHeading
             }

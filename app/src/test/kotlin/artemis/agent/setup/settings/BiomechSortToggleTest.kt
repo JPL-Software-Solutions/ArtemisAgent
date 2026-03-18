@@ -126,8 +126,9 @@ class BiomechSortToggleTest :
 
                         withData(nameFn = { it.first }, "On" to true, "Off" to false) {
                             (_, isChecked) ->
-                            currentSettings =
-                                currentSettings.copy { toggle.onCheckedChanged(this, isChecked) }
+                            currentSettings = currentSettings.copy {
+                                toggle.onCheckedChanged(this, isChecked)
+                            }
                             testFn(currentSettings, isChecked)
                         }
                     }

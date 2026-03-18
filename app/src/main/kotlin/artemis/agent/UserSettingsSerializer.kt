@@ -149,11 +149,10 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
 
         final override suspend fun migrate(
             currentData: UserSettingsOuterClass.UserSettings
-        ): UserSettingsOuterClass.UserSettings =
-            currentData.copy {
-                this.version = this@Migration.version
-                execute(this)
-            }
+        ): UserSettingsOuterClass.UserSettings = currentData.copy {
+            this.version = this@Migration.version
+            execute(this)
+        }
 
         final override suspend fun cleanUp() {
             // Nothing to clean up

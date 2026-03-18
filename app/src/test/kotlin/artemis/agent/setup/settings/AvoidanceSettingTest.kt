@@ -112,8 +112,9 @@ class AvoidanceSettingTest :
 
                         withData(nameFn = { it.first }, "On" to true, "Off" to false) {
                             (_, isChecked) ->
-                            currentSettings =
-                                currentSettings.copy { entry.setEnabled(this, isChecked) }
+                            currentSettings = currentSettings.copy {
+                                entry.setEnabled(this, isChecked)
+                            }
                             entry.isEnabled(currentSettings) shouldBeEqual isChecked
                         }
                     }

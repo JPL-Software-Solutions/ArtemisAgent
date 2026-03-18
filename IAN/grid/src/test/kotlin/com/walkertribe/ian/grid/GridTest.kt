@@ -74,12 +74,11 @@ class GridTest :
 
             describe("Functions") {
                 val systems = ShipSystem.entries.take(3)
-                val nodes =
-                    systems.flatMap { system ->
-                        List(5) { x ->
-                            Node(Coordinate(x.toByte(), 0, system.ordinal.toByte()), system)
-                        }
+                val nodes = systems.flatMap { system ->
+                    List(5) { x ->
+                        Node(Coordinate(x.toByte(), 0, system.ordinal.toByte()), system)
                     }
+                }
                 val grid = Grid(nodes)
 
                 describe("Get by coordinate") {

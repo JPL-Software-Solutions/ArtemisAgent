@@ -249,16 +249,15 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
             SELECTOR_COLORS.find { percent >= it.first }
                 ?.let { ContextCompat.getColor(context, it.second) } ?: Color.TRANSPARENT,
         )
-        stationSelectorButton.background =
-            selectorBackground?.let { drawable ->
-                InsetDrawable(
-                    drawable,
-                    context.resources.getDimensionPixelSize(R.dimen.horizontalInset),
-                    context.resources.getDimensionPixelSize(R.dimen.verticalInset),
-                    context.resources.getDimensionPixelSize(R.dimen.horizontalInset),
-                    context.resources.getDimensionPixelSize(R.dimen.verticalInset),
-                )
-            }
+        stationSelectorButton.background = selectorBackground?.let { drawable ->
+            InsetDrawable(
+                drawable,
+                context.resources.getDimensionPixelSize(R.dimen.horizontalInset),
+                context.resources.getDimensionPixelSize(R.dimen.verticalInset),
+                context.resources.getDimensionPixelSize(R.dimen.horizontalInset),
+                context.resources.getDimensionPixelSize(R.dimen.verticalInset),
+            )
+        }
         stationSelectorButton.text = entry.fullName
     }
 

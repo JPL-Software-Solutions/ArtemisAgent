@@ -13,9 +13,8 @@ import com.walkertribe.ian.protocol.PacketType
 @PacketType(type = CorePacketType.START_GAME)
 class GameStartPacket(reader: PacketReader) : Packet.Server(reader) {
     /** What type of simulation is running (siege, single front, etc.) */
-    val gameType: GameType =
-        reader.run {
-            skip(Int.SIZE_BYTES)
-            readIntAsEnum()
-        }
+    val gameType: GameType = reader.run {
+        skip(Int.SIZE_BYTES)
+        readIntAsEnum()
+    }
 }

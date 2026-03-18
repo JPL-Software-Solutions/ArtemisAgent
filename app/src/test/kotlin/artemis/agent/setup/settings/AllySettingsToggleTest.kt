@@ -179,8 +179,9 @@ class AllySettingsToggleTest :
                         if (toggle.isChecked(initialSettings)) changes = changes.reversed()
 
                         withData(nameFn = { it.first }, changes) { (_, isChecked) ->
-                            currentSettings =
-                                currentSettings.copy { toggle.onCheckedChanged(this, isChecked) }
+                            currentSettings = currentSettings.copy {
+                                toggle.onCheckedChanged(this, isChecked)
+                            }
                             testFn(currentSettings, isChecked)
                         }
                     }

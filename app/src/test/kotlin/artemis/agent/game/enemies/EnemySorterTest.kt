@@ -29,16 +29,15 @@ class EnemySorterTest :
 
             val vesselData = VesselData.load(FilePathResolver(tmpDir.toOkioPath()))
 
-            val entries =
-                data.map { entry ->
-                    val faction = vesselData.getFaction(entry.hullId)!!
-                    val vessel = vesselData[entry.hullId]!!
-                    val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
-                    EnemyEntry(enemy, vessel, faction, vesselData).also {
-                        it.range = entry.distance
-                        entry.status.applyTo(it)
-                    }
+            val entries = data.map { entry ->
+                val faction = vesselData.getFaction(entry.hullId)!!
+                val vessel = vesselData[entry.hullId]!!
+                val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
+                EnemyEntry(enemy, vessel, faction, vesselData).also {
+                    it.range = entry.distance
+                    entry.status.applyTo(it)
                 }
+            }
 
             sortingTests.forEach { sortingTest ->
                 describe(sortingTest.dataTestName()) {

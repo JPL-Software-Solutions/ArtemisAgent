@@ -91,10 +91,9 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
                 val fullName = allyStationEntry.fullName
                 destroyedStations.value += fullName
 
-                val replacementName =
-                    livingStationNameIndex.run {
-                        higherKey(allyStationName) ?: lowerKey(allyStationName)
-                    }
+                val replacementName = livingStationNameIndex.run {
+                    higherKey(allyStationName) ?: lowerKey(allyStationName)
+                }
 
                 if (replacementName == null) {
                     stationsRemain.value = false
@@ -405,38 +404,34 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
             npc
         }
 
-    private fun onNpcCreate(npc: ArtemisNpc): Boolean =
-        viewModel.run {
-            val vessel = npc.getVessel(vesselData) ?: return@run false
-            vessel.getFaction(vesselData)?.also { faction ->
-                when {
-                    faction[Faction.FRIENDLY] ->
-                        npc.name.value?.also {
-                            if (allyShips.isEmpty()) {
-                                alliesExist = true
-                            }
-                            allyShipIndex[it] = npc.id
-                            allyShips[npc.id] = ObjectEntry.Ally(npc, vesselData, isDeepStrike)
-                            sendToServer(CommsOutgoingPacket(npc, OtherMessage.Hail, vesselData))
+    private fun onNpcCreate(npc: ArtemisNpc): Boolean = viewModel.run {
+        val vessel = npc.getVessel(vesselData) ?: return@run false
+        vessel.getFaction(vesselData)?.also { faction ->
+            when {
+                faction[Faction.FRIENDLY] ->
+                    npc.name.value?.also {
+                        if (allyShips.isEmpty()) {
+                            alliesExist = true
                         }
-                    faction[Faction.BIOMECH] -> {
-                        biomechManager.confirmed = true
-                        if (playerShip?.let { npc.hasBeenScannedBy(it).booleanValue } == true) {
-                            biomechManager.scanned.add(BiomechEntry(npc))
-                        } else {
-                            biomechManager.unscanned[npc.id] = npc
-                        }
+                        allyShipIndex[it] = npc.id
+                        allyShips[npc.id] = ObjectEntry.Ally(npc, vesselData, isDeepStrike)
+                        sendToServer(CommsOutgoingPacket(npc, OtherMessage.Hail, vesselData))
                     }
-                    faction[Faction.ENEMY] ->
-                        npc.name.value?.also { name ->
-                            enemiesManager.addEnemy(
-                                EnemyEntry(npc, vessel, faction, vesselData),
-                                name,
-                            )
-                        }
+                faction[Faction.BIOMECH] -> {
+                    biomechManager.confirmed = true
+                    if (playerShip?.let { npc.hasBeenScannedBy(it).booleanValue } == true) {
+                        biomechManager.scanned.add(BiomechEntry(npc))
+                    } else {
+                        biomechManager.unscanned[npc.id] = npc
+                    }
                 }
-            } != null
-        }
+                faction[Faction.ENEMY] ->
+                    npc.name.value?.also { name ->
+                        enemiesManager.addEnemy(EnemyEntry(npc, vessel, faction, vesselData), name)
+                    }
+            }
+        } != null
+    }
 
     @Listener
     fun onMineUpdate(mine: ArtemisMine) {
