@@ -64,7 +64,7 @@ internal class RoutingGraph(
     fun addPath(src: ObjectEntry<*>, dst: ObjectEntry<*>? = null) {
         // Get the current set of waypoints over which the first waypoint has precedence
         // If it wasn't registered, do so and increment the size counter
-        val targets = paths.getOrPut(src) { CopyOnWriteArraySet<ObjectEntry<*>>() }
+        val targets = paths.getOrPut(src) { CopyOnWriteArraySet() }
 
         // If there's a second waypoint, add it to the aforementioned set
         dst?.also(targets::add)
