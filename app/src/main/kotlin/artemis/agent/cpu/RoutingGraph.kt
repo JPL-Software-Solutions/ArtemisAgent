@@ -153,14 +153,16 @@ internal class RoutingGraph(
      * player ship to each individual waypoint.
      */
     fun preprocessCosts() {
-        // Get every waypoint to eventually visit, including those preceded by others
-        val allTargets =
-            paths.values
-                .fold(paths.keys) { acc, targets -> acc.union(targets).toMutableSet() }
-                .toList()
-
         costs.clear()
         if (!source.hasPosition) return
+
+        // Get every waypoint to eventually visit, including those preceded by others
+        val allTargets =
+            buildSet(paths.size * 2) {
+                    addAll(paths.keys)
+                    paths.values.forEach(::addAll)
+                }
+                .toList()
 
         allTargets.forEachIndexed { i, src ->
             val srcObj = src.obj
