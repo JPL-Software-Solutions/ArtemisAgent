@@ -38,44 +38,39 @@ class ResourceReaderTest :
                 }
             }
 
+            fun testRequirement(expectedMessage: String, block: () -> Any?) {
+                val ex = shouldThrow<IllegalArgumentException> { block() }
+                ex.message.shouldNotBeNull() shouldBeEqual expectedMessage
+            }
+
             describe("Base directory requirements") {
                 it("Throws if not a directory") {
-                    val ex =
-                        shouldThrow<IllegalArgumentException> {
-                            FileSystemResourceReader(tmpFile.toOkioPath())
-                        }
-                    ex.message.shouldNotBeNull() shouldBeEqual "Not a directory"
+                    testRequirement("Not a directory") {
+                        FileSystemResourceReader(tmpFile.toOkioPath())
+                    }
                 }
 
                 it("Throws if directory does not exist") {
-                    val ex =
-                        shouldThrow<IllegalArgumentException> {
-                            FileSystemResourceReader(tmpDirPath / "bar")
-                        }
-                    ex.message.shouldNotBeNull() shouldBeEqual "Directory does not exist"
+                    testRequirement("Directory does not exist") {
+                        FileSystemResourceReader(tmpDirPath / "bar")
+                    }
                 }
             }
 
             describe("Path requirements") {
                 it("Throws if absolute") {
-                    val ex =
-                        shouldThrow<IllegalArgumentException> {
-                            reader.read(tmpDirPath / "foo") { readUtf8() }
-                        }
-                    ex.message.shouldNotBeNull() shouldBeEqual
-                        "Path must be relative to base directory"
+                    testRequirement("Path must be relative to base directory") {
+                        reader.read(tmpDirPath / "foo") { readUtf8() }
+                    }
                 }
 
                 it("Throws if traversing parent directories") {
                     val parentPath = "..".toPath()
 
                     listOf(parentPath, parentPath / "foo").forEach { path ->
-                        val ex =
-                            shouldThrow<IllegalArgumentException> {
-                                reader.read(path) { readUtf8() }
-                            }
-                        ex.message.shouldNotBeNull() shouldBeEqual
-                            "Path must not traverse parent directories"
+                        testRequirement("Path must not traverse parent directories") {
+                            reader.read(path) { readUtf8() }
+                        }
                     }
                 }
             }
