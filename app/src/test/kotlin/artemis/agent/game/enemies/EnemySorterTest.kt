@@ -42,11 +42,10 @@ class EnemySorterTest :
             sortingTests.forEach { sortingTest ->
                 describe(sortingTest.dataTestName()) {
                     val sorter = sortingTest.toSorter()
-                    lateinit var actualSort: List<EnemyEntry>
+                    val actualSort by lazy { entries.sortedWith(sorter) }
 
                     it("Sorted correctly") {
                         val expectedSort = sortingTest.sortedIndices.map { entries[it] }
-                        actualSort = entries.sortedWith(sorter)
                         actualSort shouldContainExactly expectedSort
                     }
 
