@@ -117,7 +117,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
             if (contents.isEmpty()) {
                 val textArray = res.getStringArray(paragraphs)
                 contents =
-                    buildList(textArray.size) {
+                    buildList(textArray.size + MAX_IMAGE_CAPACITY) {
                         for (text in textArray) {
                             add(HelpTopicContent.Text(text))
                         }
@@ -147,8 +147,9 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
     private inner class HelpTopicsAdapter : RecyclerView.Adapter<HelpTopicsViewHolder>() {
         private val contents: List<ViewProvider>
-            get() = currentHelpTopicIndex.let {
-                if (it == MENU) helpTopics else helpTopics[it].contents
+            get() {
+                val index = currentHelpTopicIndex
+                return if (index == MENU) helpTopics else helpTopics[index].contents
             }
 
         override fun getItemCount(): Int = contents.size
@@ -277,6 +278,8 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
         private const val INDEX_PREVIEW_ENEMY = 1
         private const val INDEX_PREVIEW_INTEL = 3
+
+        private const val MAX_IMAGE_CAPACITY = 3
 
         private fun MutableList<HelpTopicContent>.addImages(vararg entries: Pair<Int, Int>) {
             entries.forEach { (index, entry) -> add(index, HelpTopicContent.Image(entry)) }
