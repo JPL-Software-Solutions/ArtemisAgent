@@ -21,9 +21,9 @@ class ListenerRegistryTest :
         }
 
         describe("ListenerRegistry") {
-            val registry by lazy { ListenerRegistry() }
+            val registry: ListenerRegistry by lazy { ListenerRegistry() }
 
-            it("Can create") { registry.shouldBeInstanceOf() }
+            it("Can create") { registry.shouldBeInstanceOf<ListenerRegistry>() }
 
             it("Starts with no listener functions") {
                 registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
