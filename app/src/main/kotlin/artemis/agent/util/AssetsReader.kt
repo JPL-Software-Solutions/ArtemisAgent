@@ -1,7 +1,7 @@
 package artemis.agent.util
 
 import android.content.res.AssetManager
-import com.walkertribe.ian.util.PathResolver
+import com.walkertribe.ian.util.ResourceReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -9,7 +9,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.assetfilesystem.asFileSystem
 
-class AssetsResolver(manager: AssetManager) : PathResolver {
+class AssetsReader(manager: AssetManager) : ResourceReader {
     override val fileSystem = manager.asFileSystem()
     override val baseDirectory: Path = ROOT
 
@@ -17,10 +17,10 @@ class AssetsResolver(manager: AssetManager) : PathResolver {
         try {
             if (!datDir.exists()) datDir.mkdirs()
 
-            fileSystem.list(PathResolver.DAT).forEach {
+            fileSystem.list(ResourceReader.DAT).forEach {
                 val outFile = File(datDir, it.name)
                 if (outFile.exists()) return@forEach
-                fileSystem.read(PathResolver.DAT / it) {
+                fileSystem.read(ResourceReader.DAT / it) {
                     FileOutputStream(outFile).use { outStream -> outStream.write(readByteArray()) }
                 }
             }

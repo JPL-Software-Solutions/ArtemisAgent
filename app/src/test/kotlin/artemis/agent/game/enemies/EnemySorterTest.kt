@@ -1,6 +1,6 @@
 package artemis.agent.game.enemies
 
-import com.walkertribe.ian.util.FilePathResolver
+import com.walkertribe.ian.util.FileSystemResourceReader
 import com.walkertribe.ian.vesseldata.VesselData
 import com.walkertribe.ian.world.ArtemisNpc
 import io.kotest.core.spec.style.DescribeSpec
@@ -27,7 +27,7 @@ class EnemySorterTest :
             val datFile = File(datDir, "vesselData.xml")
             datFile.writeText(EnemySorter::class.java.getResource("vesselData.xml")!!.readText())
 
-            val vesselData = VesselData.load(FilePathResolver(tmpDir.toOkioPath()))
+            val vesselData = VesselData.load(FileSystemResourceReader(tmpDir.toOkioPath()))
 
             val entries = data.map { entry ->
                 val faction = vesselData.getFaction(entry.hullId)!!

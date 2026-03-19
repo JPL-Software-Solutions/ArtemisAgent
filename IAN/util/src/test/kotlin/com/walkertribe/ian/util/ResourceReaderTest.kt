@@ -13,34 +13,40 @@ import okio.IOException
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 
-class PathResolverTest :
+class ResourceReaderTest :
     DescribeSpec({
         val tmpFile = tempfile()
         val tmpDir = tempdir()
         val tmpDirPath = tmpDir.toOkioPath()
 
-        describe("PathResolver") { it("Path dat/") { PathResolver.DAT.name shouldBeEqual "dat" } }
+        describe("ResourceReader") {
+            it("Path dat/") { ResourceReader.DAT.name shouldBeEqual "dat" }
+        }
 
-        describe("FilePathResolver") {
-            it("Can create") { FilePathResolver(tmpDirPath) }
+        describe("FileSystemResourceReader") {
+            it("Can create") { FileSystemResourceReader(tmpDirPath) }
 
             it("Can create input stream from file") {
                 File(tmpDir, "foo").createNewFile()
-                val pathResolver = FilePathResolver(tmpDirPath)
+                val reader = FileSystemResourceReader(tmpDirPath)
                 shouldNotThrow<IOException> {
-                    pathResolver
-                        .resolve("foo".toPath()) { readUtf8() }
+                    reader
+                        .read("foo".toPath()) { readUtf8() }
                         .shouldNotBeNull()
                         .shouldBeInstanceOf<String>()
                 }
             }
 
             it("Throws if parent file is not a directory") {
-                shouldThrow<IllegalArgumentException> { FilePathResolver(tmpFile.toOkioPath()) }
+                shouldThrow<IllegalArgumentException> {
+                    FileSystemResourceReader(tmpFile.toOkioPath())
+                }
             }
 
             it("Throws if directory does not exist") {
-                shouldThrow<IllegalArgumentException> { FilePathResolver(tmpDirPath / "bar") }
+                shouldThrow<IllegalArgumentException> {
+                    FileSystemResourceReader(tmpDirPath / "bar")
+                }
             }
         }
     })

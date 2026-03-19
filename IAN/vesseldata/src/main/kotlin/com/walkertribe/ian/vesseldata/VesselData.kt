@@ -1,8 +1,8 @@
 package com.walkertribe.ian.vesseldata
 
 import com.walkertribe.ian.grid.Grid
-import com.walkertribe.ian.util.PathResolver
-import com.walkertribe.ian.util.resolve
+import com.walkertribe.ian.util.ResourceReader
+import com.walkertribe.ian.util.read
 import korlibs.io.serialization.xml.Xml
 import okio.IOException
 
@@ -31,13 +31,13 @@ sealed interface VesselData {
 
         internal constructor(
             xml: Xml,
-            pathResolver: PathResolver,
+            reader: ResourceReader,
         ) : this(
             factions = xml["hullRace"].map(::Faction),
             vessels =
                 xml["vessel"].map { xml ->
                     val vessel = Vessel(xml)
-                    vessel to vessel.internalsFilePath?.let { Grid(pathResolver, it) }
+                    vessel to vessel.internalsFilePath?.let { Grid(reader, it) }
                 },
         )
 
@@ -76,10 +76,10 @@ sealed interface VesselData {
     fun getGrid(hullId: Int): Grid?
 
     companion object {
-        fun load(pathResolver: PathResolver): VesselData =
+        fun load(reader: ResourceReader): VesselData =
             try {
-                pathResolver.resolve(PathResolver.DAT / "vesselData.xml") {
-                    Loaded(Xml(readUtf8()), pathResolver)
+                reader.read(ResourceReader.DAT / "vesselData.xml") {
+                    Loaded(Xml(readUtf8()), reader)
                 }
             } catch (ex: IllegalArgumentException) {
                 Error(ex.message)

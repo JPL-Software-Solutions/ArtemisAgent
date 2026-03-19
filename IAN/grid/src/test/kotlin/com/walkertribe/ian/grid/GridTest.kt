@@ -1,7 +1,7 @@
 package com.walkertribe.ian.grid
 
 import com.walkertribe.ian.enums.ShipSystem
-import com.walkertribe.ian.util.FilePathResolver
+import com.walkertribe.ian.util.FileSystemResourceReader
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldHaveSize
@@ -61,12 +61,12 @@ class GridTest :
                             }
                         }
 
-                        val grid = Grid(FilePathResolver(tmpDirPath), sntFileName)
+                        val grid = Grid(FileSystemResourceReader(tmpDirPath), sntFileName)
                         grid.nodeMap shouldHaveSize systems.filterNotNull().size
                     }
 
                     it("Empty if file not found") {
-                        val grid = Grid(FilePathResolver(tmpDirPath), "empty.snt")
+                        val grid = Grid(FileSystemResourceReader(tmpDirPath), "empty.snt")
                         grid.nodeMap.shouldBeEmpty()
                     }
                 }

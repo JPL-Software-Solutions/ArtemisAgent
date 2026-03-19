@@ -12,7 +12,7 @@ import com.walkertribe.ian.iface.ParseResult
 import com.walkertribe.ian.protocol.core.PacketTestFixture.Companion.writePacketWithHeader
 import com.walkertribe.ian.protocol.core.world.IntelPacket
 import com.walkertribe.ian.protocol.core.world.IntelPacketFixture
-import com.walkertribe.ian.util.FilePathResolver
+import com.walkertribe.ian.util.FileSystemResourceReader
 import com.walkertribe.ian.vesseldata.Taunt
 import com.walkertribe.ian.vesseldata.VesselData
 import com.walkertribe.ian.world.ArtemisNpc
@@ -52,7 +52,7 @@ class EnemiesManagerTest :
             val datFile = File(datDir, "vesselData.xml")
             datFile.writeText(EnemyEntry::class.java.getResource("vesselData.xml")!!.readText())
 
-            val vesselData = VesselData.load(FilePathResolver(tmpDir.toOkioPath()))
+            val vesselData = VesselData.load(FileSystemResourceReader(tmpDir.toOkioPath()))
             val faction = vesselData.getFaction(1)!!
             val vessel = vesselData[1]!!
             val enemy = EnemyEntry(ArtemisNpc(0, 0L), vessel, faction, vesselData)
