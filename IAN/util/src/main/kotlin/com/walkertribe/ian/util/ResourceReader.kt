@@ -30,5 +30,10 @@ interface ResourceReader {
 
 /** Reads data from the given path. */
 @Throws(IOException::class)
-inline fun <T> ResourceReader.read(path: Path, readerAction: BufferedSource.() -> T): T =
-    fileSystem.read(baseDirectory / path, readerAction)
+inline fun <T> ResourceReader.read(path: Path, readerAction: BufferedSource.() -> T): T {
+    val normalizedPath = path.normalized()
+    require(normalizedPath.isRelative) { "Path must be relative to base directory" }
+    require(".." !in normalizedPath.segments) { "Path must not traverse parent directories" }
+
+    return fileSystem.read(baseDirectory / normalizedPath, readerAction)
+}
