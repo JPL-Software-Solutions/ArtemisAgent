@@ -3,6 +3,7 @@ package artemis.agent.util
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.walkertribe.ian.util.resolve
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.junit.Assert
@@ -14,7 +15,9 @@ import org.junit.runner.RunWith
 class AssetsResolverTest {
     @Test
     fun readTest() {
-        resolver("dat".toPath() / "test.txt") { Assert.assertEquals("TEST", readUtf8Line()) }
+        resolver.resolve("dat".toPath() / "test.txt") {
+            Assert.assertEquals("TEST", readUtf8Line())
+        }
     }
 
     @Test

@@ -5,15 +5,13 @@ import com.walkertribe.ian.util.PathResolver
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import okio.BufferedSource
 import okio.Path
+import okio.Path.Companion.toPath
 import okio.assetfilesystem.asFileSystem
 
 class AssetsResolver(manager: AssetManager) : PathResolver {
-    private val fileSystem = manager.asFileSystem()
-
-    override fun <T> invoke(path: Path, readerAction: BufferedSource.() -> T): T =
-        fileSystem.read(path, readerAction)
+    override val fileSystem = manager.asFileSystem()
+    override val baseDirectory: Path = ROOT
 
     fun copyVesselDataTo(datDir: File): Boolean =
         try {
@@ -30,4 +28,8 @@ class AssetsResolver(manager: AssetManager) : PathResolver {
         } catch (_: IOException) {
             false
         }
+
+    private companion object {
+        val ROOT = "/".toPath()
+    }
 }

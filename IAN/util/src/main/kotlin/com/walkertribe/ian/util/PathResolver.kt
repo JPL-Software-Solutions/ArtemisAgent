@@ -1,6 +1,7 @@
 package com.walkertribe.ian.util
 
 import okio.BufferedSource
+import okio.FileSystem
 import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
@@ -13,11 +14,18 @@ import okio.Path.Companion.toPath
  * @author rjwut
  */
 interface PathResolver {
-    /** Returns an InputStream from which the data at the given path can be read. */
-    @Throws(IOException::class)
-    operator fun <T> invoke(path: Path, readerAction: BufferedSource.() -> T): T
+    /** The file system that contains the resource. */
+    val fileSystem: FileSystem
+
+    /** The base directory that contains the resource. */
+    val baseDirectory: Path
 
     companion object {
         val DAT = "dat".toPath()
     }
 }
+
+/** Returns an InputStream from which the data at the given path can be read. */
+@Throws(IOException::class)
+inline fun <T> PathResolver.resolve(path: Path, readerAction: BufferedSource.() -> T): T =
+    fileSystem.read(baseDirectory / path, readerAction)

@@ -2,6 +2,7 @@ package com.walkertribe.ian.vesseldata
 
 import com.walkertribe.ian.grid.Grid
 import com.walkertribe.ian.util.PathResolver
+import com.walkertribe.ian.util.resolve
 import korlibs.io.serialization.xml.Xml
 import okio.IOException
 
@@ -77,7 +78,7 @@ sealed interface VesselData {
     companion object {
         fun load(pathResolver: PathResolver): VesselData =
             try {
-                pathResolver(PathResolver.DAT / "vesselData.xml") {
+                pathResolver.resolve(PathResolver.DAT / "vesselData.xml") {
                     Loaded(Xml(readUtf8()), pathResolver)
                 }
             } catch (ex: IllegalArgumentException) {

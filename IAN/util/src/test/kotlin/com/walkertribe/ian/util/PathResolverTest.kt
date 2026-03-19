@@ -28,7 +28,8 @@ class PathResolverTest :
                 File(tmpDir, "foo").createNewFile()
                 val pathResolver = FilePathResolver(tmpDirPath)
                 shouldNotThrow<IOException> {
-                    pathResolver("foo".toPath()) { readUtf8() }
+                    pathResolver
+                        .resolve("foo".toPath()) { readUtf8() }
                         .shouldNotBeNull()
                         .shouldBeInstanceOf<String>()
                 }

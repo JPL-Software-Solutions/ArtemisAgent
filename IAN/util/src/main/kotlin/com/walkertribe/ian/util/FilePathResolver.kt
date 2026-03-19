@@ -1,8 +1,6 @@
 package com.walkertribe.ian.util
 
-import okio.BufferedSource
 import okio.FileSystem
-import okio.IOException
 import okio.Path
 
 /**
@@ -12,15 +10,10 @@ import okio.Path
  *
  * @author rjwut
  */
-class FilePathResolver(private val directory: Path) : PathResolver {
-    init {
+class FilePathResolver(override val baseDirectory: Path) : PathResolver {
+    override val fileSystem: FileSystem =
         FileSystem.SYSTEM.apply {
-            require(exists(directory)) { "Directory does not exist" }
-            require(metadata(directory).isDirectory) { "Not a directory" }
+            require(exists(baseDirectory)) { "Directory does not exist" }
+            require(metadata(baseDirectory).isDirectory) { "Not a directory" }
         }
-    }
-
-    @Throws(IOException::class)
-    override fun <T> invoke(path: Path, readerAction: BufferedSource.() -> T): T =
-        FileSystem.SYSTEM.read(directory / path, readerAction)
 }
