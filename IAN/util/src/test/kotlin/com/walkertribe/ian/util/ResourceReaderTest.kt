@@ -24,9 +24,9 @@ class ResourceReaderTest :
         }
 
         describe("FileSystemResourceReader") {
-            lateinit var reader: FileSystemResourceReader
+            val reader by lazy { FileSystemResourceReader(tmpDirPath) }
 
-            it("Can create") { reader = FileSystemResourceReader(tmpDirPath) }
+            it("Can create") { reader.shouldBeInstanceOf() }
 
             it("Can read from file") {
                 File(tmpDir, "foo").createNewFile()
