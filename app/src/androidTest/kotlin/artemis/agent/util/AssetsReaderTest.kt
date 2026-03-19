@@ -3,6 +3,7 @@ package artemis.agent.util
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.walkertribe.ian.util.read
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.junit.Assert
@@ -11,16 +12,16 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class AssetsResolverTest {
+class AssetsReaderTest {
     @Test
     fun readTest() {
-        resolver("dat".toPath() / "test.txt") { Assert.assertEquals("TEST", readUtf8Line()) }
+        reader.read("dat".toPath() / "test.txt") { Assert.assertEquals("TEST", readUtf8Line()) }
     }
 
     @Test
     fun copyTest() {
         val tempPath = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "dat"
-        Assert.assertTrue(resolver.copyVesselDataTo(tempPath.toFile()))
+        Assert.assertTrue(reader.copyVesselDataTo(tempPath.toFile()))
     }
 
     private companion object {
@@ -30,6 +31,6 @@ class AssetsResolverTest {
             }
         }
 
-        val resolver by lazy { AssetsResolver(context.assets) }
+        val reader by lazy { AssetsReader(context.assets) }
     }
 }
