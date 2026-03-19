@@ -335,6 +335,7 @@ ian-grid-test-fixtures = [
 
 ian-listener-test = [
     "kotest-assertions-core",
+    "kotest-assertions-shared",
     "kotest-framework-engine",
     "mockk",
     "mockk-core",
