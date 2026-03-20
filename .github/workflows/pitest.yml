@@ -3,6 +3,15 @@ name: Pitest Mutation Testing
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - .github/workflows/pitest.yml
+      - build-logic/*.gradle.kts
+      - build-logic/src/main/kotlin/artemis/agent/gradle/Helpers.kt
+      - gradle/**
+      - IAN/build.gradle.kts
+      - IAN/*/build.gradle.kts
+      - IAN/src/**/*.kt
+      - IAN/*/src/**/*.kt
 
 jobs:
   pitest:
