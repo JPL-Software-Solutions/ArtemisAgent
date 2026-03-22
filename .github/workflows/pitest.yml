@@ -75,9 +75,9 @@ jobs:
 
       - name: Check for any mutations
         id: mutations-check
-        uses: chrisreddington/validate-file-exists@ff1ba041fbaa672eeb84a53b8c33ffd381c080f2 # v0.0.10
+        uses: thebinaryfelix/check-file-existence-action@b448944daf6428c03faa9b1974bcceb03408270d # 1.0.1
         with:
-          required-files: ${{ github.workspace }}/${{ matrix.path }}/build/reports/pitest/mutations.xml
+          files: ${{ github.workspace }}/${{ matrix.path }}/build/reports/pitest/mutations.xml
 
       - name: Upload Pitest report
         if: steps.mutations-check.outputs.exists == 'true'
