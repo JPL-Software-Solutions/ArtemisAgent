@@ -77,7 +77,7 @@ jobs:
         id: mutations-check
         uses: chrisreddington/validate-file-exists@ff1ba041fbaa672eeb84a53b8c33ffd381c080f2 # v0.0.10
         with:
-          required-files: ${{ matrix.path }}/build/reports/pitest/mutations.xml
+          required-files: ${{ github.workspace }}/${{ matrix.path }}/build/reports/pitest/mutations.xml
 
       - name: Upload Pitest report
         if: steps.mutations-check.outputs.exists == 'true'
