@@ -29,5 +29,5 @@ object ConnectPageScreen : KScreen<ConnectPageScreen>() {
     private val networkTypeLabel = KTextView { withId(R.id.networkTypeLabel) }
     private val networkInfoDivider = KView { withId(R.id.networkInfoDivider) }
 
-    val infoViews by lazy { listOf(addressLabel, networkTypeLabel, networkInfoDivider) }
+    val infoViews by lazy { listOf(networkTypeLabel, networkInfoDivider, addressLabel) }
 }
