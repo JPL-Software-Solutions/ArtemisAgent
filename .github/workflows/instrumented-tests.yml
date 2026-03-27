@@ -50,7 +50,7 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Generate secret files
         run: |
@@ -64,7 +64,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Set up JDK 21
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version-file: .tool-versions
           distribution: 'temurin'
@@ -75,7 +75,7 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
 
       - name: Setup FFmpeg
         uses: AnimMouse/setup-ffmpeg@v1
@@ -84,7 +84,7 @@ jobs:
         run: chmod +x .github/workflows/instrumented-test-recording.sh
 
       - name: Run tests on API ${{ matrix.api-level }}
-        uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b # v2.35.0
+        uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.api-level >= 28 && 'playstore' || 'default' }}
@@ -95,7 +95,7 @@ jobs:
           script: .github/workflows/instrumented-test-recording.sh ${{ matrix.api-level }} ${{ matrix.orientation.rotation }}
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: always()
         with:
           name: "Instrumented Test Results (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }})"
@@ -117,12 +117,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Download Test Results
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: tests
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/linux@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
+        uses: EnricoMi/publish-unit-test-result-action/linux@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2.23.0
         with:
           check_name: Instrumented Test Results
           files: tests/**/*.xml

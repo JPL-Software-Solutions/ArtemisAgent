@@ -95,4 +95,9 @@ message UserSettings {
     bool ally_recaps_enabled = 65;
 
     int32 version = 66;
+
+    bool ally_back_enabled = 67;
+
+    int32 surrender_burst_count = 68;
+    int32 surrender_burst_interval = 69;
 }

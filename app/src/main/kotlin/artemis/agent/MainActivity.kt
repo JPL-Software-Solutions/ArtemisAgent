@@ -278,16 +278,15 @@ class MainActivity : AppCompatActivity() {
                 service.collectLatestWhileStarted(viewModel.inventory) { inv ->
                     if (!viewModel.gameIsRunning.value) return@collectLatestWhileStarted
 
-                    val strings =
-                        inv.mapIndexedNotNull { index, i ->
-                            i?.let {
-                                resources.getQuantityString(
-                                    AgentViewModel.PLURALS_FOR_INVENTORY[index],
-                                    it,
-                                    it,
-                                )
-                            }
+                    val strings = inv.mapIndexedNotNull { index, i ->
+                        i?.let {
+                            resources.getQuantityString(
+                                AgentViewModel.PLURALS_FOR_INVENTORY[index],
+                                it,
+                                it,
+                            )
                         }
+                    }
 
                     buildNotification(
                         info =
@@ -517,7 +516,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun buildNotification(
+    private inline fun buildNotification(
         info: NotificationInfo,
         onIntent: Intent.() -> Unit = {},
         setBuilder: (NotificationCompat.Builder) -> Unit = {},
@@ -704,11 +703,10 @@ class MainActivity : AppCompatActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (isPreBaklava && isLongBackPressOverridden && keyCode == KeyEvent.KEYCODE_BACK) {
             viewModel.backPreview?.also { backPreview ->
-                longBackPress =
-                    lifecycleScope.launch {
-                        delay(ViewConfiguration.getLongPressTimeout().toLong())
-                        if (isActive) backPreview.onBackStarted()
-                    }
+                longBackPress = lifecycleScope.launch {
+                    delay(ViewConfiguration.getLongPressTimeout().toLong())
+                    if (isActive) backPreview.onBackStarted()
+                }
             }
         }
 
@@ -806,17 +804,21 @@ class MainActivity : AppCompatActivity() {
 
         collectLatestWhileStarted(viewModel.connectedUrl) { newUrl ->
             if (newUrl.isNotBlank()) {
-                userSettings.updateData {
-                    val serversList = it.recentServersList.toMutableList()
-                    serversList.remove(newUrl)
-                    serversList.add(0, newUrl)
+                userSettings.updateData { settings ->
+                    val oldList = settings.recentServersList
+                    val newList =
+                        buildList(oldList.size + 1) {
+                            addAll(oldList)
+                            remove(newUrl)
+                            add(0, newUrl)
+                        }
 
-                    it.copy {
+                    settings.copy {
                         recentServers.clear()
 
                         recentServers +=
-                            if (recentAddressLimitEnabled) serversList.take(recentAddressLimit)
-                            else serversList
+                            if (recentAddressLimitEnabled) newList.take(recentAddressLimit)
+                            else newList
                     }
                 }
             }
@@ -894,17 +896,16 @@ class MainActivity : AppCompatActivity() {
             val limit = settings.recentAddressLimit
             val hasLimit = settings.recentAddressLimitEnabled
 
-            val adjustedSettings =
-                settings.copy {
-                    vesselDataLocationValue = newContextIndex
-                    val recentServersCount = recentServers.size
-                    if (hasLimit && recentServersCount > limit) {
-                        val min = recentServersCount.coerceAtMost(limit)
-                        val serversList = recentServers.take(min)
-                        recentServers.clear()
-                        recentServers += serversList
-                    }
+            val adjustedSettings = settings.copy {
+                vesselDataLocationValue = newContextIndex
+                val recentServersCount = recentServers.size
+                if (hasLimit && recentServersCount > limit) {
+                    val min = recentServersCount.coerceAtMost(limit)
+                    val serversList = recentServers.take(min)
+                    recentServers.clear()
+                    recentServers += serversList
                 }
+            }
 
             if (!viewModel.isIdle && newContextIndex != vesselDataManager.index) {
                 AlertDialog.Builder(this@MainActivity)

@@ -40,4 +40,6 @@ fun Arb.Companion.version(major: Int, minor: Int, patchRange: IntRange): Arb<Ver
     version(major, minor, Arb.int(patchRange))
 
 fun Arb.Companion.version(major: Int, minor: Int, patchArb: Arb<Int> = defaultPart): Arb<Version> =
-    patchArb.map { patch -> Version(major, minor, patch) }
+    patchArb.map { patch ->
+        Version(major, minor, patch)
+    }

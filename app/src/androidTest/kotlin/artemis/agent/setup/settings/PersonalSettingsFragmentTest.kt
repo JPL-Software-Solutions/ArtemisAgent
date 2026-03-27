@@ -43,7 +43,10 @@ class PersonalSettingsFragmentTest : TestCase() {
         testWithSettings(false) { SettingsPageScreen.backFromSubmenu() }
     }
 
-    private fun testWithSettings(shouldTestSettings: Boolean, closeSubmenu: () -> Unit) {
+    private inline fun testWithSettings(
+        shouldTestSettings: Boolean,
+        crossinline closeSubmenu: () -> Unit,
+    ) {
         run {
             mainScreenTest {
                 val themeIndex = AtomicInteger()

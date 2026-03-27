@@ -518,10 +518,10 @@ enum class PropertyTestCase {
     private companion object {
         const val INITIAL_TEST_NAME = "Is unknown when initialized"
 
-        suspend fun <N, P> testComparisons(
+        suspend inline fun <N, P> testComparisons(
             arbPair: Arb<Pair<N, N>>,
-            propertyGenerator: (Long) -> P,
-            comparisonTest: (P, P) -> Boolean,
+            crossinline propertyGenerator: (Long) -> P,
+            crossinline comparisonTest: (P, P) -> Boolean,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> {
             arbPair.forAll { (first, second) ->
                 val firstProp = propertyGenerator(0L)
@@ -535,10 +535,10 @@ enum class PropertyTestCase {
             }
         }
 
-        suspend fun <N, P> testComparisonWithOneValue(
+        suspend inline fun <N, P> testComparisonWithOneValue(
             arb: Arb<N>,
-            propertyGenerator: (Long) -> P,
-            comparisonTest: (P, P) -> Boolean,
+            crossinline propertyGenerator: (Long) -> P,
+            crossinline comparisonTest: (P, P) -> Boolean,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> {
             arb.forAll { value ->
                 val propWithoutValue = propertyGenerator(0L)
@@ -549,12 +549,12 @@ enum class PropertyTestCase {
             }
         }
 
-        fun <N, P> DescribeSpecContainerScope.describeComparisonTests(
+        inline fun <N, P> DescribeSpecContainerScope.describeComparisonTests(
             strictArbPair: Arb<Pair<N, N>>,
             softArbPair: Arb<Pair<N, N>>,
             singleArb: Arb<N>,
             emptyPropertyGenerator: Gen<P>,
-            basePropertyGenerator: (Long) -> P,
+            crossinline basePropertyGenerator: (Long) -> P,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> = launch {
             describe("Comparisons") {
                 it("Less than") {

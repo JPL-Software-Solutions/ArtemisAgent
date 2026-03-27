@@ -227,9 +227,9 @@ sealed class ObjectEntry<Obj : ArtemisShielded<Obj>>(
             val ENEMY_COMPARATOR =
                 buildStationNameComparator(ENEMY_REGEX) { it.substringAfterLast(' ').toInt() }
 
-            private fun buildStationNameComparator(
+            private inline fun buildStationNameComparator(
                 regex: Regex,
-                selector: (String) -> Comparable<*>,
+                crossinline selector: (String) -> Comparable<*>,
             ) =
                 Comparator<String> { first, second ->
                     val firstName = first.orEmpty()

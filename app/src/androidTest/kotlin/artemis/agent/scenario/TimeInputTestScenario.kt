@@ -167,14 +167,14 @@ class TimeInputTestScenario(
         seconds--
     }
 
-    private fun testChangingTens(change: () -> Unit) {
+    private inline fun testChangingTens(change: () -> Unit) {
         repeat(if (includeMinutes) 5 else 1) {
             change()
             testCurrentTime()
         }
     }
 
-    private fun testChangingOnes(change: () -> Unit) {
+    private inline fun testChangingOnes(change: () -> Unit) {
         repeat(TEN) {
             change()
             testCurrentTime()

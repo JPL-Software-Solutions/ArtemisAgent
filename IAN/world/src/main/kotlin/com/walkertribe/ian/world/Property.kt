@@ -102,7 +102,7 @@ sealed class Property<V, P : Property<V, P>>(
         updates(property) {}
     }
 
-    internal fun updates(property: P, ifNotUpdated: () -> Unit) {
+    internal inline fun updates(property: P, ifNotUpdated: () -> Unit) {
         synchronized(property) {
             checkCanUpdate(property)
 

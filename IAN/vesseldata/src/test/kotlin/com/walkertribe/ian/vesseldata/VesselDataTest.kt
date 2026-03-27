@@ -1,7 +1,7 @@
 package com.walkertribe.ian.vesseldata
 
 import com.walkertribe.ian.grid.writeToSntFile
-import com.walkertribe.ian.util.FilePathResolver
+import com.walkertribe.ian.util.FileSystemResourceReader
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.engine.spec.tempdir
@@ -120,7 +120,7 @@ class VesselDataTest :
                         }
 
                         val loadedData =
-                            VesselData.load(FilePathResolver(tmpDirPath))
+                            VesselData.load(FileSystemResourceReader(tmpDirPath))
                                 .shouldBeInstanceOf<VesselData.Loaded>()
 
                         loadedData.factions.keys shouldBeSameSizeAs TestFaction.entries
@@ -139,7 +139,7 @@ class VesselDataTest :
                     it("File not found") {
                         datFile.delete()
 
-                        VesselData.load(FilePathResolver(tmpDirPath))
+                        VesselData.load(FileSystemResourceReader(tmpDirPath))
                             .shouldBeInstanceOf<VesselData.Error>()
                     }
 
@@ -147,7 +147,7 @@ class VesselDataTest :
                         datFile.writeText("<vessel_data><hullRace></hullRace></vessel_data>")
 
                         val data =
-                            VesselData.load(FilePathResolver(tmpDirPath))
+                            VesselData.load(FileSystemResourceReader(tmpDirPath))
                                 .shouldBeInstanceOf<VesselData.Error>()
 
                         it("Stores the error message") {

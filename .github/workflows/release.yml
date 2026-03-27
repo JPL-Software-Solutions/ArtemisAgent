@@ -61,7 +61,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           token: ${{ secrets.RELEASE_PAT }}
 
@@ -72,7 +72,7 @@ jobs:
           echo ${{ secrets.GOOGLE_SERVICES }} | base64 -d > ${{ github.workspace }}/app/google-services.json
 
       - name: Set up JDK 21
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version-file: .tool-versions
           distribution: 'temurin'
@@ -80,7 +80,7 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
 
       - name: Read version from properties file
         uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
@@ -96,7 +96,7 @@ jobs:
 
       - name: Bump app version name
         id: nextVersionName
-        uses: cbrgm/semver-bump-action@420f8192c146a1dabbdba8a72708ffffff6783ff # v1.0.44
+        uses: cbrgm/semver-bump-action@1f1e5576db396841e9f0c11513e7efaad641b33d # v1.0.47
         with:
           current-version: ${{ steps.version.outputs.versionName }}
           bump-level: ${{ inputs.versionBump }}
@@ -127,13 +127,13 @@ jobs:
 
       - name: Set Firebase Project
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@3d36f3a7498b2ae020e08231a6cc9a48dc72f2fb # v15.1.0
+        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
         with:
           args: use ${{ secrets.GCP_PROJECT }}
 
       - name: Get Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@3d36f3a7498b2ae020e08231a6cc9a48dc72f2fb # v15.1.0
+        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
         with:
           args: remoteconfig:get -o app/remote-config.json
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Publish Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@3d36f3a7498b2ae020e08231a6cc9a48dc72f2fb # v15.1.0
+        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
         with:
           args: deploy --only remoteconfig
 
@@ -206,10 +206,12 @@ jobs:
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
       - name: Release
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           tag: ${{ steps.tag.outputs.new_tag }}
           name: ${{ steps.tag.outputs.new_tag }}
           body: |
             ${{ vars.CHANGELOG }}
-            ### [Google Play](https://play.google.com/store/apps/details?id=artemis.agent)
+            <a href="https://play.google.com/store/apps/details?id=artemis.agent">
+            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play!" height="70">
+            </a>

@@ -9,10 +9,6 @@ import io.kotest.property.checkAll
 
 class CommsActionEntryTest :
     DescribeSpec({
-        suspend fun testCommsActionEntry(test: (CommsActionEntry, String) -> Unit) {
-            Arb.string().checkAll { label -> test(CommsActionEntry(label), label) }
-        }
-
         describe("CommsActionEntry") {
             describe("Properties") {
                 it("Label") {
@@ -27,3 +23,7 @@ class CommsActionEntryTest :
             }
         }
     })
+
+suspend inline fun testCommsActionEntry(crossinline test: (CommsActionEntry, String) -> Unit) {
+    Arb.string().checkAll { label -> test(CommsActionEntry(label), label) }
+}

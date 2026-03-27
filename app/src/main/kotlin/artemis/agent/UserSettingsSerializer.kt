@@ -1,6 +1,7 @@
 package artemis.agent
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.Serializer
@@ -25,6 +26,8 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
     const val DEFAULT_SOUND_VOLUME = 50
     const val DEFAULT_UPDATE_INTERVAL = 50
     const val DEFAULT_SURRENDER_RANGE = 5000f
+    const val DEFAULT_SURRENDER_BURST_COUNT = 1
+    const val DEFAULT_SURRENDER_BURST_INTERVAL = 500
 
     override val defaultValue: UserSettingsOuterClass.UserSettings = userSettings {
         version = Migration.LIST.maxOf { it.version }
@@ -62,6 +65,7 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
         allyCommandManualReturn = false
         showDestroyedAllies = true
         allyRecapsEnabled = true
+        allyBackEnabled = true
 
         enemiesEnabled = true
 
@@ -73,6 +77,8 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
 
         surrenderRange = DEFAULT_SURRENDER_RANGE
         surrenderRangeEnabled = true
+        surrenderBurstCount = DEFAULT_SURRENDER_BURST_COUNT
+        surrenderBurstInterval = DEFAULT_SURRENDER_BURST_INTERVAL
 
         showEnemyIntel = true
         showTauntStatuses = true
@@ -135,25 +141,45 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
         t.writeTo(output)
     }
 
-    class Migration(val version: Int, private val migrateFn: UserSettingsKt.Dsl.() -> Unit) :
+    @VisibleForTesting
+    abstract class Migration(val version: Int) :
         DataMigration<UserSettingsOuterClass.UserSettings> {
-        override suspend fun shouldMigrate(currentData: UserSettingsOuterClass.UserSettings) =
+        final override suspend fun shouldMigrate(currentData: UserSettingsOuterClass.UserSettings) =
             currentData.version < version
 
-        override suspend fun migrate(
+        final override suspend fun migrate(
             currentData: UserSettingsOuterClass.UserSettings
-        ): UserSettingsOuterClass.UserSettings =
-            currentData.copy {
-                this.version = this@Migration.version
-                this.migrateFn()
-            }
+        ): UserSettingsOuterClass.UserSettings = currentData.copy {
+            this.version = this@Migration.version
+            execute(this)
+        }
 
-        override suspend fun cleanUp() {
+        final override suspend fun cleanUp() {
             // Nothing to clean up
         }
 
+        abstract fun execute(dsl: UserSettingsKt.Dsl)
+
         companion object {
-            val LIST = listOf(Migration(1) { allyRecapsEnabled = true })
+            var versionCount = 0
+
+            val LIST =
+                listOf(
+                    migration { allyRecapsEnabled = true },
+                    migration { allyBackEnabled = true },
+                    migration {
+                        surrenderBurstCount = 1
+                        surrenderBurstInterval = 500
+                    },
+                )
+
+            @VisibleForTesting
+            inline fun migration(crossinline migrateFn: UserSettingsKt.Dsl.() -> Unit) =
+                object : Migration(++versionCount) {
+                    override fun execute(dsl: UserSettingsKt.Dsl) {
+                        dsl.migrateFn()
+                    }
+                }
         }
     }
 }

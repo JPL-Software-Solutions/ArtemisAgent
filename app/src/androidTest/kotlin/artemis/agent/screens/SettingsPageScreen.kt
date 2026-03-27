@@ -126,6 +126,7 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
         override val viewClass: Class<*> = ClientSettingsFragment::class.java
 
         val vesselDataTitle = KTextView { withId(R.id.vesselDataTitle) }
+        val vesselDataDisclaimer = KTextView { withId(R.id.vesselDataDisclaimer) }
         val vesselDataDivider = KView { withId(R.id.vesselDataDivider) }
         val vesselDataDefaultButton = KCheckBox { withId(R.id.vesselDataDefault) }
         val vesselDataInternalButton = KCheckBox { withId(R.id.vesselDataInternalStorage) }
@@ -136,7 +137,9 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
         val showNetworkInfoDivider = KView { withId(R.id.showNetworkInfoDivider) }
 
         val serverPortTitle = KTextView { withId(R.id.serverPortTitle) }
-        val serverPortField = KTextView { withId(R.id.serverPortField) }
+        val serverPortField = KEditText { withId(R.id.serverPortField) }
+        val serverPortResetButton = KButton { withId(R.id.serverPortResetButton) }
+        val serverPortInfo = KTextView { withId(R.id.serverPortInfo) }
         val serverPortDivider = KView { withId(R.id.serverPortDivider) }
 
         val addressLimitTitle = KTextView { withId(R.id.addressLimitTitle) }
@@ -146,8 +149,10 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
         val addressLimitDivider = KView { withId(R.id.addressLimitDivider) }
 
         val updateIntervalTitle = KTextView { withId(R.id.updateIntervalTitle) }
-        val updateIntervalField = KEditText { withId(R.id.updateIntervalField) }
+        val updateIntervalLabel = KTextView { withId(R.id.updateIntervalLabel) }
         val updateIntervalMilliseconds = KTextView { withId(R.id.updateIntervalMilliseconds) }
+        val updateIntervalBar = KSeekBar { withId(R.id.updateIntervalBar) }
+        val updateIntervalDisclaimer = KTextView { withId(R.id.updateIntervalDisclaimer) }
         val updateIntervalDivider = KView { withId(R.id.updateIntervalDivider) }
 
         val showNetworkInfoToggleSetting by lazy {
@@ -249,6 +254,10 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
         val manuallyReturnButton = KCheckBox { withId(R.id.manuallyReturnButton) }
         val manuallyReturnDivider = KView { withId(R.id.manuallyReturnDivider) }
 
+        val backButtonCancelTitle = KTextView { withId(R.id.backButtonCancelTitle) }
+        val backButtonCancelButton = KCheckBox { withId(R.id.backButtonCancelButton) }
+        val backButtonCancelDivider = KView { withId(R.id.backButtonCancelDivider) }
+
         val sortMethodSettings by lazy {
             listOf(
                 GroupedToggleButtonSetting(sortClassButton1, R.string.sort_by_class),
@@ -279,6 +288,12 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
                     text = R.string.manually_return_from_commands,
                     button = manuallyReturnButton,
                 ),
+                SingleToggleButtonSetting(
+                    divider = backButtonCancelDivider,
+                    label = backButtonCancelTitle,
+                    text = R.string.back_button_cancels,
+                    button = backButtonCancelButton,
+                ),
             )
         }
     }
@@ -304,6 +319,17 @@ object SettingsPageScreen : KScreen<SettingsPageScreen>() {
         val surrenderRangeEnableButton = KCheckBox { withId(R.id.surrenderRangeEnableButton) }
         val surrenderRangeInfinity = KTextView { withId(R.id.surrenderRangeInfinity) }
         val surrenderRangeDivider = KView { withId(R.id.surrenderRangeDivider) }
+
+        val surrenderBurstCountTitle = KTextView { withId(R.id.surrenderBurstCountTitle) }
+        val surrenderBurstCountLabel = KTextView { withId(R.id.surrenderBurstCountLabel) }
+        val surrenderBurstCountBar = KSeekBar { withId(R.id.surrenderBurstCountBar) }
+        val surrenderBurstCountDivider = KView { withId(R.id.surrenderBurstCountDivider) }
+
+        val surrenderBurstIntervalTitle = KTextView { withId(R.id.surrenderBurstIntervalTitle) }
+        val surrenderBurstIntervalLabel = KTextView { withId(R.id.surrenderBurstIntervalLabel) }
+        val surrenderBurstIntervalMs = KTextView { withId(R.id.surrenderBurstIntervalMilliseconds) }
+        val surrenderBurstIntervalBar = KSeekBar { withId(R.id.surrenderBurstIntervalBar) }
+        val surrenderBurstIntervalDivider = KView { withId(R.id.surrenderBurstIntervalDivider) }
 
         val showIntelTitle = KTextView { withId(R.id.showIntelTitle) }
         val showIntelButton = KCheckBox { withId(R.id.showIntelButton) }

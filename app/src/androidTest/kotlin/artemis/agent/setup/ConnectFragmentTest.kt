@@ -119,7 +119,9 @@ class ConnectFragmentTest : TestCase() {
     fun connectionSuccessTest() {
         run {
             mainScreenTest(false) {
-                scenario(ConnectScenario(FAKE_SERVER_IP, activityScenarioRule.scenario))
+                scenario(
+                    ConnectScenario(FAKE_SERVER_IP, activityScenarioRule.scenario, check = null)
+                )
 
                 step("Advance to Ships page") {
                     SetupPageScreen {
@@ -154,7 +156,7 @@ class ConnectFragmentTest : TestCase() {
     fun connectionFailedTest() {
         run {
             mainScreenTest {
-                scenario(ConnectScenario("127.0.0.1", activityScenarioRule.scenario))
+                scenario(ConnectScenario("127.0.0.1", activityScenarioRule.scenario, check = null))
 
                 ConnectPageScreen {
                     step("Failure state") {
@@ -251,8 +253,10 @@ class ConnectFragmentTest : TestCase() {
 
         private fun TestContext<Unit>.testShowingInfo(isShowing: Boolean, hasNetwork: Boolean) {
             step("Network info views should ${if (isShowing) "" else "not "}be displayed") {
+                val lastIndex = ConnectPageScreen.infoViews.lastIndex
+
                 ConnectPageScreen.infoViews.forEachIndexed { index, view ->
-                    if (isShowing && (index > 0 || hasNetwork)) {
+                    if (isShowing && (index < lastIndex || hasNetwork)) {
                         flakySafely(timeoutMs = 2.minutes.inWholeMilliseconds) {
                             view.isCompletelyDisplayed()
                         }

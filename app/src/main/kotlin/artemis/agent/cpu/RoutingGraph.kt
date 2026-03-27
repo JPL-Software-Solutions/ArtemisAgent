@@ -64,7 +64,7 @@ internal class RoutingGraph(
     fun addPath(src: ObjectEntry<*>, dst: ObjectEntry<*>? = null) {
         // Get the current set of waypoints over which the first waypoint has precedence
         // If it wasn't registered, do so and increment the size counter
-        val targets = paths.getOrPut(src) { CopyOnWriteArraySet<ObjectEntry<*>>() }
+        val targets = paths.getOrPut(src) { CopyOnWriteArraySet() }
 
         // If there's a second waypoint, add it to the aforementioned set
         dst?.also(targets::add)
@@ -153,14 +153,16 @@ internal class RoutingGraph(
      * player ship to each individual waypoint.
      */
     fun preprocessCosts() {
-        // Get every waypoint to eventually visit, including those preceded by others
-        val allTargets =
-            paths.values
-                .fold(paths.keys) { acc, targets -> acc.union(targets).toMutableSet() }
-                .toList()
-
         costs.clear()
         if (!source.hasPosition) return
+
+        // Get every waypoint to eventually visit, including those preceded by others
+        val allTargets =
+            buildSet(paths.size * 2) {
+                    addAll(paths.keys)
+                    paths.values.forEach(::addAll)
+                }
+                .toList()
 
         allTargets.forEachIndexed { i, src ->
             val srcObj = src.obj
@@ -240,8 +242,9 @@ internal class RoutingGraph(
             val currentNode = currentPath.lastOrNull()?.obj ?: source
 
             // Map each possible next waypoint to visit to the route key of the path to it
-            val nodesAndKeys =
-                currentNodes.map { node -> node to generateRouteKey(currentNode, node.obj) }
+            val nodesAndKeys = currentNodes.map { node ->
+                node to generateRouteKey(currentNode, node.obj)
+            }
 
             // Choose one at random - waypoints with a higher heuristic value are more likely to be
             // chosen
@@ -349,26 +352,25 @@ internal class RoutingGraph(
                 val currentHeading = atan2(diffX, diffZ)
 
                 // Filter out objects from current cluster that are no longer relevant
-                val remainingObjects =
-                    objectsToConsider.mapNotNull { obstacle ->
-                        // Ignore the last obstacle we've already adjusted to (if any)
-                        if (obstacle == lastObstacle) return@mapNotNull null
+                val remainingObjects = objectsToConsider.mapNotNull { obstacle ->
+                    // Ignore the last obstacle we've already adjusted to (if any)
+                    if (obstacle == lastObstacle) return@mapNotNull null
 
-                        // Calculate vector to obstacle
-                        val objX = obstacle.x.value - currentSourceX
-                        val objZ = obstacle.z.value - currentSourceZ
+                    // Calculate vector to obstacle
+                    val objX = obstacle.x.value - currentSourceX
+                    val objZ = obstacle.z.value - currentSourceZ
 
-                        // Calculate heading to obstacle and normalize against vector to destination
-                        var heading = atan2(objX, objZ) - currentHeading
-                        while (heading > PI) heading -= TWO_PI
-                        while (heading < -PI) heading += TWO_PI
-                        heading *= direction
+                    // Calculate heading to obstacle and normalize against vector to destination
+                    var heading = atan2(objX, objZ) - currentHeading
+                    while (heading > PI) heading -= TWO_PI
+                    while (heading < -PI) heading += TWO_PI
+                    heading *= direction
 
-                        // Ignore obstacle located in the wrong direction
-                        if (heading < 0f) return@mapNotNull null
+                    // Ignore obstacle located in the wrong direction
+                    if (heading < 0f) return@mapNotNull null
 
-                        obstacle to heading
-                    }
+                    obstacle to heading
+                }
 
                 // If there are no more obstacles to get around, exit loop
                 val nextObstacle = remainingObjects.maxByOrNull { it.second }?.first ?: break
@@ -652,7 +654,7 @@ internal class RoutingGraph(
             }
 
         /** Helper function to heuristically select a random entry from a collection. */
-        private fun <T> Collection<T>.randomByWeight(weightFn: (T) -> Double): T {
+        private inline fun <T> Collection<T>.randomByWeight(weightFn: (T) -> Double): T {
             // Map entries to weights
             val weighted = map { it to weightFn(it) }
 

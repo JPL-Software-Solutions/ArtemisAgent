@@ -11,23 +11,6 @@ import io.kotest.property.checkAll
 
 class AudioEntryTest :
     DescribeSpec({
-        suspend fun testAudioEntry(test: (AudioEntry, Int, String) -> Unit) {
-            checkAll(Arb.int(), Arb.string()) { audioId, title ->
-                test(AudioEntry(audioId, title), audioId, title)
-            }
-        }
-
-        suspend fun testPacketType(
-            command: AudioCommand,
-            getPacket: AudioEntry.() -> AudioCommandPacket,
-        ) {
-            testAudioEntry { entry, audioId, _ ->
-                val packet = entry.getPacket()
-                packet.audioId shouldBeEqual audioId
-                packet.command shouldBeEqual command
-            }
-        }
-
         describe("AudioEntry") {
             describe("Properties") {
                 it("Audio ID") {
@@ -48,3 +31,20 @@ class AudioEntryTest :
             it("Dismiss packet") { testPacketType(AudioCommand.DISMISS) { dismissPacket } }
         }
     })
+
+suspend inline fun testAudioEntry(crossinline test: (AudioEntry, Int, String) -> Unit) {
+    checkAll(Arb.int(), Arb.string()) { audioId, title ->
+        test(AudioEntry(audioId, title), audioId, title)
+    }
+}
+
+suspend inline fun testPacketType(
+    command: AudioCommand,
+    crossinline getPacket: AudioEntry.() -> AudioCommandPacket,
+) {
+    testAudioEntry { entry, audioId, _ ->
+        val packet = entry.getPacket()
+        packet.audioId shouldBeEqual audioId
+        packet.command shouldBeEqual command
+    }
+}

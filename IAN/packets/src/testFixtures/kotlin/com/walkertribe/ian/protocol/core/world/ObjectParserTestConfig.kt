@@ -2165,7 +2165,7 @@ sealed class ObjectParserTestConfig(val recognizesObjectListeners: Boolean) {
 
         private fun between(from: String, until: String) = "From $from until $until"
 
-        fun buildObject(block: Sink.() -> Unit): Source = buildPacket {
+        inline fun buildObject(block: Sink.() -> Unit): Source = buildPacket {
             block()
             writeIntLe(0)
         }

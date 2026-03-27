@@ -336,7 +336,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
         val dsl: DSL,
         val getProperty: (AO) -> P,
     ) {
-        suspend fun testPartiallyUpdatedObject(test: (AO) -> Unit) {
+        suspend inline fun testPartiallyUpdatedObject(crossinline test: (AO) -> Unit) {
             checkAll(objectGen, propGen) { obj, value ->
                 dslProperty.set(value)
                 dsl updates obj

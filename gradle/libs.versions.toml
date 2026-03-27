@@ -1,10 +1,10 @@
 [versions]
-androidx-activity = "1.12.2"
+androidx-activity = "1.13.0"
 androidx-annotation = "1.9.1"
 androidx-appcompat = "1.7.1"
 androidx-constraintlayout = "2.2.1"
-androidx-core = "1.17.0"
-androidx-datastore = "1.2.0"
+androidx-core = "1.18.0"
+androidx-datastore = "1.2.1"
 androidx-fragment = "1.8.9"
 androidx-lifecycle = "2.10.0"
 androidx-multidex = "2.0.1"
@@ -20,47 +20,47 @@ arcmutate-base = "1.7.0"
 arcmutate-git = "2.3.2"
 arcmutate-kotlin = "1.5.0"
 crashlytics-plugin = "3.0.6"
-dependency-analysis = "3.5.1"
+dependency-analysis = "3.6.1"
 desugar = "2.1.5"
 detekt = "1.23.8"
 espresso = "3.7.0"
-firebase-bom = "34.7.0"
+firebase-bom = "34.11.0"
 git-hooks = "0.0.2"
 google-services = "4.4.4"
 gradle = "8.13.2"
-gradle-pitest = "1.19.0-rc.2"
+gradle-pitest = "1.19.0-rc.3"
 hamcrest = "3.0"
 jspecify = "1.0.0"
 junit4 = "4.13.2"
 kakao = "3.7.0"
 kaspresso = "1.6.0"
-koin = "4.2.0-beta2"
+koin = "4.2.0"
 koin-annotations = "2.3.1"
 konnection = "1.4.5"
 konsist = "0.17.3"
 korlibs-serialization = "6.0.1"
 korlibs-string = "6.0.0"
-kotest = "6.0.7"
+kotest = "6.1.7"
 kotest-arbs = "2.1.2"
-kotlin = "2.2.21"
+kotlin = "2.3.10"
 kotlin-coroutines = "1.10.2"
-kotlin-io = "0.8.2"
-kotlin-serialization = "1.9.0"
+kotlin-io = "0.9.0"
+kotlin-serialization = "1.10.0"
 kotlinpoet = "2.2.0"
-kover = "0.9.4"
-ksp = "2.3.4"
-ktfmt = "0.25.0"
-ktor = "3.3.3"
+kover = "0.9.7"
+ksp = "2.3.6"
+ktfmt = "0.26.0"
+ktor = "3.4.1"
 leakcanary = "2.14"
 lint-security = "1.0.4"
 markwon = "4.6.2"
 material = "1.13.0"
-mockk = "1.14.7"
-okio = "3.16.4"
+mockk = "1.14.9"
+okio = "3.17.0"
 perf-plugin = "2.0.2"
-play-services-tasks = "18.4.0"
+play-services-tasks = "18.4.1"
 process-phoenix = "3.0.0"
-protobuf = "4.33.2"
+protobuf = "4.34.1"
 protobuf-plugin = "0.9.6"
 task-tree = "4.0.1"
 
@@ -183,6 +183,7 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-core = { module = "io.mockk:mockk-core", version.ref = "mockk" }
 mockk-dsl = { module = "io.mockk:mockk-dsl", version.ref = "mockk" }
 
 arcmutate-base = { module = "com.arcmutate:base", version.ref = "arcmutate-base" }
@@ -197,6 +198,7 @@ commons-compress = { module = "org.apache.commons:commons-compress", version = "
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "latest.release" }
 guava = { module = "com.google.guava:guava", version = "latest.release" }
 jdom2 = { module = "org.jdom:jdom2", version = "latest.release" }
+jose4j = { module = "org.bitbucket.b_c:jose4j", version = "latest.release" }
 jsoup = { module = "org.jsoup:jsoup", version = "latest.release" }
 netty-codec = { module = "io.netty:netty-codec", version = "4.2.+" }
 netty-http2 = { module = "io.netty:netty-codec-http2", version = "4.2.+" }
@@ -266,6 +268,7 @@ app-test = [
     "kotest-property",
     "kotest-property-arbs-jvm",
     "mockk",
+    "mockk-core",
     "mockk-dsl",
     "kotlinx-io",
     "kotlinx-serialization-core",
@@ -304,6 +307,7 @@ ian-test = [
     "kotest-framework-engine",
     "kotest-property",
     "mockk",
+    "mockk-core",
     "mockk-dsl",
     "ktor-utils",
 ]
@@ -331,8 +335,10 @@ ian-grid-test-fixtures = [
 
 ian-listener-test = [
     "kotest-assertions-core",
+    "kotest-assertions-shared",
     "kotest-framework-engine",
     "mockk",
+    "mockk-core",
     "mockk-dsl",
 ]
 
@@ -353,6 +359,7 @@ ian-packets-test = [
     "kotest-property",
     "koin-test",
     "mockk",
+    "mockk-core",
     "mockk-dsl",
 ]
 ian-packets-test-fixtures = [
@@ -433,6 +440,7 @@ ian-world-test = [
     "kotest-framework-engine",
     "kotest-property",
     "mockk",
+    "mockk-core",
     "mockk-dsl",
 ]
 ian-world-test-fixtures = [

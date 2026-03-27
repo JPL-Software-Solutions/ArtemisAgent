@@ -5,9 +5,15 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  merge_group:
+    types: [ checks_requested ]
   schedule:
     - cron: '15 1 * * 2'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   pull-requests: write
@@ -21,7 +27,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Generate secret files
       if: github.event_name == 'pull_request'
@@ -40,13 +46,13 @@ jobs:
         -r sarif:${{ github.workspace }}/detekt.sarif.json
 
     - name: Upload Detekt SARIF report
-      uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
+      uses: github/codeql-action/upload-sarif@38697555549f1db7851b81482ff19f1fa5c4fedc # v4.34.1
       with:
         sarif_file: ${{ github.workspace }}/detekt.sarif.json
         checkout_path: ${{ github.workspace }}
 
     - name: Setup Ruby
-      uses: ruby/setup-ruby@8a836efbcebe5de0fe86b48a775b7a31b5c70c93 # v1.277.0
+      uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # v1.295.0
       with:
         bundler-cache: true
 
@@ -58,14 +64,14 @@ jobs:
         "
 
     - name: Upload Rubocop SARIF report
-      uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
+      uses: github/codeql-action/upload-sarif@38697555549f1db7851b81482ff19f1fa5c4fedc # v4.34.1
       with:
         sarif_file: ${{ github.workspace }}/rubocop.sarif
         checkout_path: ${{ github.workspace }}
 
     - name: Run Danger
       if: github.event_name == 'pull_request'
-      uses: MeilCli/danger-action@22054113d79d0fe9b318e4a2b3dab7ad1ff68c30 # v6.0.43
+      uses: MeilCli/danger-action@8abb7c3032a54dbbdf898dbab2245dc12dba6ed6 # v6.0.49
       with:
         plugins_file: "Gemfile"
         danger_file: "Dangerfile"

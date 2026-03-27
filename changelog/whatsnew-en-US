@@ -1,6 +1,1 @@
-* New Status page in Game section - **replaces Inventory button!**
-* Back button cancels commanding allies in Allies page
-* Volume is now hidden when sound is muted
-* Fix bug that caused all Game section pages to be selectable even when they shouldn't be
-* Fix layout bugs in Allies page
-* Dependency upgrades
+* Added option to toggle whether back button cancels ally commands

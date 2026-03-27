@@ -22,7 +22,6 @@ import com.walkertribe.ian.world.ArtemisNpc
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -76,47 +75,42 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
 
     private fun onStationDelete(id: Int) {
         with(viewModel) {
-            livingEnemyStations.also { enemyStations ->
-                val enemyStation = enemyStations.remove(id)
-                if (enemyStation != null) {
-                    enemyStation.obj.name.value?.also {
-                        enemyStationNameIndex.remove(it)
-
-                        val destroyedStationList = destroyedStations.value.toMutableList()
-                        destroyedStationList.add(it)
-                        destroyedStations.value = destroyedStationList
-                    }
-                } else {
-                    livingStations.also { stations ->
-                        stations.remove(id)?.apply {
-                            obj.name.value?.also { name ->
-                                val replacementName =
-                                    livingStationNameIndex.run { higherKey(name) ?: lowerKey(name) }
-
-                                val destroyedStationList = destroyedStations.value.toMutableList()
-                                destroyedStationList.add(fullName)
-                                destroyedStations.value = destroyedStationList
-
-                                if (replacementName == null) {
-                                    stationsRemain.value = false
-                                } else if (stationName.value == name) {
-                                    stationName.value = replacementName
-                                }
-
-                                allyShips.values
-                                    .filter { it.destination == name }
-                                    .forEach {
-                                        it.destination = null
-                                        it.isMovingToStation = false
-                                    }
-                                livingStationFullNameIndex.remove(fullName)
-                                livingStationNameIndex.remove(name)
-                            }
-                            missionManager.purgeMissions(obj)
-                        }
-                    }
+            val enemyStation = livingEnemyStations.remove(id)
+            if (enemyStation != null) {
+                enemyStation.obj.name.value?.also { enemyStationName ->
+                    enemyStationNameIndex.remove(enemyStationName)
+                    destroyedStations.value += enemyStationName
                 }
+                return@with
             }
+
+            val allyStationEntry = livingStations.remove(id) ?: return@with
+
+            val station = allyStationEntry.obj
+            station.name.value?.also { allyStationName ->
+                val fullName = allyStationEntry.fullName
+                destroyedStations.value += fullName
+
+                val replacementName = livingStationNameIndex.run {
+                    higherKey(allyStationName) ?: lowerKey(allyStationName)
+                }
+
+                if (replacementName == null) {
+                    stationsRemain.value = false
+                } else if (stationName.value == allyStationName) {
+                    stationName.value = replacementName
+                }
+
+                allyShips.values.forEach { ally ->
+                    if (ally.destination != allyStationName) return@forEach
+                    ally.destination = null
+                    ally.isMovingToStation = false
+                }
+
+                livingStationFullNameIndex.remove(fullName)
+                livingStationNameIndex.remove(allyStationName)
+            }
+            missionManager.purgeMissions(station)
         }
     }
 
@@ -400,9 +394,7 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
             val npc = ally.obj
             npc.name.value?.also(viewModel.allyShipIndex::remove)
 
-            val destroyedAllyList = viewModel.destroyedAllies.value.toMutableList()
-            destroyedAllyList.add(ally.fullName)
-            viewModel.destroyedAllies.value = destroyedAllyList
+            viewModel.destroyedAllies.value += ally.fullName
 
             if (viewModel.focusedAlly.value == ally) {
                 viewModel.focusedAlly.value = null
@@ -412,38 +404,34 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
             npc
         }
 
-    private fun onNpcCreate(npc: ArtemisNpc): Boolean =
-        viewModel.run {
-            val vessel = npc.getVessel(vesselData) ?: return@run false
-            vessel.getFaction(vesselData)?.also { faction ->
-                when {
-                    faction[Faction.FRIENDLY] ->
-                        npc.name.value?.also {
-                            if (allyShips.isEmpty()) {
-                                alliesExist = true
-                            }
-                            allyShipIndex[it] = npc.id
-                            allyShips[npc.id] = ObjectEntry.Ally(npc, vesselData, isDeepStrike)
-                            sendToServer(CommsOutgoingPacket(npc, OtherMessage.Hail, vesselData))
+    private fun onNpcCreate(npc: ArtemisNpc): Boolean = viewModel.run {
+        val vessel = npc.getVessel(vesselData) ?: return@run false
+        vessel.getFaction(vesselData)?.also { faction ->
+            when {
+                faction[Faction.FRIENDLY] ->
+                    npc.name.value?.also {
+                        if (allyShips.isEmpty()) {
+                            alliesExist = true
                         }
-                    faction[Faction.BIOMECH] -> {
-                        biomechManager.confirmed = true
-                        if (playerShip?.let { npc.hasBeenScannedBy(it).booleanValue } == true) {
-                            biomechManager.scanned.add(BiomechEntry(npc))
-                        } else {
-                            biomechManager.unscanned[npc.id] = npc
-                        }
+                        allyShipIndex[it] = npc.id
+                        allyShips[npc.id] = ObjectEntry.Ally(npc, vesselData, isDeepStrike)
+                        sendToServer(CommsOutgoingPacket(npc, OtherMessage.Hail, vesselData))
                     }
-                    faction[Faction.ENEMY] ->
-                        npc.name.value?.also { name ->
-                            enemiesManager.addEnemy(
-                                EnemyEntry(npc, vessel, faction, vesselData),
-                                name,
-                            )
-                        }
+                faction[Faction.BIOMECH] -> {
+                    biomechManager.confirmed = true
+                    if (playerShip?.let { npc.hasBeenScannedBy(it).booleanValue } == true) {
+                        biomechManager.scanned.add(BiomechEntry(npc))
+                    } else {
+                        biomechManager.unscanned[npc.id] = npc
+                    }
                 }
-            } != null
-        }
+                faction[Faction.ENEMY] ->
+                    npc.name.value?.also { name ->
+                        enemiesManager.addEnemy(EnemyEntry(npc, vessel, faction, vesselData), name)
+                    }
+            }
+        } != null
+    }
 
     @Listener
     fun onMineUpdate(mine: ArtemisMine) {

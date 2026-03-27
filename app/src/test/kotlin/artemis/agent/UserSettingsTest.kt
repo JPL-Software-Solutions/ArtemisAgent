@@ -12,10 +12,12 @@ import io.kotest.matchers.file.shouldNotBeEmpty
 class UserSettingsTest :
     DescribeSpec({
         describe("UserSettings") {
+            val expectedLatestVersion = 3
+
             describe("Defaults") {
                 val settings = UserSettingsSerializer.defaultValue
 
-                it("Latest version") { settings.version shouldBeEqual 1 }
+                it("Latest version") { settings.version shouldBeEqual expectedLatestVersion }
 
                 it("Vessel data location") {
                     settings.vesselDataLocation shouldBeEqual
@@ -107,6 +109,11 @@ class UserSettingsTest :
                         it("Value") { settings.surrenderRange shouldBeEqual 5000f }
                     }
 
+                    describe("Surrender bursts") {
+                        it("Count") { settings.surrenderBurstCount shouldBeEqual 1 }
+                        it("Interval") { settings.surrenderBurstInterval shouldBeEqual 500 }
+                    }
+
                     it("Show enemy intel") { settings.showEnemyIntel.shouldBeTrue() }
                     it("Show taunt statuses") { settings.showTauntStatuses.shouldBeTrue() }
                     it("Disable ineffective taunts") {
@@ -186,7 +193,12 @@ class UserSettingsTest :
                 val settings = UserSettingsSerializer.defaultValue
 
                 describe("Newer version") {
-                    val newMigration = UserSettingsSerializer.Migration(1000) { serverPort = 3000 }
+                    val newMigration =
+                        object : UserSettingsSerializer.Migration(1000) {
+                            override fun execute(dsl: UserSettingsKt.Dsl) {
+                                dsl.serverPort = 3000
+                            }
+                        }
 
                     it("Should migrate") { newMigration.shouldMigrate(settings).shouldBeTrue() }
 
@@ -198,10 +210,22 @@ class UserSettingsTest :
                 }
 
                 describe("Older version") {
-                    val skippedMigration = UserSettingsSerializer.Migration(-1) {}
+                    val skippedMigration =
+                        object : UserSettingsSerializer.Migration(-1) {
+                            override fun execute(dsl: UserSettingsKt.Dsl) {
+                                // Skip
+                            }
+                        }
 
                     it("Should not migrate") {
                         skippedMigration.shouldMigrate(settings).shouldBeFalse()
+                    }
+                }
+
+                describe("Static helper function") {
+                    it("Should contain next version") {
+                        UserSettingsSerializer.Migration.migration {}.version shouldBeEqual
+                            expectedLatestVersion + 1
                     }
                 }
             }
@@ -267,6 +291,9 @@ class UserSettingsTest :
                     settings.surrenderRange shouldBeEqual defaultSettings.surrenderRange
                     settings.surrenderRangeEnabled shouldBeEqual
                         defaultSettings.surrenderRangeEnabled
+                    settings.surrenderBurstCount shouldBeEqual defaultSettings.surrenderBurstCount
+                    settings.surrenderBurstInterval shouldBeEqual
+                        defaultSettings.surrenderBurstInterval
                     settings.showEnemyIntel shouldBeEqual defaultSettings.showEnemyIntel
                     settings.showTauntStatuses shouldBeEqual defaultSettings.showTauntStatuses
                     settings.disableIneffectiveTaunts shouldBeEqual

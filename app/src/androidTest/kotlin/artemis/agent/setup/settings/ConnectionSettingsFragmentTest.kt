@@ -38,7 +38,10 @@ class ConnectionSettingsFragmentTest : TestCase() {
         testWithSettings(false) { SettingsPageScreen.backFromSubmenu() }
     }
 
-    private fun testWithSettings(shouldTestTimeInputs: Boolean, closeSubmenu: () -> Unit) {
+    private inline fun testWithSettings(
+        shouldTestTimeInputs: Boolean,
+        crossinline closeSubmenu: () -> Unit,
+    ) {
         run {
             mainScreenTest {
                 val alwaysPublic = AtomicBoolean()

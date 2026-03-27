@@ -74,14 +74,14 @@ class ConnectionEventTest :
                     )
                     .forEach { cause ->
                         describe(cause::class.simpleName ?: cause.toString()) {
-                            lateinit var event: ConnectionEvent.Disconnect
+                            val event by lazy { ConnectionEvent.Disconnect(cause) }
 
                             it("Constructor") {
                                 val startTime = Clock.System.now().toEpochMilliseconds()
-                                event = ConnectionEvent.Disconnect(cause)
+                                val eventCause = event.cause
                                 val endTime = Clock.System.now().toEpochMilliseconds()
 
-                                event.cause shouldBeEqual cause
+                                eventCause shouldBeEqual cause
                                 event.timestamp shouldBeIn startTime..endTime
                             }
 
