@@ -192,15 +192,9 @@ class ConnectFragmentTest : TestCase() {
 
         private val isEmulator by lazy { Build.DEVICE in EMULATOR_DEVICES }
 
-        // Create a Konnection instance without any external IP resolvers, which would otherwise be
-        // the only way that fetching the network info could suspend
-        private val konnectionTest by lazy {
-            Konnection.createInstance(enableDebugLog = true, ipResolvers = emptyList())
-        }
-
         private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
             runTest {
-                val deferredIp = async { konnectionTest.getInfo()?.ipv4 }
+                val deferredIp = async { Konnection.instance.getInfo()?.ipv4 }
 
                 booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
                     index,

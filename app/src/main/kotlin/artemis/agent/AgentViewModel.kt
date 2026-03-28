@@ -76,6 +76,7 @@ import com.walkertribe.ian.world.ArtemisMine
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import com.walkertribe.ian.world.ArtemisShielded
+import dev.tmapps.konnection.Konnection
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -95,6 +96,11 @@ import kotlinx.coroutines.withContext
 /** The view model containing all running client data and utility functions used by the UI. */
 class AgentViewModel(application: Application) :
     AndroidViewModel(application), ServerDiscoveryRequester.Listener {
+    // Private IP resolver without external IPs, since they're not needed
+    val konnectionInstance: Konnection by lazy {
+        Konnection.createInstance(enableDebugLog = true, ipResolvers = emptyList())
+    }
+
     // Connection status
     val networkInterface: ArtemisNetworkInterface by lazy {
         KtorArtemisNetworkInterface(maxVersion = if (BuildConfig.DEBUG) null else maxVersion).also {
