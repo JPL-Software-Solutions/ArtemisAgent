@@ -25,9 +25,10 @@ import dev.tmapps.konnection.Konnection
 import io.github.kakaocup.kakao.screen.Screen
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,17 +181,7 @@ class ConnectFragmentTest : TestCase() {
                 }
                 val settingValue = showingInfo.get()
 
-                runTest {
-                    val hasNetwork =
-                        !withTimeoutOrNull(30.seconds) { Konnection.instance.getInfo()?.ipv4 }
-                            .isNullOrBlank()
-
-                    booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
-                        index,
-                        showing ->
-                        testShowingInfo(showing, index != 0, hasNetwork)
-                    }
-                }
+                testShowingInfo(settingValue)
             }
         }
     }
@@ -202,28 +193,42 @@ class ConnectFragmentTest : TestCase() {
 
         private val isEmulator by lazy { Build.DEVICE in EMULATOR_DEVICES }
 
-        private fun TestContext<Unit>.testShowingInfo(
-            isShowing: Boolean,
-            isToggling: Boolean,
-            hasNetwork: Boolean,
-        ) {
-            if (isToggling) {
-                scenario(SettingsMenuScenario)
-                scenario(SettingsSubmenuOpenScenario.Client)
+        private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
+            runTest(timeout = 2.minutes) {
+                val deferredIp = async { Konnection.instance.getInfo()?.ipv4 }
 
-                step("Toggle network info setting") {
-                    SettingsPageScreen.Client.showNetworkInfoButton.click()
+                booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
+                    index,
+                    isShowing ->
+                    if (index > 0) {
+                        scenario(SettingsMenuScenario)
+                        scenario(SettingsSubmenuOpenScenario.Client)
+
+                        step("Toggle network info setting") {
+                            SettingsPageScreen.Client.showNetworkInfoButton.click()
+                        }
+
+                        step("Return to Connect page") { SetupPageScreen.connectPageButton.click() }
+                    }
+
+                    val ip = deferredIp.await().orEmpty()
+                    testNetworkInfoViews(isShowing, ip)
                 }
-
-                step("Return to Connect page") { SetupPageScreen.connectPageButton.click() }
             }
+        }
 
+        private fun TestContext<Unit>.testNetworkInfoViews(isShowing: Boolean, ip: String) {
             step("Network info views should ${if (isShowing) "" else "not "}be displayed") {
-                val lastIndex = ConnectPageScreen.infoViews.lastIndex
+                ConnectPageScreen {
+                    addressLabel {
+                        if (isShowing && ip.isNotBlank())
+                            flakySafely(10.seconds.inWholeMilliseconds) { isDisplayedWithText(ip) }
+                        else isNotDisplayed()
+                    }
 
-                ConnectPageScreen.infoViews.forEachIndexed { index, view ->
-                    if (isShowing && (index < lastIndex || hasNetwork)) view.isCompletelyDisplayed()
-                    else view.isNotDisplayed()
+                    listOf(networkTypeLabel, networkInfoDivider).forEach { view ->
+                        if (isShowing) view.isCompletelyDisplayed() else view.isNotDisplayed()
+                    }
                 }
             }
         }
