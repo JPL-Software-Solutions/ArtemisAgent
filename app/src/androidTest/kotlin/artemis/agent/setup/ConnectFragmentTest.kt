@@ -25,7 +25,6 @@ import dev.tmapps.konnection.Konnection
 import io.github.kakaocup.kakao.screen.Screen
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -193,9 +192,15 @@ class ConnectFragmentTest : TestCase() {
 
         private val isEmulator by lazy { Build.DEVICE in EMULATOR_DEVICES }
 
+        // Create a Konnection instance without any external IP resolvers, which would otherwise be
+        // the only way that fetching the network info could suspend
+        private val konnectionTest by lazy {
+            Konnection.createInstance(enableDebugLog = true, ipResolvers = emptyList())
+        }
+
         private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
-            runTest(timeout = 2.minutes) {
-                val deferredIp = async { Konnection.instance.getInfo()?.ipv4 }
+            runTest {
+                val deferredIp = async { konnectionTest.getInfo()?.ipv4 }
 
                 booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
                     index,
@@ -221,7 +226,7 @@ class ConnectFragmentTest : TestCase() {
             step("Network info views should ${if (isShowing) "" else "not "}be displayed") {
                 ConnectPageScreen {
                     addressLabel {
-                        if (isShowing && ip.isNotBlank())
+                        if (isShowing && ip.isNotEmpty())
                             flakySafely(10.seconds.inWholeMilliseconds) { isDisplayedWithText(ip) }
                         else isNotDisplayed()
                     }
