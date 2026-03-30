@@ -16,7 +16,6 @@ import artemis.agent.scenario.ConnectScenario
 import artemis.agent.scenario.SettingsMenuScenario
 import artemis.agent.scenario.SettingsSubmenuOpenScenario
 import artemis.agent.screens.ConnectPageScreen
-import artemis.agent.screens.MainScreen
 import artemis.agent.screens.MainScreen.mainScreenTest
 import artemis.agent.screens.SettingsPageScreen
 import artemis.agent.screens.SetupPageScreen
@@ -155,11 +154,9 @@ class ClientSettingsFragmentTest : TestCase() {
 
                     step("Select option #${index + 1}") { vesselDataButtons[index].first.click() }
 
-                    MainScreen {
-                        step("Warning dialog should be displayed") { assertVesselDataWarningOpen() }
+                    step("Warning dialog should be displayed") { assertVesselDataWarningOpen() }
 
-                        step("Dismiss warning dialog") { alertDialog.button().click() }
-                    }
+                    step("Dismiss warning dialog") { alertDialog.button().click() }
 
                     step("Check vessel data setting") {
                         val expectedIndex = if (shouldChange) index else 0
