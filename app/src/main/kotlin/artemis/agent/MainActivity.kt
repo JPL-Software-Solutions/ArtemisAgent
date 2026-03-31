@@ -65,12 +65,15 @@ import com.walkertribe.ian.util.Version
 import java.io.FileNotFoundException
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.asDeferred
+import kotlinx.coroutines.withContext
 
 /** The main application activity. */
 class MainActivity : AppCompatActivity() {
@@ -934,19 +937,16 @@ class MainActivity : AppCompatActivity() {
         viewModel.viewModelScope.launch(
             CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() }
         ) {
+            val maxVersionFetch = async {
+                Firebase.remoteConfig.fetchAndActivate().asDeferred().await()
+                fetchArtemisLatestVersion()
+            }
+
             val updateFetchTrace = Firebase.performance.newTrace("update_check")
             updateFetchTrace.putAttribute("check_type", checkType.name)
             updateFetchTrace.start()
 
-            val maxVersionFetch =
-                Firebase.remoteConfig
-                    .fetchAndActivate()
-                    .continueWith { fetchArtemisLatestVersion() }
-                    .asDeferred()
-            val updateInfoFetch = updateManager.appUpdateInfo.asDeferred()
-
-            val maxVersion = maxVersionFetch.await()
-            val updateInfo = updateInfoFetch.await()
+            val updateInfo = updateManager.appUpdateInfo.asDeferred().await()
 
             updateFetchTrace.incrementMetric(
                 "update_${updateInfo?.let { "" } ?: "not_"}available",
@@ -955,13 +955,12 @@ class MainActivity : AppCompatActivity() {
 
             updateFetchTrace.stop()
 
+            val maxVersion = maxVersionFetch.await()
             viewModel.maxVersion = maxVersion
             val latestVersionCode = updateInfo?.availableVersionCode() ?: 0
-
             val updateAlert = UpdateAlert.check(maxVersion, latestVersionCode)!!
 
             val context = this@MainActivity
-
             AlertDialog.Builder(context)
                 .setTitle(updateAlert.getTitle(context))
                 .setMessage(updateAlert.getMessage(context))
@@ -991,17 +990,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchArtemisLatestVersion(): Version =
-        try {
-                openFileInput(MAX_VERSION_FILE_NAME).use { it.readBytes().decodeToString() }
-            } catch (_: FileNotFoundException) {
-                Firebase.remoteConfig.getString(RemoteConfigKey.ARTEMIS_LATEST_VERSION).also { v ->
-                    openFileOutput(MAX_VERSION_FILE_NAME, MODE_PRIVATE).use {
-                        it.write(v.encodeToByteArray())
+    private suspend fun fetchArtemisLatestVersion(): Version =
+        withContext(Dispatchers.IO) {
+            val verString =
+                try {
+                    openFileInput(MAX_VERSION_FILE_NAME).use { it.readBytes().decodeToString() }
+                } catch (_: FileNotFoundException) {
+                    val versionFromRemoteConfig =
+                        Firebase.remoteConfig.getString(RemoteConfigKey.ARTEMIS_LATEST_VERSION)
+                    openFileOutput(MAX_VERSION_FILE_NAME, MODE_PRIVATE).use { file ->
+                        file.write(versionFromRemoteConfig.encodeToByteArray())
                     }
+                    versionFromRemoteConfig
                 }
-            }
-            .let { VersionString(it).toVersion() }
+
+            VersionString(verString).toVersion()
+        }
 
     private fun startUpdateFlow() {
         val appUpdateInfoTask = updateManager.appUpdateInfo
