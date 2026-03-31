@@ -595,29 +595,31 @@ class MainActivity : AppCompatActivity() {
             delay(SETUP_DELAY)
             setupTiramisu()
 
-            withContext(Dispatchers.Main) { setupBackPressedCallbacks() }
-
             setupConnectionObservers()
             setupUserSettingsObserver()
             setupViewAutomationBindings()
+
+            withContext(Dispatchers.Main) {
+                setupBackPressedCallbacks()
+
+                binding.mainPageSelector.children.forEach { view ->
+                    view.setOnClickListener {
+                        viewModel.activateHaptic()
+                        viewModel.playSound(SoundEffect.BEEP_2)
+                    }
+                }
+
+                binding.updateButton.setOnClickListener {
+                    viewModel.activateHaptic()
+                    viewModel.playSound(SoundEffect.BEEP_2)
+                    checkForUpdates(UpdateCheck.MANUAL)
+                }
+            }
 
             collectLatestWhileStarted(viewModel.gameOverReason) {
                 if (shouldAskForReview) askForReview()
                 shouldAskForReview = !shouldAskForReview
                 checkForUpdates(UpdateCheck.GAME_END)
-            }
-
-            binding.mainPageSelector.children.forEach { view ->
-                view.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.playSound(SoundEffect.BEEP_2)
-                }
-            }
-
-            binding.updateButton.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
-                checkForUpdates(UpdateCheck.MANUAL)
             }
 
             checkForUpdates(UpdateCheck.STARTUP)
