@@ -1,12 +1,16 @@
 package artemis.agent
 
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -21,10 +25,12 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -39,6 +45,7 @@ import artemis.agent.game.GameFragment
 import artemis.agent.game.stations.StationsFragment
 import artemis.agent.help.HelpFragment
 import artemis.agent.setup.SetupFragment
+import artemis.agent.startup.ThemeResInitializer
 import artemis.agent.util.SoundEffect
 import artemis.agent.util.VersionString
 import artemis.agent.util.collectLatestWhileStarted
@@ -57,13 +64,11 @@ import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.crashlytics.setCustomKeys
 import com.google.firebase.perf.performance
 import com.google.firebase.remoteconfig.remoteConfig
-import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.jakewharton.processphoenix.ProcessPhoenix
 import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.protocol.core.comm.CommsIncomingPacket
 import com.walkertribe.ian.util.Version
 import java.io.FileNotFoundException
-import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -197,7 +202,7 @@ class MainActivity : AppCompatActivity() {
     private val notificationManager: NotificationManager by lazy {
         NotificationManager(applicationContext)
     }
-    private val requestPermissionLauncher: ActivityResultLauncher<String>? by lazy {
+    private val requestPermissionLauncher: ActivityResultLauncher<String>? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
                 if (!granted && shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)) {
@@ -217,7 +222,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             null
         }
-    }
 
     /** Connection to notification service. */
     private val connection =
@@ -548,59 +552,76 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setupTheme()
-        setupWindowInsets()
-        setupFirebase()
-        setupTiramisu()
-        setupBackPressedCallbacks()
-        setupConnectionObservers()
-        setupUserSettingsObserver()
 
-        collectLatestWhileStarted(viewModel.gameOverReason) {
-            if (shouldAskForReview) askForReview()
-            shouldAskForReview = !shouldAskForReview
-            checkForUpdates(UpdateCheck.GAME_END)
-        }
+        val splashScreen = installSplashScreen()
 
-        collectLatestWhileStarted(viewModel.jumping) {
-            binding.jumpInputDisabler.visibility = if (it) View.VISIBLE else View.GONE
-        }
-
-        collectLatestWhileStarted(viewModel.helpTopicIndex) {
-            binding.updateButton.visibility =
-                if (it == HelpFragment.ABOUT_TOPIC_INDEX) View.VISIBLE else View.GONE
-        }
-
-        binding.updateButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
-            checkForUpdates(UpdateCheck.MANUAL)
-        }
-
-        binding.mainPageSelector.children.forEach { view ->
-            view.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
-            }
-        }
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
 
         binding.mainPageSelector.setOnCheckedChangeListener { _, checkedId ->
             currentSection = Section.entries.find { it.buttonId == checkedId }
         }
 
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-
         if (savedInstanceState == null) {
             binding.setupPageButton.isChecked = true
         }
 
-        collectLatestWhileStarted(viewModel.shipIndex) {
-            if (it >= 0) {
-                binding.gamePageButton.isChecked = true
+        splashScreen.setOnExitAnimationListener { splash ->
+            val view = splash.view
+            val height = view.height.toFloat()
+
+            val clipAnimator = ValueAnimator.ofFloat(0f, height)
+            clipAnimator.duration = SPLASH_WIPE_DURATION
+
+            clipAnimator.addUpdateListener { animator ->
+                val clip = animator.animatedValue as Float
+                view.clipBounds = Rect(0, clip.toInt(), view.width, view.height)
             }
+
+            clipAnimator.addListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        splash.remove()
+                    }
+                }
+            )
+
+            clipAnimator.start()
         }
 
-        checkForUpdates(UpdateCheck.STARTUP)
+        setupWindowInsets()
+
+        lifecycleScope.launch(Dispatchers.Default) {
+            delay(SETUP_DELAY)
+            setupTiramisu()
+
+            withContext(Dispatchers.Main) { setupBackPressedCallbacks() }
+
+            setupConnectionObservers()
+            setupUserSettingsObserver()
+            setupViewAutomationBindings()
+
+            collectLatestWhileStarted(viewModel.gameOverReason) {
+                if (shouldAskForReview) askForReview()
+                shouldAskForReview = !shouldAskForReview
+                checkForUpdates(UpdateCheck.GAME_END)
+            }
+
+            binding.mainPageSelector.children.forEach { view ->
+                view.setOnClickListener {
+                    viewModel.activateHaptic()
+                    viewModel.playSound(SoundEffect.BEEP_2)
+                }
+            }
+
+            binding.updateButton.setOnClickListener {
+                viewModel.activateHaptic()
+                viewModel.playSound(SoundEffect.BEEP_2)
+                checkForUpdates(UpdateCheck.MANUAL)
+            }
+
+            checkForUpdates(UpdateCheck.STARTUP)
+        }
     }
 
     /**
@@ -612,14 +633,6 @@ class MainActivity : AppCompatActivity() {
         Intent(this, NotificationService::class.java).also {
             startService(it)
             bindService(it, connection, BIND_AUTO_CREATE)
-        }
-    }
-
-    /** When the activity is stopped, write the current theme to disk. */
-    override fun onStop() {
-        super.onStop()
-        openFileOutput(THEME_RES_FILE_NAME, MODE_PRIVATE).use {
-            it.write(byteArrayOf(viewModel.themeIndex.toByte()))
         }
     }
 
@@ -753,20 +766,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupFirebase() {
-        Firebase.crashlytics.isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
-
-        val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 1.minutes.inWholeSeconds
-        }
-        Firebase.remoteConfig.apply {
-            setConfigSettingsAsync(configSettings)
-            setDefaultsAsync(
-                mapOf(RemoteConfigKey.ARTEMIS_LATEST_VERSION to Version.DEFAULT.toString())
-            )
-        }
-    }
-
+    @MainThread
     private fun setupBackPressedCallbacks() {
         // Some Android 10 devices leak memory if this is not called, so we need to register this
         // callback to address it
@@ -779,19 +779,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTheme() {
-        with(viewModel) {
-            try {
-                openFileInput(THEME_RES_FILE_NAME).use { themeIndex = it.read().coerceAtLeast(0) }
-            } catch (_: FileNotFoundException) {}
+        theme.applyStyle(ThemeResInitializer.splashThemeRes, true)
+        viewModel.isThemeChanged.value = false
 
-            theme.applyStyle(themeRes, true)
-            isThemeChanged.value = false
-
-            collectLatestWhileStarted(isThemeChanged) {
-                if (it) {
-                    isThemeChanged.value = false
-                    recreate()
-                }
+        collectLatestWhileStarted(viewModel.isThemeChanged) { isChanged ->
+            if (isChanged) {
+                viewModel.isThemeChanged.value = false
+                recreate()
             }
         }
     }
@@ -933,10 +927,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupViewAutomationBindings() {
+        collectLatestWhileStarted(viewModel.jumping) {
+            binding.jumpInputDisabler.visibility = if (it) View.VISIBLE else View.GONE
+        }
+
+        collectLatestWhileStarted(viewModel.helpTopicIndex) {
+            binding.updateButton.visibility =
+                if (it == HelpFragment.ABOUT_TOPIC_INDEX) View.VISIBLE else View.GONE
+        }
+
+        collectLatestWhileStarted(viewModel.shipIndex) {
+            if (it >= 0) {
+                binding.gamePageButton.isChecked = true
+            }
+        }
+    }
+
     private fun checkForUpdates(checkType: UpdateCheck) {
         viewModel.viewModelScope.launch(
             CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() }
         ) {
+            if (checkType == UpdateCheck.STARTUP) {
+                delay(INITIAL_UPDATE_DELAY)
+            }
+
             val maxVersionFetch = async {
                 Firebase.remoteConfig.fetchAndActivate().asDeferred().await()
                 fetchArtemisLatestVersion()
@@ -1081,7 +1096,10 @@ class MainActivity : AppCompatActivity() {
         const val NO_NAVIGATION = -1
         const val GAME_PAGE_UNSPECIFIED = 6
 
-        const val THEME_RES_FILE_NAME = "theme_res.dat"
+        const val SPLASH_WIPE_DURATION = 250L
+        const val SETUP_DELAY = 250L
+        const val INITIAL_UPDATE_DELAY = 500L
+
         const val MAX_VERSION_FILE_NAME = "max_version.dat"
 
         const val HUAWEI = "huawei"
