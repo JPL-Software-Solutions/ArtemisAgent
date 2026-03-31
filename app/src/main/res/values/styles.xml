@@ -107,7 +107,7 @@
         <item name="android:progressBarStyle">@style/Widget.ArtemisAgent.ProgressBar</item>
     </style>
 
-    <style name="Theme.SplashScreen.ArtemisAgent">
+    <style name="Theme.SplashScreen.ArtemisAgent" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/backgroundBlack</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent</item>
