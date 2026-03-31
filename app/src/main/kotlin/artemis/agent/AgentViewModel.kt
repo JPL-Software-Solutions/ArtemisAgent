@@ -79,6 +79,7 @@ import com.walkertribe.ian.world.ArtemisShielded
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -1106,6 +1107,7 @@ class AgentViewModel(application: Application) :
         super.onCleared()
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     fun updateFromSettings(settings: UserSettings) {
         vesselDataManager.index = settings.vesselDataLocationValue
         port = settings.serverPort
@@ -1164,12 +1166,13 @@ class AgentViewModel(application: Application) :
         hapticsEnabled = settings.hapticsEnabled
 
         val oldThemeRes = ThemeResInitializer.splashThemeRes
-        ThemeResInitializer.themeIndex = settings.themeValue
+        ThemeResInitializer.themeIndex.store(settings.themeValue)
         if (ThemeResInitializer.splashThemeRes != oldThemeRes) {
             isThemeChanged.value = true
         }
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     fun revertSettings(settings: UserSettings): UserSettings = settings.copy {
         vesselDataLocationValue = vesselDataManager.index
         serverPort = port
@@ -1223,7 +1226,7 @@ class AgentViewModel(application: Application) :
         threeDigitDirections = this@AgentViewModel.threeDigitDirections
         soundVolume = (volume * VOLUME_SCALE).toInt()
         soundMuted = this@AgentViewModel.soundsMuted
-        themeValue = ThemeResInitializer.themeIndex
+        themeValue = ThemeResInitializer.themeIndex.load()
         showNetworkInfo = showingNetworkInfo
         alwaysScanPublic = alwaysScanPublicBroadcasts
         hapticsEnabled = this@AgentViewModel.hapticsEnabled

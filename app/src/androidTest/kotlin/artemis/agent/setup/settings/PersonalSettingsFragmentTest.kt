@@ -24,6 +24,7 @@ import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import io.github.kakaocup.kakao.text.KTextView
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.random.Random
 import org.junit.Rule
 import org.junit.Test
@@ -44,13 +45,14 @@ class PersonalSettingsFragmentTest : TestCase() {
         testWithSettings(false) { SettingsPageScreen.backFromSubmenu() }
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     private inline fun testWithSettings(
         shouldTestSettings: Boolean,
         crossinline closeSubmenu: () -> Unit,
     ) {
         run {
             mainScreenTest {
-                val themeIndex = ThemeResInitializer.themeIndex
+                val themeIndex = ThemeResInitializer.themeIndex.load()
                 val threeDigits = AtomicBoolean()
                 val soundVolume = AtomicInteger()
                 val soundsMuted = AtomicBoolean()
