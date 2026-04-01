@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 class ThemeResInitializer : Initializer<Int> {
     @OptIn(ExperimentalAtomicApi::class)
     override fun create(context: Context): Int = runBlocking {
-        context.userSettings.data.first().theme.number.also(themeIndex::store)
+        context.userSettings.data.first().themeValue.also(themeIndex::store)
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
