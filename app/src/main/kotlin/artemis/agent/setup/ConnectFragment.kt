@@ -20,6 +20,7 @@ import artemis.agent.generic.GenericDataEntry
 import artemis.agent.util.SoundEffect
 import artemis.agent.util.collectLatestWhileStarted
 import com.walkertribe.ian.protocol.udp.PrivateNetworkType
+import dev.tmapps.konnection.Konnection
 import java.net.InetAddress
 import java.net.NetworkInterface
 
@@ -87,9 +88,9 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         binding.networkInfoDivider.visibility = networkInfoVisibility
 
         viewLifecycleOwner.collectLatestWhileStarted(
-            viewModel.konnectionInstance.observeNetworkConnection()
+            Konnection.instance.observeNetworkConnection()
         ) {
-            val info = viewModel.konnectionInstance.getInfo()
+            val info = Konnection.instance.getInfo()
             val address = info?.ipv4
             networkAddress = address?.takeIf { PrivateNetworkType.of(it) != null }
             broadcastAddress = null
