@@ -7,13 +7,18 @@ import artemis.agent.R
 import artemis.agent.UserSettingsSerializer.userSettings
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
-class ThemeResInitializer : Initializer<Int> {
+class ThemeResInitializer : Initializer<Unit>, CoroutineScope {
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
+
     @OptIn(ExperimentalAtomicApi::class)
-    override fun create(context: Context): Int = runBlocking {
-        context.userSettings.data.first().themeValue.also(themeIndex::store)
+    override fun create(context: Context) {
+        launch { context.userSettings.data.first().themeValue.also(themeIndex::store) }
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
