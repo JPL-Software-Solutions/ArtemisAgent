@@ -66,6 +66,7 @@ tasks.detekt { jvmTarget = javaVersion.toString() }
 tasks.detektBaseline { jvmTarget = javaVersion.toString() }
 
 dependencyAnalysis {
+    issues { all { onAny { severity("fail") } } }
     usage { analysis { checkSuperClasses(true) } }
     useTypesafeProjectAccessors(true)
 }
@@ -76,4 +77,4 @@ detekt {
     parallel = true
 }
 
-gitHooks { setHooks(mapOf("pre-push" to "detekt ktfmtCheck compileDebugKotlin")) }
+gitHooks { setHooks(mapOf("pre-push" to "buildHealth detekt ktfmtCheck compileDebugKotlin")) }
