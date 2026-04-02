@@ -281,6 +281,9 @@ app-test = [
     "kotlinx-serialization-json",
     "ktor-io",
 ]
+app-test-debug = [
+    "konnection-android-debug",
+]
 app-test-runtime = [
     "kotest-runner-junit5-jvm",
 ]

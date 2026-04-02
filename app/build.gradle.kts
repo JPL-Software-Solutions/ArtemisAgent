@@ -148,6 +148,7 @@ dependencies {
 
     testImplementation(platform(libs.kotest.bom))
     testImplementation(libs.bundles.app.test)
+    testDebugImplementation(libs.bundles.app.test.debug)
     testRuntimeOnly(libs.bundles.app.test.runtime)
 
     androidTestImplementation(libs.bundles.app.androidTest) {
