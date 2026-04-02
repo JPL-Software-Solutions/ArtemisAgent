@@ -130,9 +130,7 @@ class AgentViewModel(application: Application) :
     val isScanningUDP: MutableSharedFlow<Boolean> by lazy {
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     }
-    var showingNetworkInfo: Boolean = true
-        private set
-
+    var showingNetworkInfo: Boolean = false
     var alwaysScanPublicBroadcasts: Boolean = true
         private set
 

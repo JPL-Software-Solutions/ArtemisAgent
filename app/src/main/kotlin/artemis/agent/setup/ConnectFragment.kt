@@ -82,10 +82,15 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
     }
 
     private fun prepareInfoLabels() {
-        val networkInfoVisibility = if (viewModel.showingNetworkInfo) View.VISIBLE else View.GONE
-        binding.addressLabel.visibility = networkInfoVisibility
-        binding.networkTypeLabel.visibility = networkInfoVisibility
-        binding.networkInfoDivider.visibility = networkInfoVisibility
+        viewLifecycleOwner.collectLatestWhileStarted(binding.root.context.userSettings.data) {
+            val isShowing = it.showNetworkInfo
+            viewModel.showingNetworkInfo = isShowing
+
+            val visibility = if (isShowing) View.VISIBLE else View.GONE
+            binding.addressLabel.visibility = visibility
+            binding.networkTypeLabel.visibility = visibility
+            binding.networkInfoDivider.visibility = visibility
+        }
 
         viewLifecycleOwner.collectLatestWhileStarted(
             Konnection.instance.observeNetworkConnection()
