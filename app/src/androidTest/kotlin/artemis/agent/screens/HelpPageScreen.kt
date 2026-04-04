@@ -48,7 +48,7 @@ object HelpPageScreen : KScreen<HelpPageScreen>() {
             R.string.help_topics_enemies to 12,
             R.string.help_topics_biomechs to 3,
             R.string.help_topics_notifications to 16,
-            R.string.help_topics_about to 5,
+            R.string.help_topics_about to 6,
         )
     }
 
