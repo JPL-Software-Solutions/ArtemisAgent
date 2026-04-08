@@ -5,9 +5,6 @@ import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import artemis.agent.screens.MainScreen
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
@@ -44,28 +41,13 @@ class PermissionRationaleTest : TestCase() {
                 }
 
                 step("Deny permissions again") {
-                    /*
-                     * In the second instance of the permissions dialog, the deny button has a different
-                     * resource ID that Kaspresso doesn't know about, so unfortunately we have to bypass
-                     * Kaspresso's methods and go through UiAutomator ourselves.
-                     */
-                    val denyAndDontAskAgain =
-                        UiSelector()
-                            .clickable(true)
-                            .checkable(false)
-                            .resourceId(DENY_AND_DONT_ASK_BUTTON)
-                    UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-                        .findObject(denyAndDontAskAgain)
-                        .click()
+                    MainScreen.denyPermissions(device, isFirstTime = false)
                 }
             }
         }
     }
 
     private companion object {
-        const val DENY_AND_DONT_ASK_BUTTON =
-            "com.android.permissioncontroller:id/permission_deny_and_dont_ask_again_button"
-
         inline fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
             MainScreen.alertDialog.button().click()
         }
@@ -74,7 +56,7 @@ class PermissionRationaleTest : TestCase() {
             MainScreen {
                 step("Check for permissions dialog") { assertPermissionsDialogOpen(device) }
 
-                step("Deny permissions") { denyPermissions(device) }
+                step("Deny permissions") { denyPermissions(device, isFirstTime = true) }
 
                 step("Check for permission rationale dialog") {
                     assertPermissionRationaleDialogOpen()

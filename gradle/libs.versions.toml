@@ -163,7 +163,6 @@ test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "andr
 test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 
 espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
-uiautomator = "androidx.test.uiautomator:uiautomator:2.3.0"
 
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 
@@ -290,7 +289,6 @@ app-test-runtime = [
 app-androidTest = [
     "kotlinx-coroutines-test",
     "espresso",
-    "uiautomator",
     "junit4",
     "hamcrest",
     "kaspresso",
