@@ -5,6 +5,7 @@ import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.protocol.PacketException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.filter
@@ -236,14 +237,20 @@ class PacketReaderTest :
                 }
             }
 
-            it("Can close") {
-                justRun { readChannel.cancel(any()) }
+            describe("Can close") {
+                withData(
+                    nameFn = { it.first },
+                    "Clean" to null,
+                    "With exception" to RuntimeException(),
+                ) { (_, ex) ->
+                    justRun { readChannel.cancel(any()) }
 
-                packetReader.close()
+                    packetReader.close(ex)
 
-                verify { readChannel.cancel(any()) }
+                    verify { readChannel.cancel(any()) }
 
-                confirmVerified(readChannel)
+                    confirmVerified(readChannel)
+                }
             }
         }
     })

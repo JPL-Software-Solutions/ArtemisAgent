@@ -10,15 +10,29 @@ import com.walkertribe.ian.util.Util.toHex
 @PacketType(type = CorePacketType.COMMS_BUTTON)
 class CommsButtonPacket(reader: PacketReader) : Packet.Server(reader) {
     sealed interface Action {
-        @JvmInline value class Remove internal constructor(val label: String) : Action
+        @JvmInline
+        value class Remove internal constructor(val label: String) : Action {
+            override val details: String
+                get() = "Remove: $label"
+        }
 
-        @JvmInline value class Create internal constructor(val label: String) : Action
+        @JvmInline
+        value class Create internal constructor(val label: String) : Action {
+            override val details: String
+                get() = "Create: $label"
+        }
 
-        data object RemoveAll : Action
+        data object RemoveAll : Action {
+            override val details: String = "Remove All"
+        }
+
+        val details: String
     }
 
     /** Returns whether to add or remove button(s). */
     val action: Action = reader.readAction()
+
+    override val details: String by lazy { action.details }
 
     private companion object {
         private const val REMOVE: Byte = 0x00

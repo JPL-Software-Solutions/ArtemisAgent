@@ -20,4 +20,6 @@ class DeleteObjectPacket(reader: PacketReader) : Packet.Server(reader) {
 
     /** The deleted object's ID */
     val target: Int = reader.readInt().also(reader::acceptObjectID)
+
+    override val details: String by lazy { "$targetType #$target" }
 }

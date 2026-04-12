@@ -9,4 +9,6 @@ import com.walkertribe.ian.protocol.PacketSubtype
  * @author rjwut
  */
 @PacketSubtype(subtype = SimpleEventPacket.Subtype.END_GAME)
-class EndGamePacket(reader: PacketReader) : SimpleEventPacket(reader)
+class EndGamePacket(reader: PacketReader) : SimpleEventPacket(reader) {
+    override val details: String = ""
+}

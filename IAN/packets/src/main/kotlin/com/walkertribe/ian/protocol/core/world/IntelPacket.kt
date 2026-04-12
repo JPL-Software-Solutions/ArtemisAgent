@@ -21,4 +21,6 @@ class IntelPacket(reader: PacketReader) : Packet.Server(reader) {
 
     /** The intel on that ship, as human-readable text. */
     val intel: String = reader.readString()
+
+    override val details: String by lazy { "$intelType of object #$id\n$intel" }
 }

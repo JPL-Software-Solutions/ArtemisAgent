@@ -151,7 +151,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
         override fun dataTestName(): String = shieldPosition.name
 
         private companion object {
-            private val mockShields: Shields by lazy { Shields(0L) }
+            private val mockShields: Shields by lazy { Shields("Mock", 0L) }
         }
     }
 

@@ -12,4 +12,6 @@ import com.walkertribe.ian.util.BoolState
 @PacketSubtype(subtype = SimpleEventPacket.Subtype.PAUSE)
 class PausePacket(reader: PacketReader) : SimpleEventPacket(reader) {
     val isPaused: BoolState = reader.readBool(Int.SIZE_BYTES)
+
+    override val details: String by lazy { if (isPaused.booleanValue) "PAUSED" else "RUNNING" }
 }

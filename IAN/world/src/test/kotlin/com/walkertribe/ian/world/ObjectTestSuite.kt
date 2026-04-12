@@ -48,6 +48,7 @@ import io.kotest.property.arbitrary.pair
 import io.kotest.property.arbitrary.string
 import io.kotest.property.arbitrary.triple
 import io.kotest.property.checkAll
+import io.kotest.property.forAll
 import io.mockk.called
 import io.mockk.clearMocks
 import io.mockk.every
@@ -68,6 +69,8 @@ internal sealed class ObjectTestSuite<
     protected abstract val arbProperties: Arb<P>
     protected abstract val partialUpdateTestSuites:
         List<PartialUpdateTestSuite<T, out BaseArtemisObject.Dsl<T>, *, *>>
+
+    protected abstract val expectedStringContents: List<String>
 
     abstract suspend fun testCreateUnknown()
 
@@ -151,6 +154,7 @@ internal sealed class ObjectTestSuite<
 
             describeTestEquality()
             describeTestHashCode()
+            describeTestToString()
             describeMore()
 
             ArtemisObjectTestModule.collected.clear()
@@ -164,6 +168,27 @@ internal sealed class ObjectTestSuite<
                     partialUpdateTestSuites.forEachIndexed { j, testSuite2 ->
                         testSuite2.getProperty(base).hasValue.shouldBeEqual(i == j)
                     }
+                }
+            }
+        }
+    }
+
+    private fun DescribeSpecContainerScope.describeTestToString() = launch {
+        describe("String representation") {
+            it("No properties") {
+                arbObject.forAll(iterations = 1) { obj ->
+                    val string = obj.toString()
+                    string.startsWith("$objectType #${obj.id}") &&
+                        expectedStringContents.none(string::contains)
+                }
+            }
+
+            it("Fully populated") {
+                forAll(iterations = 1, genA = arbObject, genB = arbProperties) { obj, props ->
+                    props.updateDirectly(obj)
+                    val string = obj.toString()
+                    string.startsWith("$objectType #${obj.id} located at") &&
+                        expectedStringContents.all(string::contains)
                 }
             }
         }
@@ -458,6 +483,9 @@ internal sealed class ObjectTestSuite<
                 bindFn = ::Properties,
             )
 
+        override val expectedStringContents: List<String> =
+            listOf("Name", "Front shields", "Hull ID")
+
         override val partialUpdateTestSuites =
             listOf(
                 partialUpdateTest(
@@ -562,6 +590,8 @@ internal sealed class ObjectTestSuite<
             }
         override val arbProperties: Arb<Properties> = LOCATION.map(::Properties)
 
+        override val expectedStringContents: List<String> = emptyList()
+
         override val partialUpdateTestSuites =
             listOf(
                 partialUpdateTest(name = "X", propGen = X, dslProperty = ArtemisBlackHole.Dsl::x) {
@@ -646,6 +676,8 @@ internal sealed class ObjectTestSuite<
         override val arbProperties: Arb<Properties> =
             Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)
 
+        override val expectedStringContents: List<String> = listOf("Is non-Typhon")
+
         override val partialUpdateTestSuites =
             listOf(
                 partialUpdateTest(
@@ -725,6 +757,8 @@ internal sealed class ObjectTestSuite<
                 )
             }
         override val arbProperties: Arb<Properties> = LOCATION.map(::Properties)
+
+        override val expectedStringContents: List<String> = emptyList()
 
         override val partialUpdateTestSuites =
             listOf(
@@ -926,6 +960,20 @@ internal sealed class ObjectTestSuite<
                 genI = SIDE,
                 genJ = LOCATION,
                 bindFn = ::Properties,
+            )
+
+        override val expectedStringContents: List<String> =
+            listOf(
+                "Name",
+                "Front shields",
+                "Rear shields",
+                "Hull ID",
+                "Impulse",
+                "Side",
+                "Is enemy",
+                "Is surrendered",
+                "Is in nebula",
+                "Scan bits",
             )
 
         override val partialUpdateTestSuites =
@@ -1310,6 +1358,29 @@ internal sealed class ObjectTestSuite<
                 genN = TUBES,
                 bindFn = ::Properties,
             )
+
+        override val expectedStringContents: List<String> =
+            listOf(
+                "Name",
+                "Energy",
+                "Front shields",
+                "Rear shields",
+                "Shields active",
+                "Hull ID",
+                "Impulse",
+                "Warp",
+                "Drive type",
+                "Side",
+                "Ship index",
+                "Alert status",
+                "Double agent active",
+                "Double agent count",
+                "Double agent time remaining in seconds",
+                "Capital ship ID",
+                "Docking base ID",
+            ) +
+                OrdnanceType.entries.map { "$it count" } +
+                List(Artemis.MAX_TUBES) { "Tube ${it + 1}" }
 
         override val partialUpdateTestSuites =
             listOf(

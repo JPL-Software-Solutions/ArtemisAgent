@@ -13,5 +13,7 @@ sealed interface HeartbeatPacket {
     data object Client : ValueIntPacket(Subtype.CLIENT_HEARTBEAT), HeartbeatPacket
 
     @PacketType(type = CorePacketType.HEARTBEAT)
-    class Server(reader: PacketReader) : Packet.Server(reader), HeartbeatPacket
+    class Server(reader: PacketReader) : Packet.Server(reader), HeartbeatPacket {
+        override val details: String = ""
+    }
 }

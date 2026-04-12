@@ -9,7 +9,7 @@ class ArtemisCreature(id: Int, timestamp: Long) :
     override val type: ObjectType = ObjectType.CREATURE
 
     /** Returns whether this creature is a typhon. */
-    val isNotTyphon = Property.BoolProperty(timestamp)
+    val isNotTyphon = Property.BoolProperty("Is non-Typhon", timestamp)
 
     override val hasData: Boolean
         get() = super.hasData || isNotTyphon.hasValue
@@ -18,6 +18,11 @@ class ArtemisCreature(id: Int, timestamp: Long) :
         super.updates(other)
 
         isNotTyphon updates other.isNotTyphon
+    }
+
+    override fun appendDetails(builder: StringBuilder) {
+        super.appendDetails(builder)
+        isNotTyphon.appendTo(builder)
     }
 
     object Dsl : BaseArtemisObject.Dsl<ArtemisCreature>() {

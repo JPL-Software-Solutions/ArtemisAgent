@@ -16,4 +16,6 @@ import com.walkertribe.ian.world.ArtemisPlayer
 class DockedPacket(reader: PacketReader) : SimpleEventPacket(reader) {
     /** The ID of the ship that has docked. */
     val objectId: Int = reader.readInt()
+
+    override val details: String = objectId.toString()
 }

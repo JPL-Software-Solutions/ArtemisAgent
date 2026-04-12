@@ -6,13 +6,14 @@ plugins {
     id("ian-library")
     id("fixtures")
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin)
+    alias(libs.plugins.kotlin.allopen)
     id("info.solidsoft.pitest")
 }
 
-ksp {
-    arg("KOIN_CONFIG_CHECK", true.toString())
-    arg("KOIN_LOG_TIMES", true.toString())
-}
+koinCompiler { userLogs = true }
+
+allOpen { annotation("org.koin.core.annotation.Monitor") }
 
 configureTests(maxMemoryGb = 4)
 
@@ -36,7 +37,6 @@ dependencies {
     api(libs.bundles.ian.packets.api)
 
     ksp(projects.ian.processor)
-    ksp(libs.ksp.koin)
 
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.io)

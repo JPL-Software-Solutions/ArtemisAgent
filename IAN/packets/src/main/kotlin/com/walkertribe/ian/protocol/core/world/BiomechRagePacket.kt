@@ -13,4 +13,6 @@ import com.walkertribe.ian.protocol.core.SimpleEventPacket
 class BiomechRagePacket(reader: PacketReader) : SimpleEventPacket(reader) {
     /** Returns the biomech rage level. */
     val rage: Int = reader.readInt()
+
+    override val details: String = rage.toString()
 }

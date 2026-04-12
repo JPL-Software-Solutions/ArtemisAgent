@@ -26,6 +26,10 @@ class GridUpdatePacket(reader: PacketReader) : Packet.Server(reader) {
         }
     }
 
+    override val details: String by lazy {
+        damages.sortedBy { it.hashCode() }.joinToString(separator = "\n", prefix = "\n")
+    }
+
     private companion object {
         const val END_DAMAGE: Byte = -1
         const val END_DAMCON: Byte = -2

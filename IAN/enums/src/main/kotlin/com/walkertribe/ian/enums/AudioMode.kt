@@ -8,5 +8,7 @@ package com.walkertribe.ian.enums
 sealed interface AudioMode {
     data object Playing : AudioMode
 
-    data class Incoming(val title: String, val filename: String) : AudioMode
+    data class Incoming(val title: String, val filename: String) : AudioMode {
+        override fun toString(): String = "Incoming: $title"
+    }
 }

@@ -6,9 +6,9 @@ import com.walkertribe.ian.vesseldata.VesselData
 /** Base implementation of a shielded world object. */
 abstract class BaseArtemisShielded<T : BaseArtemisShielded<T>>(id: Int, timestamp: Long) :
     BaseArtemisObject<T>(id, timestamp), ArtemisShielded<T> {
-    override val hullId = Property.IntProperty(timestamp)
-    override val shieldsFront = Shields(timestamp)
-    override val name = Property.ObjectProperty<String>(timestamp)
+    override val hullId = Property.IntProperty("Hull ID", timestamp)
+    override val shieldsFront = Shields("Front", timestamp)
+    override val name = Property.ObjectProperty<String>("Name", timestamp)
 
     /** Returns true if this object contains any data. */
     override val hasData: Boolean
@@ -23,6 +23,14 @@ abstract class BaseArtemisShielded<T : BaseArtemisShielded<T>>(id: Int, timestam
         name updates other.name
         hullId updates other.hullId
         shieldsFront updates other.shieldsFront
+    }
+
+    override fun appendDetails(builder: StringBuilder) {
+        super.appendDetails(builder)
+
+        name.appendTo(builder)
+        hullId.appendTo(builder)
+        shieldsFront.appendTo(builder)
     }
 
     abstract class Dsl<T : BaseArtemisShielded<T>> : BaseArtemisObject.Dsl<T>() {

@@ -31,6 +31,10 @@ class BayStatusPacket(reader: PacketReader) : Packet.Server(reader) {
         count
     }
 
+    override val details: String by lazy {
+        "$fighterCount bay${if (fighterCount == 1) "" else "s"}"
+    }
+
     private companion object {
         private val BAY_NUMBER_VERSION = Version(2, 6, 0)
     }

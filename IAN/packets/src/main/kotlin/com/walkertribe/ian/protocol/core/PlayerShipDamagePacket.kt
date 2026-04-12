@@ -16,4 +16,6 @@ class PlayerShipDamagePacket(reader: PacketReader) : SimpleEventPacket(reader) {
 
     /** How long the interface screw should last, in seconds. */
     val duration: Float = reader.readFloat()
+
+    override val details: String by lazy { "Ship #$shipIndex: ${duration}s" }
 }

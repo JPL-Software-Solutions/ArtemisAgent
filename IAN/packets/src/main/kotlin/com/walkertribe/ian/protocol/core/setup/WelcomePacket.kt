@@ -15,4 +15,7 @@ import com.walkertribe.ian.protocol.core.CorePacketType
 class WelcomePacket(reader: PacketReader) : Packet.Server(reader) {
     /** Returns the welcome message sent by the server. */
     val message: String = reader.readUsAsciiString()
+
+    override val details: String
+        get() = message
 }

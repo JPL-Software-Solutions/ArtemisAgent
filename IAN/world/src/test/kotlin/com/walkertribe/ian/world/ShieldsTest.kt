@@ -15,7 +15,7 @@ import io.kotest.property.checkAll
 class ShieldsTest :
     DescribeSpec({
         describe("Shields") {
-            val shields = Shields(0L)
+            val shields = Shields("", 0L)
 
             describe("Initial state") {
                 it("Percentage: NaN") { shields.percentage.shouldBeNaN() }

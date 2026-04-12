@@ -17,4 +17,6 @@ class GameStartPacket(reader: PacketReader) : Packet.Server(reader) {
         skip(Int.SIZE_BYTES)
         readIntAsEnum()
     }
+
+    override val details: String by lazy { gameType.name }
 }

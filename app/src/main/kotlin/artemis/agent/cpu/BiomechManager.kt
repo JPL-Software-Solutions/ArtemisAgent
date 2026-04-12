@@ -32,7 +32,7 @@ class BiomechManager {
     val sorted: List<BiomechEntry>
         get() = if (enabled) scanned.sortedWith(sorter) else emptyList()
 
-    private val rageProperty = Property.IntProperty(Long.MIN_VALUE)
+    private val rageProperty = Property.IntProperty("Rage", Long.MIN_VALUE)
     private val mutStatus: MutableStateFlow<BiomechRageStatus> by lazy {
         MutableStateFlow(BiomechRageStatus.NEUTRAL)
     }
@@ -83,7 +83,7 @@ class BiomechManager {
 
     @Listener
     fun onPacket(packet: BiomechRagePacket) {
-        val newRage = Property.IntProperty(packet.timestamp)
+        val newRage = Property.IntProperty("", packet.timestamp)
         newRage.value = packet.rage
         newRage updates rageProperty
         mutStatus.value =

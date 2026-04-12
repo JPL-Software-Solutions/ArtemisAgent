@@ -23,4 +23,6 @@ class CommsIncomingPacket(reader: PacketReader) : Packet.Server(reader) {
 
     /** The content of the message. */
     val message: String = reader.readString().caretToNewline().trim()
+
+    override val details: String by lazy { "From: $sender\n$message" }
 }

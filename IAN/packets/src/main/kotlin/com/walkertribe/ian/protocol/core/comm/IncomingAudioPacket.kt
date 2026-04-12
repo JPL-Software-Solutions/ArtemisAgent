@@ -23,6 +23,8 @@ class IncomingAudioPacket(reader: PacketReader) : Packet.Server(reader) {
      */
     val audioMode: AudioMode = reader.readAudioMode()
 
+    override val details: String by lazy { "#$audioId\n$audioMode" }
+
     private companion object {
         private const val PLAYING = 1
         private const val INCOMING = 2

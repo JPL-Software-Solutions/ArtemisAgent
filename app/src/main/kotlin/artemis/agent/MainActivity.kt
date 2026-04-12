@@ -68,6 +68,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix
 import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.protocol.core.comm.CommsIncomingPacket
 import com.walkertribe.ian.util.Version
+import io.kotzilla.sdk.KotzillaCore
 import java.io.FileNotFoundException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -525,29 +526,48 @@ class MainActivity : AppCompatActivity() {
 
     private inline fun buildNotification(
         info: NotificationInfo,
-        onIntent: Intent.() -> Unit = {},
-        setBuilder: (NotificationCompat.Builder) -> Unit = {},
+        crossinline onIntent: Intent.() -> Unit = {},
+        crossinline setBuilder: (NotificationCompat.Builder) -> Unit = {},
     ) {
         if (notificationRequests == STOP_NOTIFICATIONS) return
 
-        val launchIntent = Intent(applicationContext, MainActivity::class.java).apply(onIntent)
-        val pendingIntent =
-            PendingIntent.getActivity(
-                this,
-                notificationRequests++,
-                launchIntent,
-                PENDING_INTENT_FLAGS,
-            )
+        buildNotificationWithCallback(info, onIntent, setBuilder) { build ->
+            if (info.ongoing) {
+                build()
+            } else {
+                val kotzilla = KotzillaCore.getDefaultInstance()
+                kotzilla.trace(info.channel.name, code = build)
+                kotzilla.log("${info.title}\t ${info.message}")
+            }
+        }
+    }
 
-        val builder =
-            NotificationCompat.Builder(this, info.channel.tag)
-                .setSmallIcon(R.drawable.ic_stat_name)
-                .setLargeIcon(
-                    BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground)
+    private inline fun buildNotificationWithCallback(
+        info: NotificationInfo,
+        crossinline onIntent: Intent.() -> Unit = {},
+        crossinline setBuilder: (NotificationCompat.Builder) -> Unit = {},
+        callback: (() -> Unit) -> Unit,
+    ) {
+        callback {
+            val launchIntent = Intent(applicationContext, MainActivity::class.java).apply(onIntent)
+            val pendingIntent =
+                PendingIntent.getActivity(
+                    this,
+                    notificationRequests++,
+                    launchIntent,
+                    PENDING_INTENT_FLAGS,
                 )
-                .setContentIntent(pendingIntent)
-                .also(setBuilder)
-        notificationManager.createNotification(builder, info, applicationContext)
+
+            val builder =
+                NotificationCompat.Builder(this, info.channel.tag)
+                    .setSmallIcon(R.drawable.ic_stat_name)
+                    .setLargeIcon(
+                        BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground)
+                    )
+                    .setContentIntent(pendingIntent)
+                    .also(setBuilder)
+            notificationManager.createNotification(builder, info, applicationContext)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

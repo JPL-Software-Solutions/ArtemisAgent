@@ -11,9 +11,9 @@ abstract class BaseArtemisObject<T : ArtemisObject<T>>(
     final override val id: Int,
     final override val timestamp: Long,
 ) : ArtemisObject<T> {
-    override val x = Property.FloatProperty(timestamp)
-    override val y = Property.FloatProperty(timestamp)
-    override val z = Property.FloatProperty(timestamp)
+    override val x = Property.FloatProperty("X", timestamp)
+    override val y = Property.FloatProperty("Y", timestamp)
+    override val z = Property.FloatProperty("Z", timestamp)
 
     /** Returns true if this object contains any data. */
     internal open val hasData: Boolean
@@ -93,6 +93,25 @@ abstract class BaseArtemisObject<T : ArtemisObject<T>>(
         this === other || (other is ArtemisObject<*> && id == other.id && type == other.type)
 
     override fun hashCode(): Int = id
+
+    final override fun toString(): String = buildString { appendDetails(this) }
+
+    protected open fun appendDetails(builder: StringBuilder) {
+        with(builder) {
+            append(type)
+            append(" #")
+            append(id)
+            if (hasPosition) {
+                append(" located at (")
+                append(x.value)
+                append(", ")
+                append(y.value)
+                append(", ")
+                append(z.value)
+                append(")")
+            }
+        }
+    }
 
     abstract class Dsl<T : BaseArtemisObject<T>> {
         var x: Float = Float.NaN

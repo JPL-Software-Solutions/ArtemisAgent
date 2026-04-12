@@ -51,14 +51,16 @@ class PropertyTest :
 enum class PropertyTestCase {
     FLOAT {
         override suspend fun testInitial() {
-            val prop = Property.FloatProperty(0L)
+            val prop = Property.FloatProperty("", 0L)
             prop.shouldBeUnspecified()
+            prop.toString() shouldBeEqual "NaN"
 
             Arb.float()
                 .filter { !it.isNaN() }
                 .checkAll { value ->
                     prop.value = value
                     prop.shouldBeSpecified()
+                    prop.toString() shouldBeEqual value.toString()
                 }
         }
 
@@ -77,8 +79,8 @@ enum class PropertyTestCase {
                     }
                 }
                 .checkAll { (oldTime, newTime, newValue) ->
-                    val oldProp = Property.FloatProperty(oldTime)
-                    val newProp = Property.FloatProperty(newTime)
+                    val oldProp = Property.FloatProperty("old", oldTime)
+                    val newProp = Property.FloatProperty("new", newTime)
                     val (senderProp, receiverProp) = scenario.organize(oldProp, newProp)
 
                     if (scenario.senderIsSpecifiedIdentifier == SpecifiedIdentifier.SPECIFIED) {
@@ -128,22 +130,24 @@ enum class PropertyTestCase {
                     },
                 softArbPair = Arb.pair(Arb.numericFloat(), Arb.numericFloat()),
                 singleArb = Arb.numericFloat(),
-                emptyPropertyGenerator = Exhaustive.of(Property.FloatProperty(0L)),
+                emptyPropertyGenerator = Exhaustive.of(Property.FloatProperty("", 0L)),
             ) {
-                Property.FloatProperty(it)
+                Property.FloatProperty("", it)
             }
         }
     },
     BYTE {
         override suspend fun testInitial() {
-            val prop = Property.ByteProperty(0L)
+            val prop = Property.ByteProperty("", 0L)
             prop.shouldBeUnspecified()
+            prop.toString() shouldBeEqual "-1"
 
             Exhaustive.bytes()
                 .filter { it.toInt() != -1 }
                 .checkAll { value ->
                     prop.value = value
                     prop.shouldBeSpecified()
+                    prop.toString() shouldBeEqual value.toString()
                 }
         }
 
@@ -164,8 +168,8 @@ enum class PropertyTestCase {
                     val (oldTime, oldValue) = oldData
                     val (newTime, newValue) = newData
 
-                    val oldProp = Property.ByteProperty(oldTime)
-                    val newProp = Property.ByteProperty(newTime)
+                    val oldProp = Property.ByteProperty("old", oldTime)
+                    val newProp = Property.ByteProperty("new", newTime)
                     val (senderProp, receiverProp) = scenario.organize(oldProp, newProp)
 
                     if (scenario.senderIsSpecifiedIdentifier == SpecifiedIdentifier.SPECIFIED) {
@@ -215,7 +219,7 @@ enum class PropertyTestCase {
                                 .map { newValue -> Pair(initialValue, newValue) }
                         }
                         .checkAll { (initialValue, newValue) ->
-                            val prop = Property.ByteProperty(0L, initialValue)
+                            val prop = Property.ByteProperty("", 0L, initialValue)
                             prop.shouldBeUnspecified(initialValue)
 
                             prop.value = newValue
@@ -228,8 +232,8 @@ enum class PropertyTestCase {
                         Arb.pair(Arb.long(), Arb.long()).filter { it.first != it.second },
                         Arb.pair(Arb.byte(), Arb.byte()).filter { it.first != it.second },
                     ) { (timestampA, timestampB), (initialA, initialB) ->
-                        val defaultProp = Property.ByteProperty(timestampA, initialA)
-                        val customProp = Property.ByteProperty(timestampB, initialB)
+                        val defaultProp = Property.ByteProperty("default", timestampA, initialA)
+                        val customProp = Property.ByteProperty("custom", timestampB, initialB)
 
                         shouldThrow<IllegalArgumentException> { customProp updates defaultProp }
                         shouldThrow<IllegalArgumentException> { defaultProp updates customProp }
@@ -250,22 +254,24 @@ enum class PropertyTestCase {
                         Arb.byte().filter { it.toInt() != -1 },
                     ),
                 singleArb = Arb.byte().filter { it.toInt() != -1 },
-                emptyPropertyGenerator = Arb.byte().map { Property.ByteProperty(0L, it) },
+                emptyPropertyGenerator = Arb.byte().map { Property.ByteProperty("", 0L, it) },
             ) {
-                Property.ByteProperty(it)
+                Property.ByteProperty("", it)
             }
         }
     },
     INTEGER {
         override suspend fun testInitial() {
-            val prop = Property.IntProperty(0L)
+            val prop = Property.IntProperty("", 0L)
             prop.shouldBeUnspecified()
+            prop.toString() shouldBeEqual "-1"
 
             Arb.int()
                 .filter { it != -1 }
                 .checkAll { value ->
                     prop.value = value
                     prop.shouldBeSpecified()
+                    prop.toString() shouldBeEqual value.toString()
                 }
         }
 
@@ -286,8 +292,8 @@ enum class PropertyTestCase {
                     val (oldTime, oldValue) = oldData
                     val (newTime, newValue) = newData
 
-                    val oldProp = Property.IntProperty(oldTime)
-                    val newProp = Property.IntProperty(newTime)
+                    val oldProp = Property.IntProperty("old", oldTime)
+                    val newProp = Property.IntProperty("new", newTime)
                     val (senderProp, receiverProp) = scenario.organize(oldProp, newProp)
 
                     if (scenario.senderIsSpecifiedIdentifier == SpecifiedIdentifier.SPECIFIED) {
@@ -337,7 +343,7 @@ enum class PropertyTestCase {
                                 .map { newValue -> Pair(initialValue, newValue) }
                         }
                         .checkAll { (initialValue, newValue) ->
-                            val prop = Property.IntProperty(0L, initialValue)
+                            val prop = Property.IntProperty("", 0L, initialValue)
                             prop.shouldBeUnspecified(initialValue)
 
                             prop.value = newValue
@@ -350,8 +356,8 @@ enum class PropertyTestCase {
                         Arb.pair(Arb.long(), Arb.long()).filter { it.first != it.second },
                         Arb.pair(Arb.int(), Arb.int()).filter { it.first != it.second },
                     ) { (timestampA, timestampB), (initialA, initialB) ->
-                        val defaultProp = Property.IntProperty(timestampA, initialA)
-                        val customProp = Property.IntProperty(timestampB, initialB)
+                        val defaultProp = Property.IntProperty("default", timestampA, initialA)
+                        val customProp = Property.IntProperty("custom", timestampB, initialB)
 
                         shouldThrow<IllegalArgumentException> { customProp updates defaultProp }
                         shouldThrow<IllegalArgumentException> { defaultProp updates customProp }
@@ -369,20 +375,22 @@ enum class PropertyTestCase {
                 softArbPair =
                     Arb.pair(Arb.int().filter { it != -1 }, Arb.int().filter { it != -1 }),
                 singleArb = Arb.int().filter { it != -1 },
-                emptyPropertyGenerator = Arb.int().map { Property.IntProperty(0L, it) },
+                emptyPropertyGenerator = Arb.int().map { Property.IntProperty("", 0L, it) },
             ) {
-                Property.IntProperty(it)
+                Property.IntProperty("", it)
             }
         }
     },
     BOOLEAN {
         override suspend fun testInitial() {
-            val prop = Property.BoolProperty(0L)
+            val prop = Property.BoolProperty("", 0L)
             prop.shouldBeUnspecified()
+            prop.toString() shouldBeEqual "Unknown"
 
             Exhaustive.of(BoolState.True, BoolState.False).checkAll { value ->
                 prop.value = value
                 prop.shouldBeSpecified()
+                prop.toString() shouldBeEqual value.toString()
             }
         }
 
@@ -396,8 +404,8 @@ enum class PropertyTestCase {
                     Arb.long(min = oldTime + 1).map { newTime -> Pair(oldTime, newTime) }
                 }
                 .checkAll { (oldTime, newTime) ->
-                    val oldProp = Property.BoolProperty(oldTime)
-                    val newProp = Property.BoolProperty(newTime)
+                    val oldProp = Property.BoolProperty("old", oldTime)
+                    val newProp = Property.BoolProperty("new", newTime)
                     val (senderProp, receiverProp) = scenario.organize(oldProp, newProp)
 
                     if (scenario.senderIsSpecifiedIdentifier == SpecifiedIdentifier.SPECIFIED) {
@@ -434,12 +442,14 @@ enum class PropertyTestCase {
     },
     OBJECT {
         override suspend fun testInitial() {
-            val prop = Property.ObjectProperty<AlertStatus>(0L)
+            val prop = Property.ObjectProperty<AlertStatus>("", 0L)
             prop.shouldBeUnspecified()
+            prop.toString() shouldBeEqual "null"
 
             Exhaustive.enum<AlertStatus>().checkAll { value ->
                 prop.value = value
                 prop.shouldBeSpecified()
+                prop.toString() shouldBeEqual value.toString()
             }
         }
 
@@ -455,8 +465,8 @@ enum class PropertyTestCase {
                 .checkAll { (oldTime, newTime, values) ->
                     collect(values.joinToString(" -> "))
 
-                    val oldProp = Property.ObjectProperty<AlertStatus>(oldTime)
-                    val newProp = Property.ObjectProperty<AlertStatus>(newTime)
+                    val oldProp = Property.ObjectProperty<AlertStatus>("old", oldTime)
+                    val newProp = Property.ObjectProperty<AlertStatus>("new", newTime)
                     val (senderProp, receiverProp) = scenario.organize(oldProp, newProp)
 
                     val senderValue = values[1]

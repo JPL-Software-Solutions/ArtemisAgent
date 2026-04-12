@@ -65,7 +65,7 @@ class TextHelpersTest :
             }
 
         describe("Shield text") {
-            val shields = Shields(0L)
+            val shields = Shields("", 0L)
 
             withData(
                 nameFn = { "With${if (it) "" else "out"} percentage" },

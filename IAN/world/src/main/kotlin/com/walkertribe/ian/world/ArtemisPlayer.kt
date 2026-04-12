@@ -16,37 +16,38 @@ class ArtemisPlayer(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisPlayer>(i
     override val type: ObjectType = ObjectType.PLAYER_SHIP
 
     /** Returns this player ship's energy reserves. */
-    val energy = Property.FloatProperty(timestamp)
+    val energy = Property.FloatProperty("Energy", timestamp)
 
     /** Returns whether this player ship's shields are active. */
-    val shieldsActive = Property.BoolProperty(timestamp)
+    val shieldsActive = Property.BoolProperty("Shields active", timestamp)
 
     /** Returns whether this player ship has activated a double agent. */
-    val doubleAgentActive = Property.BoolProperty(timestamp)
+    val doubleAgentActive = Property.BoolProperty("Double agent active", timestamp)
 
     /** Returns the number of double agents on this player ship. */
-    val doubleAgentCount = Property.ByteProperty(timestamp)
+    val doubleAgentCount = Property.ByteProperty("Double agent count", timestamp)
 
     /**
      * Returns the number of seconds for which the currently active double agent will remain active.
      */
-    val doubleAgentSecondsLeft = Property.IntProperty(timestamp)
+    val doubleAgentSecondsLeft =
+        Property.IntProperty("Double agent time remaining in seconds", timestamp)
 
     /** Returns the alert status of the ship. */
-    val alertStatus = Property.ObjectProperty<AlertStatus>(timestamp)
+    val alertStatus = Property.ObjectProperty<AlertStatus>("Alert status", timestamp)
 
     /**
      * Get this ship's player ship index. Note that this value is zero-based, so the vessel that is
      * named Artemis will have a ship index of 0. If the ship is a single-seat craft, this value
      * will be -1. Unspecified: Byte.MIN_VALUE
      */
-    val shipIndex = Property.ByteProperty(timestamp, Byte.MIN_VALUE)
+    val shipIndex = Property.ByteProperty("Ship index", timestamp, Byte.MIN_VALUE)
 
     /**
      * Returns the ID of the capital ship with which this ship can dock. Only applies to single-seat
      * craft. Unspecified: -1
      */
-    val capitalShipID = Property.IntProperty(timestamp)
+    val capitalShipID = Property.IntProperty("Capital ship ID", timestamp)
 
     /**
      * Get the ID of the base at which we're docking. This property is set when a base latches onto
@@ -57,17 +58,17 @@ class ArtemisPlayer(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisPlayer>(i
      * update has the ship engaging impulse or warp drive, this property will be set to 0 to
      * indicate that the ship has undocked. Unspecified: -1
      */
-    val dockingBase = Property.IntProperty(timestamp)
+    val dockingBase = Property.IntProperty("Docking base ID", timestamp)
 
     /** Returns [BoolState.True] if the player ship is docked; [BoolState.False] otherwise. */
     var docked: BoolState = BoolState.False
 
     /** The type of drive system the ship has. Unspecified: null */
-    val driveType = Property.ObjectProperty<DriveType>(timestamp)
+    val driveType = Property.ObjectProperty<DriveType>("Drive type", timestamp)
 
     /** Warp factor, between 0 (not at warp) and [Artemis.MAX_WARP]. Unspecified: -1 */
     val warp =
-        Property.ByteProperty(timestamp) {
+        Property.ByteProperty("Warp", timestamp) {
             require(it in -1..Artemis.MAX_WARP) { "Invalid warp factor: $it" }
             if (it > 0) {
                 docked = BoolState.False
@@ -76,10 +77,12 @@ class ArtemisPlayer(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisPlayer>(i
 
     /** Ordnance counts. */
     val ordnanceCounts =
-        OrdnanceType.entries.map { Property.ByteProperty(timestamp) }.toTypedArray()
+        OrdnanceType.entries
+            .map { ordnanceType -> Property.ByteProperty("$ordnanceType count", timestamp) }
+            .toTypedArray()
 
     /** Weapons tubes. */
-    val tubes = Array(Artemis.MAX_TUBES) { WeaponsTube(timestamp) }
+    val tubes = Array(Artemis.MAX_TUBES) { WeaponsTube(it, timestamp) }
 
     /** Returns true if this object contains any data that is not upgrades data. */
     val hasPlayerData: Boolean
@@ -123,6 +126,28 @@ class ArtemisPlayer(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisPlayer>(i
         updatesUpgradesFor(other)
     }
 
+    override fun appendDetails(builder: StringBuilder) {
+        super.appendDetails(builder)
+
+        shipIndex.appendTo(builder)
+        capitalShipID.appendTo(builder)
+        driveType.appendTo(builder)
+        energy.appendTo(builder)
+        shieldsActive.appendTo(builder)
+        warp.appendTo(builder)
+        alertStatus.appendTo(builder)
+        doubleAgentCount.appendTo(builder)
+        doubleAgentActive.appendTo(builder)
+        doubleAgentSecondsLeft.appendTo(builder)
+        dockingBase.appendTo(builder)
+
+        builder.append("\nIs docked: ")
+        builder.append(docked)
+
+        ordnanceCounts.forEach { it.appendTo(builder) }
+        tubes.forEach { it.appendTo(builder) }
+    }
+
     /**
      * Updates only data from the given ArtemisPlayer object that is not weapons, engineering or
      * upgrades data.
@@ -137,7 +162,7 @@ class ArtemisPlayer(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisPlayer>(i
         driveType updates plr.driveType
         dockingBase.updates(plr.dockingBase) {
             if (impulse.value > 0f || warp.value > 0) {
-                Property.IntProperty(timestamp).also {
+                Property.IntProperty("", timestamp).also {
                     it.value = 0
                     it updates plr.dockingBase
                 }

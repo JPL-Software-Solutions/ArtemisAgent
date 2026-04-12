@@ -9,11 +9,15 @@ import com.walkertribe.ian.util.JamCrc
 /** Interface for all packets that can be received or sent. */
 sealed interface Packet {
     abstract class Server(reader: PacketReader) : Packet, ListenerArgument {
+        abstract val details: String
+
         final override val timestamp: Long = reader.packetTimestamp
 
         override fun offerTo(module: ListenerModule) {
             module.onPacket(this)
         }
+
+        override fun toString(): String = "[${this::class.simpleName}] $details".trimEnd()
     }
 
     abstract class Client(

@@ -28,6 +28,7 @@ import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.KoinApplication
 import org.koin.core.annotation.Module
+import org.koin.core.annotation.Monitor
 import org.koin.core.annotation.Single
 
 class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
@@ -74,6 +75,7 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
             TypeSpec.classBuilder(FILENAME)
                 .addSuperinterface(ClassName(MAIN_PACKAGE, "Protocol"))
                 .addAnnotation(Single::class)
+                .addAnnotation(Monitor::class)
                 .addFunction(getFactoryFunBuilder.build())
                 .addType(protocolCompanionBuilder.build())
 

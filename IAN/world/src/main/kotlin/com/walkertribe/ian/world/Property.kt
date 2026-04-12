@@ -4,12 +4,14 @@ import com.walkertribe.ian.util.BoolState
 import com.walkertribe.ian.util.isKnown
 
 sealed class Property<V, P : Property<V, P>>(
+    internal val name: String,
     initialValue: V,
     initialTimestamp: Long,
     private var onSet: (V) -> Unit = {},
 ) {
-    class FloatProperty(timestamp: Long, onSet: (Float) -> Unit = {}) :
-        Property<Float, FloatProperty>(Float.NaN, timestamp, onSet), Comparable<FloatProperty> {
+    class FloatProperty(name: String, timestamp: Long, onSet: (Float) -> Unit = {}) :
+        Property<Float, FloatProperty>(name, Float.NaN, timestamp, onSet),
+        Comparable<FloatProperty> {
         override val hasValue: Boolean
             get() = !value.isNaN()
 
@@ -25,10 +27,13 @@ sealed class Property<V, P : Property<V, P>>(
     }
 
     class ByteProperty(
+        name: String,
         timestamp: Long,
         private val initialValue: Byte = -1,
         onSet: (Byte) -> Unit = {},
-    ) : Property<Byte, ByteProperty>(initialValue, timestamp, onSet), Comparable<ByteProperty> {
+    ) :
+        Property<Byte, ByteProperty>(name, initialValue, timestamp, onSet),
+        Comparable<ByteProperty> {
         override val hasValue: Boolean
             get() = value != initialValue
 
@@ -48,10 +53,11 @@ sealed class Property<V, P : Property<V, P>>(
     }
 
     class IntProperty(
+        name: String,
         timestamp: Long,
         private val initialValue: Int = -1,
         onSet: (Int) -> Unit = {},
-    ) : Property<Int, IntProperty>(initialValue, timestamp, onSet), Comparable<IntProperty> {
+    ) : Property<Int, IntProperty>(name, initialValue, timestamp, onSet), Comparable<IntProperty> {
         override val hasValue: Boolean
             get() = value != initialValue
 
@@ -70,14 +76,14 @@ sealed class Property<V, P : Property<V, P>>(
         }
     }
 
-    class BoolProperty(timestamp: Long, onSet: (BoolState) -> Unit = {}) :
-        Property<BoolState, BoolProperty>(BoolState.Unknown, timestamp, onSet) {
+    class BoolProperty(name: String, timestamp: Long, onSet: (BoolState) -> Unit = {}) :
+        Property<BoolState, BoolProperty>(name, BoolState.Unknown, timestamp, onSet) {
         override val hasValue: Boolean
             get() = value.isKnown
     }
 
-    class ObjectProperty<V : Any>(timestamp: Long, onSet: (V?) -> Unit = {}) :
-        Property<V?, ObjectProperty<V>>(null, timestamp, onSet) {
+    class ObjectProperty<V : Any>(name: String, timestamp: Long, onSet: (V?) -> Unit = {}) :
+        Property<V?, ObjectProperty<V>>(name, null, timestamp, onSet) {
         override val hasValue: Boolean
             get() = value != null
     }
@@ -118,4 +124,15 @@ sealed class Property<V, P : Property<V, P>>(
             }
         }
     }
+
+    internal fun appendTo(builder: StringBuilder) {
+        if (hasValue) {
+            builder.append("\n")
+            builder.append(name)
+            builder.append(": ")
+            builder.append(value)
+        }
+    }
+
+    override fun toString(): String = value.toString()
 }

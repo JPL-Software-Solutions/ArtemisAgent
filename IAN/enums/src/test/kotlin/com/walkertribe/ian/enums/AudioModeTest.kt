@@ -12,12 +12,19 @@ class AudioModeTest :
         it("Playing") { AudioMode.Playing.shouldBeInstanceOf<AudioMode>() }
 
         describe("Incoming") {
+            val incomingList = mutableListOf<AudioMode.Incoming>()
+
             it("Constructor") {
                 checkAll(Arb.string(), Arb.string()) { title, filename ->
                     val incomingAudio = AudioMode.Incoming(title, filename)
                     incomingAudio.title shouldBeEqual title
                     incomingAudio.filename shouldBeEqual filename
+                    incomingList.add(incomingAudio)
                 }
+            }
+
+            it("String representation") {
+                incomingList.forEach { it.toString() shouldBeEqual "Incoming: ${it.title}" }
             }
         }
     })

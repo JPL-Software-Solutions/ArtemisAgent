@@ -35,6 +35,8 @@ class ObjectUpdatePacket(reader: PacketReader) : Packet.Server(reader) {
     /** Returns the types of updated objects. */
     val objectClasses: Set<KClass<out ArtemisObject<*>>>
 
+    override val details: String by lazy { objects.joinToString(separator = "\n\n", prefix = "\n") }
+
     init {
         val objectList = mutableListOf<ArtemisObject<*>>()
         val classes = mutableSetOf<KClass<out ArtemisObject<*>>>()

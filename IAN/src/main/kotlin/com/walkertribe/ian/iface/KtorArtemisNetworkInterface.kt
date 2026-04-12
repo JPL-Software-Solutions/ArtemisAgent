@@ -4,6 +4,7 @@ import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.protocol.PacketException
 import com.walkertribe.ian.protocol.core.setup.WelcomePacket
 import com.walkertribe.ian.util.Version
+import io.kotzilla.sdk.KotzillaCore
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.Socket
 import io.ktor.network.sockets.aSocket
@@ -226,20 +227,25 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
     override suspend fun connect(host: String, port: Int, timeoutMs: Long): Boolean {
         if (isRunning) stop()
 
-        socket =
-            try {
-                withTimeout(timeoutMs) {
-                    aSocket(SelectorManager(Dispatchers.IO)).tcp().connect(host, port) {
-                        keepAlive = true
-                    }
+        val success =
+            KotzillaCore.getDefaultInstance().suspendTrace("Connect to $host") {
+                try {
+                    socket =
+                        withTimeout(timeoutMs) {
+                            aSocket(SelectorManager(Dispatchers.IO)).tcp().connect(host, port) {
+                                keepAlive = true
+                            }
+                        }
+                    true
+                } catch (_: TimeoutCancellationException) {
+                    false
+                } catch (_: IllegalArgumentException) {
+                    false
+                } catch (_: IOException) {
+                    false
                 }
-            } catch (_: TimeoutCancellationException) {
-                null
-            } catch (_: IllegalArgumentException) {
-                null
-            } catch (_: IOException) {
-                null
-            } ?: return false
+            }
+        if (!success) return false
 
         reader = PacketReader(socket.openReadChannel(), listeners)
         writer = PacketWriter(socket.openWriteChannel())

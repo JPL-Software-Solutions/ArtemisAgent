@@ -14,6 +14,8 @@ import com.walkertribe.ian.util.BoolState
 import com.walkertribe.ian.util.Version
 import com.walkertribe.ian.util.readBitField
 import com.walkertribe.ian.util.readBoolState
+import io.kotzilla.sdk.KotzillaCore
+import io.kotzilla.sdk.analytics.koin.analyticsLogger
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.bits.reverseByteOrder
 import io.ktor.utils.io.core.discard
@@ -35,7 +37,7 @@ import kotlinx.io.readShortLe
 import org.koin.core.Koin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.ksp.generated.koinApplication
+import org.koin.plugin.module.dsl.koinApplication
 
 /**
  * Facilitates reading packets from an [ByteReadChannel]. This object may be reused to read as many
@@ -48,7 +50,7 @@ class PacketReader(
     private val channel: ByteReadChannel,
     private val listenerRegistry: ListenerRegistry,
 ) : KoinComponent {
-    private val koinApp = IAN.koinApplication()
+    private val koinApp = koinApplication<IAN> { analyticsLogger() }
 
     private val protocol: Protocol by inject()
 
@@ -113,20 +115,25 @@ class PacketReader(
                         factoryClass.isSubclassOf(ObjectUpdatePacket::class) ||
                         factoryClass.isSubclassOf(VersionPacket::class)
                 }
-                ?.build(this)
-                ?.takeIf { packet ->
-                    if (packet is ObjectUpdatePacket) {
-                        packet.objectClasses.forEach {
-                            result.addListeners(listenerRegistry.listeningFor(it))
+                ?.let { factory ->
+                    KotzillaCore.getDefaultInstance()
+                        .trace(factory.factoryClass.simpleName ?: "Packet") { factory.build(this) }
+                        .takeIf { packet ->
+                            KotzillaCore.getDefaultInstance().log(packet.toString())
+
+                            if (packet is ObjectUpdatePacket) {
+                                packet.objectClasses.forEach {
+                                    result.addListeners(listenerRegistry.listeningFor(it))
+                                }
+                                return@takeIf result.isInteresting
+                            }
+
+                            if (packet is VersionPacket) {
+                                version = packet.version
+                            }
+
+                            true
                         }
-                        return@takeIf result.isInteresting
-                    }
-
-                    if (packet is VersionPacket) {
-                        version = packet.version
-                    }
-
-                    true
                 }
                 ?.let { packet -> ParseResult.Success(packet, result) } ?: ParseResult.Skip
         } catch (ex: PacketException) {
@@ -278,6 +285,9 @@ class PacketReader(
 
     fun close(cause: Throwable? = null) {
         channel.cancel(cause)
+        if (cause != null) {
+            KotzillaCore.getDefaultInstance().logError("PacketReader: error occurred", cause)
+        }
         koinApp.close()
     }
 

@@ -4,17 +4,17 @@ package com.walkertribe.ian.world
 abstract class BaseArtemisShip<T : BaseArtemisShip<T>>(id: Int, timestamp: Long) :
     BaseArtemisShielded<T>(id, timestamp) {
     /** The aft shields. */
-    val shieldsRear = Shields(timestamp)
+    val shieldsRear = Shields("Rear", timestamp)
 
     /**
      * Impulse setting, as a value from 0 (all stop) and 1 (full impulse). Unspecified: Float.NaN
      */
-    val impulse = Property.FloatProperty(timestamp)
+    val impulse = Property.FloatProperty("Impulse", timestamp)
 
     /**
      * The side the ship is on. Ships on the same side are friendly to one another. Unspecified: -1
      */
-    val side = Property.ByteProperty(timestamp)
+    val side = Property.ByteProperty("Side", timestamp)
 
     /** Returns true if this object contains any data. */
     override val hasData
@@ -26,6 +26,14 @@ abstract class BaseArtemisShip<T : BaseArtemisShip<T>>(id: Int, timestamp: Long)
         side updates other.side
 
         super.updates(other)
+    }
+
+    override fun appendDetails(builder: StringBuilder) {
+        super.appendDetails(builder)
+
+        shieldsRear.appendTo(builder)
+        side.appendTo(builder)
+        impulse.appendTo(builder)
     }
 
     abstract class Dsl<T : BaseArtemisShip<T>> : BaseArtemisShielded.Dsl<T>() {

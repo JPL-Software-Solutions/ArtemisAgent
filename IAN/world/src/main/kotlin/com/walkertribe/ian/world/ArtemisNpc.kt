@@ -24,16 +24,16 @@ class ArtemisNpc(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisNpc>(id, tim
      * Is the NPC understood to be an enemy? Always true in PvP and scripted games. Unspecified:
      * BoolState.Unknown
      */
-    val isEnemy = Property.BoolProperty(timestamp)
+    val isEnemy = Property.BoolProperty("Is enemy", timestamp)
 
     /** Has the NPC surrendered? Unspecified: BoolState.Unknown */
-    val isSurrendered = Property.BoolProperty(timestamp)
+    val isSurrendered = Property.BoolProperty("Is surrendered", timestamp)
 
     /** Is the NPC in a nebula? Unspecified: BoolState.Unknown */
-    val isInNebula = Property.BoolProperty(timestamp)
+    val isInNebula = Property.BoolProperty("Is in nebula", timestamp)
 
     /** A bitmask indicating which sides have scanned this NPC at least once. Unspecified: null */
-    val scanBits = Property.ObjectProperty<Int>(timestamp)
+    val scanBits = Property.ObjectProperty<Int>("Scan bits", timestamp)
 
     override val hasData
         get() =
@@ -56,6 +56,20 @@ class ArtemisNpc(id: Int, timestamp: Long) : BaseArtemisShip<ArtemisNpc>(id, tim
         isSurrendered updates other.isSurrendered
         isInNebula updates other.isInNebula
         scanBits updates other.scanBits
+    }
+
+    override fun appendDetails(builder: StringBuilder) {
+        super.appendDetails(builder)
+
+        isEnemy.appendTo(builder)
+        isSurrendered.appendTo(builder)
+        isInNebula.appendTo(builder)
+
+        val scan = scanBits.value
+        if (scan != null) {
+            builder.append("\nScan bits: ")
+            builder.append(scan.toHexString(HexFormat.UpperCase))
+        }
     }
 
     object Dsl : BaseArtemisShip.Dsl<ArtemisNpc>() {

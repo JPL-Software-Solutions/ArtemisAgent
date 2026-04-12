@@ -23,4 +23,6 @@ class GameOverReasonPacket(reader: PacketReader) : SimpleEventPacket(reader) {
     init {
         reader.clearObjectIDs()
     }
+
+    override val details: String by lazy { text.joinToString(separator = "\n", prefix = "\n") }
 }

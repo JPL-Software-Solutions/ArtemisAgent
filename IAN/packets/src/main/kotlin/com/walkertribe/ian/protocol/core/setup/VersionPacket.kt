@@ -24,6 +24,8 @@ class VersionPacket(reader: PacketReader) : Packet.Server(reader) {
         }
     }
 
+    override val details: String by lazy { version.toString() }
+
     private companion object {
         private const val SKIPPED_BYTES = Int.SIZE_BYTES + Float.SIZE_BYTES
     }
