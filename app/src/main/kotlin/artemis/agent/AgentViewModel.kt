@@ -46,6 +46,7 @@ import com.walkertribe.ian.iface.ConnectionEvent
 import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.iface.KtorArtemisNetworkInterface
 import com.walkertribe.ian.iface.Listener
+import com.walkertribe.ian.iface.addListeners
 import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.protocol.core.ActivateUpgradePacket
 import com.walkertribe.ian.protocol.core.BayStatusPacket
