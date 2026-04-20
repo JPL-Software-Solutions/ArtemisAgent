@@ -66,7 +66,7 @@ android {
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.addAll("-Xannotation-target-all", "-XXLanguage:+ExplicitBackingFields")
+            freeCompilerArgs.add("-Xannotation-target-all")
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
             javaParameters = true
         }

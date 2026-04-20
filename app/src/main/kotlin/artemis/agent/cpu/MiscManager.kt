@@ -9,22 +9,33 @@ import com.walkertribe.ian.protocol.core.comm.IncomingAudioPacket
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MiscManager {
+    private val mutActionsExist: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
+    private val mutAudioExists: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
+
     val actionsExist: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+        get() = mutActionsExist.asStateFlow()
 
     val audioExists: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+        get() = mutAudioExists.asStateFlow()
 
     private val actionSet = CopyOnWriteArraySet<CommsActionEntry>()
     private val audioSet = CopyOnWriteArraySet<AudioEntry>()
 
+    private val mutActions: MutableStateFlow<List<CommsActionEntry>> by lazy {
+        MutableStateFlow(emptyList())
+    }
+    private val mutAudio: MutableStateFlow<List<AudioEntry>> by lazy {
+        MutableStateFlow(emptyList())
+    }
+
     val actions: StateFlow<List<CommsActionEntry>>
-        field = MutableStateFlow(emptyList())
+        get() = mutActions.asStateFlow()
 
     val audio: StateFlow<List<AudioEntry>>
-        field = MutableStateFlow(emptyList())
+        get() = mutAudio.asStateFlow()
 
     val showingAudio: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
 
@@ -35,16 +46,16 @@ class MiscManager {
         get() = hasUpdate.takeIf { hasData }
 
     private val hasData: Boolean
-        get() = actionsExist.value || audioExists.value
+        get() = mutActionsExist.value || mutAudioExists.value
 
     fun reset() {
         hasUpdate = false
-        actionsExist.value = false
-        audioExists.value = false
+        mutActionsExist.value = false
+        mutAudioExists.value = false
         actionSet.clear()
         audioSet.clear()
-        actions.value = emptyList()
-        audio.value = emptyList()
+        mutActions.value = emptyList()
+        mutAudio.value = emptyList()
     }
 
     fun resetUpdate() {
@@ -60,7 +71,7 @@ class MiscManager {
             }
             is CommsButtonPacket.Action.Create -> {
                 actionSet.add(CommsActionEntry(action.label))
-                actionsExist.value = true
+                mutActionsExist.value = true
                 hasUpdate = true
             }
             is CommsButtonPacket.Action.Remove -> {
@@ -69,7 +80,7 @@ class MiscManager {
                 }
             }
         }
-        actions.value = actionSet.toList()
+        mutActions.value = actionSet.toList()
     }
 
     @Listener
@@ -77,14 +88,14 @@ class MiscManager {
         val audioMode = packet.audioMode as? AudioMode.Incoming ?: return
 
         audioSet.add(AudioEntry(packet.audioId, audioMode.title))
-        audio.value = audioSet.toList()
-        audioExists.value = true
+        mutAudio.value = audioSet.toList()
+        mutAudioExists.value = true
         hasUpdate = true
     }
 
     fun dismissAudio(entry: AudioEntry) {
         if (audioSet.remove(entry)) {
-            audio.value = audioSet.toList()
+            mutAudio.value = audioSet.toList()
         }
     }
 }
