@@ -119,7 +119,7 @@ androidComponents {
 
         tasks
             .named { it == "assemble${variantName}" }
-            .configureEach { dependsOn(":app:konsist:test${variantName}UnitTest") }
+            .configureEach { dependsOn(":app:konsist:testDebugUnitTest") }
         tasks
             .named { it.startsWith("ksp$variantName") && it.endsWith("Kotlin") }
             .configureEach { mustRunAfter("generate${variantName}Proto") }
