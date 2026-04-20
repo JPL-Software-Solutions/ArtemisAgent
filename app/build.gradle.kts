@@ -66,7 +66,7 @@ android {
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.add("-Xannotation-target-all")
+            freeCompilerArgs.addAll("-Xannotation-target-all", "-XXLanguage:+ExplicitBackingFields")
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
             javaParameters = true
         }
@@ -148,6 +148,7 @@ dependencies {
 
     testImplementation(platform(libs.kotest.bom))
     testImplementation(libs.bundles.app.test)
+    testDebugImplementation(libs.bundles.app.test.debug)
     testRuntimeOnly(libs.bundles.app.test.runtime)
 
     androidTestImplementation(libs.bundles.app.androidTest) {

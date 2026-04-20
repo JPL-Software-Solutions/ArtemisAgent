@@ -80,7 +80,7 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Read version from properties file
         uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
@@ -96,7 +96,7 @@ jobs:
 
       - name: Bump app version name
         id: nextVersionName
-        uses: cbrgm/semver-bump-action@1f1e5576db396841e9f0c11513e7efaad641b33d # v1.0.47
+        uses: cbrgm/semver-bump-action@71586b8937e1e0dd23cdda7e1ff48846cc081fc8 # v1.0.48
         with:
           current-version: ${{ steps.version.outputs.versionName }}
           bump-level: ${{ inputs.versionBump }}
@@ -127,13 +127,13 @@ jobs:
 
       - name: Set Firebase Project
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
+        uses: w9jds/firebase-action@a1dca4c0e5fc6122087431e4c7ab2733628b7795 # v15.15.0
         with:
           args: use ${{ secrets.GCP_PROJECT }}
 
       - name: Get Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
+        uses: w9jds/firebase-action@a1dca4c0e5fc6122087431e4c7ab2733628b7795 # v15.15.0
         with:
           args: remoteconfig:get -o app/remote-config.json
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Publish Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@dac0c0a9d39da0b05a40d6c9a9ca95544655f8bb # v15.11.0
+        uses: w9jds/firebase-action@a1dca4c0e5fc6122087431e4c7ab2733628b7795 # v15.15.0
         with:
           args: deploy --only remoteconfig
 

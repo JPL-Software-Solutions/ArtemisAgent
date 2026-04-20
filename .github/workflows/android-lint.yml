@@ -37,7 +37,7 @@ jobs:
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+      uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
     - name: Android Lint
       uses: burrunan/gradle-cache-action@663fbad34e03c8f12b27f4999ac46e3d90f87eca # v3.0.1
@@ -45,20 +45,20 @@ jobs:
         arguments: lint
 
     - name: Report
-      uses: hidakatsuya/action-report-android-lint@36d1f5452bbcf1b425e6db2ab59d7ad4d23ff8a4 # v1.2.3
+      uses: hidakatsuya/action-report-android-lint@e95452c02063fc0a9920a545ffc9d0ee82b58bfb # v1.3.0
       with:
         result-path: app/**/reports/lint-results-debug.xml
         fail-on-warning: false
 
     - name: Upload app SARIF report
-      uses: github/codeql-action/upload-sarif@38697555549f1db7851b81482ff19f1fa5c4fedc # v4.34.1
+      uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
       with:
         sarif_file: ${{ github.workspace }}/app/build/reports/lint-results-debug.sarif
         checkout_path: ${{ github.workspace }}
         category: "android-lint"
 
     - name: Upload Konsist SARIF report
-      uses: github/codeql-action/upload-sarif@38697555549f1db7851b81482ff19f1fa5c4fedc # v4.34.1
+      uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
       with:
         sarif_file: ${{ github.workspace }}/app/konsist/build/reports/lint-results-debug.sarif
         checkout_path: ${{ github.workspace }}

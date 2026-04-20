@@ -5,6 +5,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.equals.shouldNotBeEqual
+import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldHaveSameHashCodeAs
 import io.kotest.property.Arb
 import io.kotest.property.Exhaustive
@@ -63,6 +64,17 @@ class DamageTest :
             it("Invalid damage") {
                 checkAll(exhaustiveCoords, Arb.negativeFloat()) { coord, value ->
                     shouldThrow<IllegalArgumentException> { Damage(coord, value) }
+                }
+            }
+
+            describe("String conversion") {
+                repeat(5) {
+                    val amount = it * 0.25f
+                    val percent = it * 25
+                    it("$percent%") {
+                        val damage = Damage(Coordinate.ALL[it], amount)
+                        damage.toString() shouldStartWith "$percent% damage at Coordinate"
+                    }
                 }
             }
         }

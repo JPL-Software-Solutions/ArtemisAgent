@@ -25,8 +25,8 @@ import dev.tmapps.konnection.Konnection
 import io.github.kakaocup.kakao.screen.Screen
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -184,16 +184,7 @@ class ConnectFragmentTest : TestCase() {
                 }
                 val settingValue = showingInfo.get()
 
-                runTest(timeout = 5.minutes) {
-                    val hasNetwork = !Konnection.instance.getInfo()?.ipv4.isNullOrBlank()
-
-                    booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
-                        index,
-                        showing ->
-                        if (index != 0) toggleShowingInfo()
-                        testShowingInfo(showing, hasNetwork)
-                    }
-                }
+                testShowingInfo(settingValue)
             }
         }
     }
@@ -251,16 +242,35 @@ class ConnectFragmentTest : TestCase() {
             step("Return to Connect page") { SetupPageScreen.connectPageButton.click() }
         }
 
-        private fun TestContext<Unit>.testShowingInfo(isShowing: Boolean, hasNetwork: Boolean) {
-            step("Network info views should ${if (isShowing) "" else "not "}be displayed") {
-                val lastIndex = ConnectPageScreen.infoViews.lastIndex
+        private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
+            runTest {
+                val deferredIp = async { Konnection.instance.getInfo()?.ipv4 }
 
-                ConnectPageScreen.infoViews.forEachIndexed { index, view ->
-                    if (isShowing && (index < lastIndex || hasNetwork)) {
-                        flakySafely(timeoutMs = 2.minutes.inWholeMilliseconds) {
-                            view.isCompletelyDisplayed()
-                        }
-                    } else view.isNotDisplayed()
+                booleanArrayOf(settingValue, !settingValue, settingValue).forEachIndexed {
+                    index,
+                    isShowing ->
+                    if (index > 0) {
+                        toggleShowingInfo()
+                    }
+
+                    val ip = deferredIp.await().orEmpty()
+                    testNetworkInfoViews(isShowing, ip)
+                }
+            }
+        }
+
+        private fun TestContext<Unit>.testNetworkInfoViews(isShowing: Boolean, ip: String) {
+            step("Network info views should ${if (isShowing) "" else "not "}be displayed") {
+                ConnectPageScreen {
+                    addressLabel {
+                        if (isShowing && ip.isNotEmpty())
+                            flakySafely(10.seconds.inWholeMilliseconds) { isDisplayedWithText(ip) }
+                        else isNotDisplayed()
+                    }
+
+                    listOf(networkTypeLabel, networkInfoDivider).forEach { view ->
+                        if (isShowing) view.isCompletelyDisplayed() else view.isNotDisplayed()
+                    }
                 }
             }
         }

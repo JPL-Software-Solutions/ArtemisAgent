@@ -5,6 +5,8 @@
         <item name="colorPrimaryDark">@color/backgroundBlack</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorButtonNormal">@color/textDefault</item>
+        <item name="android:colorBackground">@color/backgroundBlack</item>
+        <item name="android:windowBackground">@color/backgroundBlack</item>
         <item name="android:textColorPrimary">@color/textDefault</item>
         <item name="android:textColorHint">?attr/colorAccent</item>
         <item name="fontFamily">@font/oxanium</item>
@@ -103,6 +105,48 @@
         <item name="colorButtonNormal">@color/colorPrimaryOrange</item>
         <item name="progressBarStyle">@style/Widget.ArtemisAgent.ProgressBar</item>
         <item name="android:progressBarStyle">@style/Widget.ArtemisAgent.ProgressBar</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/backgroundBlack</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Red">
+        <item name="windowSplashScreenBackground">@color/backgroundRed</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Red</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Green">
+        <item name="windowSplashScreenBackground">@color/backgroundGreen</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Green</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Yellow">
+        <item name="windowSplashScreenBackground">@color/backgroundYellow</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Yellow</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Blue">
+        <item name="windowSplashScreenBackground">@color/backgroundBlue</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Blue</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Purple">
+        <item name="windowSplashScreenBackground">@color/backgroundPurple</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Purple</item>
+    </style>
+
+    <style name="Theme.SplashScreen.ArtemisAgent.Orange">
+        <item name="windowSplashScreenBackground">@color/backgroundOrange</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtemisAgent.Orange</item>
     </style>
 
     <style name="ThemeOverlay.ArtemisAgent.AlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">

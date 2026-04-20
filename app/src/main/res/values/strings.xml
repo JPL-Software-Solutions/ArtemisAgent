@@ -702,6 +702,7 @@
     <string name="subtract_one_second">Subtract one second</string>
     <string name="subtract_ten_seconds">Subtract ten seconds</string>
     <string name="supplies">Supplies</string>
+    <string name="supports_artemis_versions">Supports Artemis SBS from version 2.3.0 up to %1$s\n</string>
     <string name="surrender">Surrender</string>
     <string name="surrender_burst_count">Surrender burst count</string>
     <string name="surrender_burst_interval">Surrender burst interval</string>

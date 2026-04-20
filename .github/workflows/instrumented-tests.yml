@@ -70,12 +70,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Set up Android SDK Tools
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
 
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Setup FFmpeg
         uses: AnimMouse/setup-ffmpeg@v1
@@ -95,7 +95,7 @@ jobs:
           script: .github/workflows/instrumented-test-recording.sh ${{ matrix.api-level }} ${{ matrix.orientation.rotation }}
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: "Instrumented Test Results (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }})"

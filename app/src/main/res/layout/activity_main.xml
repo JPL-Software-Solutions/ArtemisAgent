@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.875"
-        android:background="?attr/colorPrimaryDark"
+        android:background="?android:attr/colorPrimaryDark"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"

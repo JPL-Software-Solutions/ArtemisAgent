@@ -1,6 +1,6 @@
 [versions]
 androidx-activity = "1.13.0"
-androidx-annotation = "1.9.1"
+androidx-annotation = "1.10.0"
 androidx-appcompat = "1.7.1"
 androidx-constraintlayout = "2.2.1"
 androidx-core = "1.18.0"
@@ -9,6 +9,8 @@ androidx-fragment = "1.8.9"
 androidx-lifecycle = "2.10.0"
 androidx-multidex = "2.0.1"
 androidx-recyclerview = "1.4.0"
+androidx-splashscreen = "1.2.0"
+androidx-startup = "1.2.0"
 androidx-test-core = "1.7.0"
 androidx-test-junit = "1.3.0"
 androidx-test-monitor = "1.8.0"
@@ -19,38 +21,38 @@ app-update = "2.1.0"
 arcmutate-base = "1.7.0"
 arcmutate-git = "2.3.2"
 arcmutate-kotlin = "1.5.0"
-crashlytics-plugin = "3.0.6"
-dependency-analysis = "3.6.1"
+crashlytics-plugin = "3.0.7"
+dependency-analysis = "3.8.0"
 desugar = "2.1.5"
 detekt = "1.23.8"
 espresso = "3.7.0"
-firebase-bom = "34.11.0"
+firebase-bom = "34.12.0"
 git-hooks = "0.0.2"
 google-services = "4.4.4"
 gradle = "8.13.2"
-gradle-pitest = "1.19.0-rc.3"
+gradle-pitest = "1.19.0"
 hamcrest = "3.0"
 jspecify = "1.0.0"
 junit4 = "4.13.2"
 kakao = "3.7.0"
-kaspresso = "1.6.0"
-koin = "4.2.0"
+kaspresso = "1.6.1"
+koin = "4.2.1"
 koin-annotations = "2.3.1"
 konnection = "1.4.5"
 konsist = "0.17.3"
 korlibs-serialization = "6.0.1"
 korlibs-string = "6.0.0"
-kotest = "6.1.7"
+kotest = "6.1.11"
 kotest-arbs = "2.1.2"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 kotlin-coroutines = "1.10.2"
 kotlin-io = "0.9.0"
-kotlin-serialization = "1.10.0"
-kotlinpoet = "2.2.0"
-kover = "0.9.7"
+kotlin-serialization = "1.11.0"
+kotlinpoet = "2.3.0"
+kover = "0.9.8"
 ksp = "2.3.6"
 ktfmt = "0.26.0"
-ktor = "3.4.1"
+ktor = "3.4.2"
 leakcanary = "2.14"
 lint-security = "1.0.4"
 markwon = "4.6.2"
@@ -112,6 +114,7 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-a
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
 core = { module = "androidx.core:core", version.ref = "androidx-core" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "androidx-datastore" }
 fragment = { module = "androidx.fragment:fragment", version.ref = "androidx-fragment" }
@@ -122,6 +125,7 @@ lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.r
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 multidex = { module = "androidx.multidex:multidex", version.ref = "androidx-multidex" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
+startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 
@@ -159,7 +163,6 @@ test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "andr
 test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 
 espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
-uiautomator = "androidx.test.uiautomator:uiautomator:2.3.0"
 
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 
@@ -232,6 +235,7 @@ app = [
     "constraintlayout",
     "core",
     "core-ktx",
+    "core-splashscreen",
     "datastore",
     "datastore-core",
     "fragment",
@@ -242,6 +246,7 @@ app = [
     "lifecycle-viewmodel",
     "multidex",
     "recyclerview",
+    "startup",
     "konnection",
     "okio",
     "okio-assets",
@@ -275,13 +280,15 @@ app-test = [
     "kotlinx-serialization-json",
     "ktor-io",
 ]
+app-test-debug = [
+    "konnection-android-debug",
+]
 app-test-runtime = [
     "kotest-runner-junit5-jvm",
 ]
 app-androidTest = [
     "kotlinx-coroutines-test",
     "espresso",
-    "uiautomator",
     "junit4",
     "hamcrest",
     "kaspresso",

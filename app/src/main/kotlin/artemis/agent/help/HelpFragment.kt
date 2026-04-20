@@ -76,7 +76,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
                     layoutManager.spanCount = 2
                     View.GONE
                 } else {
-                    helpTopics[index].initContents(resources)
+                    helpTopics[index].initContents(resources, viewModel)
                     layoutManager.spanCount = 1
                     binding.helpTopicTitle.setText(helpTopics[index].buttonLabel)
                     backPreview.isEnabled = true
@@ -106,14 +106,14 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
     private class HelpTopic(
         @all:StringRes val buttonLabel: Int,
         @all:ArrayRes private val paragraphs: Int,
-        private val insert: MutableList<HelpTopicContent>.(Resources) -> Unit,
+        private val insert: MutableList<HelpTopicContent>.(Resources, AgentViewModel) -> Unit,
     ) : ViewProvider {
         override val viewType: Int = MENU
 
         var contents: List<HelpTopicContent> = emptyList()
             private set
 
-        fun initContents(res: Resources) {
+        fun initContents(res: Resources, viewModel: AgentViewModel) {
             if (contents.isEmpty()) {
                 val textArray = res.getStringArray(paragraphs)
                 contents =
@@ -121,7 +121,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
                         for (text in textArray) {
                             add(HelpTopicContent.Text(text))
                         }
-                        insert(res)
+                        insert(res, viewModel)
                     }
             }
         }
@@ -207,52 +207,59 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
                 HelpTopic(
                     R.string.help_topics_getting_started,
                     R.array.help_contents_getting_started,
-                ) {
+                ) { _, _ ->
                     addImages(
                         INDEX_PREVIEW_CONNECT to R.drawable.connect_preview,
                         INDEX_PREVIEW_SHIP to R.drawable.ship_entry_preview,
                     )
                 },
-                HelpTopic(R.string.help_topics_basics, R.array.help_contents_basics) {
+                HelpTopic(R.string.help_topics_basics, R.array.help_contents_basics) { _, _ ->
                     addImages(1 to R.drawable.status_preview)
                 },
-                HelpTopic(R.string.help_topics_stations, R.array.help_contents_stations) {
+                HelpTopic(R.string.help_topics_stations, R.array.help_contents_stations) { _, _ ->
                     addImages(1 to R.drawable.station_entry_preview)
                 },
-                HelpTopic(R.string.help_topics_allies, R.array.help_contents_allies) {
+                HelpTopic(R.string.help_topics_allies, R.array.help_contents_allies) { _, _ ->
                     addImages(
                         INDEX_PREVIEW_ALLY to R.drawable.ally_entry_preview,
                         INDEX_PREVIEW_RECAP to R.drawable.ally_recap_preview,
                         INDEX_PREVIEW_COMMANDS to R.drawable.ally_commands_preview,
                     )
                 },
-                HelpTopic(R.string.help_topics_missions, R.array.help_contents_missions) {
+                HelpTopic(R.string.help_topics_missions, R.array.help_contents_missions) { _, _ ->
                     addImages(
                         INDEX_PREVIEW_COMMS_MESSAGE to R.drawable.comms_message,
                         INDEX_PREVIEW_MISSION to R.drawable.mission_entry_preview,
                     )
                 },
-                HelpTopic(R.string.help_topics_routing, R.array.help_contents_routing) {
+                HelpTopic(R.string.help_topics_routing, R.array.help_contents_routing) { _, _ ->
                     addImages(
                         INDEX_PREVIEW_ROUTE_TASKS to R.drawable.route_tasks_preview,
                         INDEX_PREVIEW_ROUTE_SUPPLIES to R.drawable.route_supplies_preview,
                     )
                 },
-                HelpTopic(R.string.help_topics_enemies, R.array.help_contents_enemies) {
+                HelpTopic(R.string.help_topics_enemies, R.array.help_contents_enemies) { _, _ ->
                     addImages(
                         INDEX_PREVIEW_ENEMY to R.drawable.enemy_entry_preview,
                         INDEX_PREVIEW_INTEL to R.drawable.enemy_intel_preview,
                     )
                 },
-                HelpTopic(R.string.help_topics_biomechs, R.array.help_contents_biomechs) {
+                HelpTopic(R.string.help_topics_biomechs, R.array.help_contents_biomechs) { _, _ ->
                     addImages(1 to R.drawable.biomech_entry_preview)
                 },
                 HelpTopic(
                     R.string.help_topics_notifications,
                     R.array.help_contents_notifications,
-                ) {},
-                HelpTopic(R.string.help_topics_about, R.array.help_contents_about) { res ->
+                ) { _, _ ->
+                },
+                HelpTopic(R.string.help_topics_about, R.array.help_contents_about) { res, vm ->
                     add(0, HelpTopicContent.Text(res.getString(R.string.app_version)))
+                    add(
+                        INDEX_ABOUT_VERSIONS,
+                        HelpTopicContent.Text(
+                            res.getString(R.string.supports_artemis_versions, vm.maxVersion)
+                        ),
+                    )
                     add(HelpTopicContent.Image(R.drawable.ic_launcher_foreground))
                 },
             )
@@ -278,6 +285,8 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
         private const val INDEX_PREVIEW_ENEMY = 1
         private const val INDEX_PREVIEW_INTEL = 3
+
+        private const val INDEX_ABOUT_VERSIONS = 3
 
         private const val MAX_IMAGE_CAPACITY = 3
 

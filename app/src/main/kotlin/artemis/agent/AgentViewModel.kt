@@ -8,7 +8,6 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.StyleRes
 import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,6 +32,7 @@ import artemis.agent.game.stations.StationsFragment
 import artemis.agent.help.HelpFragment
 import artemis.agent.setup.SetupFragment
 import artemis.agent.setup.settings.SettingsFragment
+import artemis.agent.startup.ThemeResInitializer
 import artemis.agent.util.BackPreview
 import artemis.agent.util.HapticEffect
 import artemis.agent.util.SoundEffect
@@ -46,6 +46,7 @@ import com.walkertribe.ian.iface.ConnectionEvent
 import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.iface.KtorArtemisNetworkInterface
 import com.walkertribe.ian.iface.Listener
+import com.walkertribe.ian.iface.addListeners
 import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.protocol.core.ActivateUpgradePacket
 import com.walkertribe.ian.protocol.core.BayStatusPacket
@@ -79,6 +80,7 @@ import com.walkertribe.ian.world.ArtemisShielded
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -129,9 +131,7 @@ class AgentViewModel(application: Application) :
     val isScanningUDP: MutableSharedFlow<Boolean> by lazy {
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     }
-    var showingNetworkInfo: Boolean = true
-        private set
-
+    var showingNetworkInfo: Boolean = false
     var alwaysScanPublicBroadcasts: Boolean = true
         private set
 
@@ -140,13 +140,6 @@ class AgentViewModel(application: Application) :
 
     // UI variables - app theme, opacity, back press callback
     val isThemeChanged: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
-
-    @StyleRes var themeRes: Int = R.style.Theme_ArtemisAgent
-    var themeIndex: Int
-        get() = ALL_THEMES.indexOf(themeRes)
-        set(index) {
-            themeRes = ALL_THEMES[index]
-        }
 
     val rootOpacity: MutableStateFlow<Float> by lazy { MutableStateFlow(1f) }
     val jumping: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
@@ -1113,6 +1106,7 @@ class AgentViewModel(application: Application) :
         super.onCleared()
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     fun updateFromSettings(settings: UserSettings) {
         vesselDataManager.index = settings.vesselDataLocationValue
         port = settings.serverPort
@@ -1170,13 +1164,14 @@ class AgentViewModel(application: Application) :
         soundsMuted = settings.soundMuted
         hapticsEnabled = settings.hapticsEnabled
 
-        val newThemeRes = ALL_THEMES[settings.themeValue]
-        if (themeRes != newThemeRes) {
-            themeRes = newThemeRes
+        val oldThemeRes = ThemeResInitializer.splashThemeRes
+        ThemeResInitializer.themeIndex.store(settings.themeValue)
+        if (ThemeResInitializer.splashThemeRes != oldThemeRes) {
             isThemeChanged.value = true
         }
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     fun revertSettings(settings: UserSettings): UserSettings = settings.copy {
         vesselDataLocationValue = vesselDataManager.index
         serverPort = port
@@ -1230,7 +1225,7 @@ class AgentViewModel(application: Application) :
         threeDigitDirections = this@AgentViewModel.threeDigitDirections
         soundVolume = (volume * VOLUME_SCALE).toInt()
         soundMuted = this@AgentViewModel.soundsMuted
-        themeValue = ALL_THEMES.indexOf(themeRes)
+        themeValue = ThemeResInitializer.themeIndex.load()
         showNetworkInfo = showingNetworkInfo
         alwaysScanPublic = alwaysScanPublicBroadcasts
         hapticsEnabled = this@AgentViewModel.hapticsEnabled
@@ -1267,17 +1262,6 @@ class AgentViewModel(application: Application) :
                 R.plurals.biomechs,
                 R.plurals.enemies,
                 R.plurals.surrenders,
-            )
-
-        private val ALL_THEMES =
-            arrayOf(
-                R.style.Theme_ArtemisAgent,
-                R.style.Theme_ArtemisAgent_Red,
-                R.style.Theme_ArtemisAgent_Green,
-                R.style.Theme_ArtemisAgent_Yellow,
-                R.style.Theme_ArtemisAgent_Blue,
-                R.style.Theme_ArtemisAgent_Purple,
-                R.style.Theme_ArtemisAgent_Orange,
             )
 
         fun Number.formatString(): String = toString().format(Locale.getDefault())

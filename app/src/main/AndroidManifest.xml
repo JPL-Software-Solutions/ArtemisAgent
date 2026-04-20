@@ -16,7 +16,7 @@
         android:name="androidx.multidex.MultiDexApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ArtemisAgent"
+        android:theme="@style/Theme.SplashScreen.ArtemisAgent"
         android:dataExtractionRules="@xml/data_extraction_rules"
         tools:targetApi="33">
         <activity
@@ -30,6 +30,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="artemis.agent.startup.FirebaseInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="artemis.agent.startup.KonnectionInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="artemis.agent.startup.ThemeResInitializer"
+                android:value="androidx.startup" />
+        </provider>
         <service
             android:name=".NotificationService"
             android:exported="false"
