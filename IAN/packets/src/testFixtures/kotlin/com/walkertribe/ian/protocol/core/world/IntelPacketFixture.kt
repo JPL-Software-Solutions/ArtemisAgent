@@ -63,6 +63,6 @@ private constructor(
             IntelType.entries.map { IntelPacketFixture(arbVersion, it, arbId, arbText) }
 
         private fun normalize(str: String) =
-            str.replace('_', ' ').let { it[0] + it.substring(1).lowercase() }
+            str.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }
     }
 }

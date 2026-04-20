@@ -48,7 +48,7 @@ data class RouteEntry(val objEntry: ObjectEntry<*>) {
                 }
             }
             .joinToString()
-            .let { if (it.isEmpty()) it else it[0].uppercase() + it.substring(1) }
+            .replaceFirstChar { it.uppercase() }
 
     fun getBuildTimeText(objective: RouteObjective, context: Context): String =
         when {

@@ -2,6 +2,7 @@ import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
+import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -115,7 +116,7 @@ extensions.configure<ApplicationExtension> {
 
 androidComponents {
     onVariants { variant ->
-        val variantName = variant.name.let { name -> name[0].uppercase() + name.substring(1) }
+        val variantName = variant.name.capitalized()
 
         tasks
             .named { it == "assemble${variantName}" }

@@ -1363,7 +1363,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
         override fun DescribeSpecContainerScope.describeMore() = launch {
             describe("Scanned by") {
                 ScanBitsTestCase.entries.forEach { case ->
-                    describe(case.name.let { it[0] + it.substring(1).lowercase() }) {
+                    describe(case.name.lowercase().replaceFirstChar { it.uppercase() }) {
                         it("Sides") { case.testSides() }
                         it("Ships") { case.testShips() }
                     }

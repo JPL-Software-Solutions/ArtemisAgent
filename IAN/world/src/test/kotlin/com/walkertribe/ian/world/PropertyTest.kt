@@ -513,7 +513,8 @@ enum class PropertyTestCase {
 
     open suspend fun describeMore(scope: DescribeSpecContainerScope) {}
 
-    override fun toString(): String = "${name[0]}${name.substring(1).lowercase()} property"
+    override fun toString(): String =
+        "${name.lowercase().replaceFirstChar { it.uppercase() }} property"
 
     private companion object {
         const val INITIAL_TEST_NAME = "Is unknown when initialized"
@@ -633,7 +634,7 @@ enum class NewOldIdentifier(private val receiverIdName: String) {
 
     abstract fun <V, P : Property<V, P>> organize(old: P, new: P): Pair<P, P>
 
-    override fun toString(): String = name[0] + name.substring(1).lowercase()
+    override fun toString(): String = name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
 enum class SpecifiedIdentifier {
