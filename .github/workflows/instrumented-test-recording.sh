@@ -11,6 +11,7 @@ TEST_PID=$!
 sleep 10
 echo "Starting the screen recording..."
 adb exec-out "while true; do screenrecord --bugreport --output-format=h264 -; done" | ffmpeg -i - testRecording-$API_LEVEL-$ORIENTATION.mp4 &
+RECORD_PID=$!
 sleep 1
 echo "Waiting for instrumented tests to finish..."
 wait $TEST_PID
