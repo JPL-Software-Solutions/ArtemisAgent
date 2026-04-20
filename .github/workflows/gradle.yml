@@ -209,17 +209,7 @@ jobs:
         uses: mi-kas/kover-report@d7cc6d4b9642e3f71800cc0e79bdb3ce4ba07bb6 # v2.1
         with:
           title: Total Code Coverage
-          path: |
-            coverage/app/build/reports/kover/report.xml
-            coverage/IAN/build/reports/kover/report.xml
-            coverage/IAN/enums/build/reports/kover/report.xml
-            coverage/IAN/grid/build/reports/kover/report.xml
-            coverage/IAN/listener/build/reports/kover/report.xml
-            coverage/IAN/packets/build/reports/kover/report.xml
-            coverage/IAN/udp/build/reports/kover/report.xml
-            coverage/IAN/util/build/reports/kover/report.xml
-            coverage/IAN/vesseldata/build/reports/kover/report.xml
-            coverage/IAN/world/build/reports/kover/report.xml
+          path: coverage/**/build/reports/kover/report.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
           min-coverage-overall: 90
