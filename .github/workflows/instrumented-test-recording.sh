@@ -7,14 +7,15 @@ set -x
 set +e
 echo "Starting instrumented tests..."
 ./gradlew connectedCheck &
-sleep 10
 TEST_PID=$!
+sleep 10
 echo "Starting the screen recording..."
 adb exec-out "while true; do screenrecord --bugreport --output-format=h264 -; done" | ffmpeg -i - testRecording-$API_LEVEL-$ORIENTATION.mp4 &
 sleep 1
 echo "Waiting for instrumented tests to finish..."
 wait $TEST_PID
 TEST_STATUS=$?
-# Wait for the screen recording process to exit
-sleep 1
+# Terminate the screen recording process
+kill $RECORD_PID 2>/dev/null || true
+wait $RECORD_PID 2>/dev/null || true
 exit $TEST_STATUS
