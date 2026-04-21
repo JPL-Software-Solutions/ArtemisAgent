@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -110,7 +109,7 @@ extensions.configure<ApplicationExtension> {
         resValues = true
     }
 
-    tasks.preBuild.dependsOn(":IAN:konsistCollect")
+    tasks.preBuild.configure { dependsOn(":IAN:konsistCollect") }
 }
 
 androidComponents {
