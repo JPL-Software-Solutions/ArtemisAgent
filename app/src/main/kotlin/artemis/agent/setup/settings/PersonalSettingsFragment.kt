@@ -45,19 +45,19 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
                 binding.themeOrangeButton,
             )
 
-        viewLifecycleOwner.collectLatestWhileStarted(view.context.userSettings.data) {
-            themeOptionButtons[it.themeValue].isChecked = true
+        viewLifecycleOwner.collectLatestWhileStarted(view.context.userSettings.data) { settings ->
+            themeOptionButtons[settings.themeValue].isChecked = true
 
-            binding.threeDigitDirectionsButton.isChecked = it.threeDigitDirections
+            binding.threeDigitDirectionsButton.isChecked = settings.threeDigitDirections
             binding.threeDigitDirectionsLabel.text =
-                getString(R.string.direction, if (it.threeDigitDirections) "000" else "0")
+                getString(R.string.direction, if (settings.threeDigitDirections) "000" else "0")
 
-            binding.soundVolumeBar.progress = it.soundVolume
+            binding.soundVolumeBar.progress = settings.soundVolume
 
-            binding.soundMuteButton.isChecked = it.soundMuted
-            updateMuteButtonEnabled(it.soundVolume)
+            binding.soundMuteButton.isChecked = settings.soundMuted
+            updateMuteButtonEnabled(settings.soundVolume)
 
-            binding.enableHapticsButton.isChecked = it.hapticsEnabled
+            binding.enableHapticsButton.isChecked = settings.hapticsEnabled
         }
 
         themeOptionButtons.forEachIndexed { index, button ->
@@ -65,6 +65,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
                 viewModel.activateHaptic()
                 viewModel.playSound(SoundEffect.BEEP_2)
             }
+
             button.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     viewModel.viewModelScope.launch {
@@ -81,8 +82,8 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
 
         binding.threeDigitDirectionsButton.setOnCheckedChangeListener { _, isChecked ->
             viewModel.viewModelScope.launch {
-                view.context.userSettings.updateData {
-                    it.copy { threeDigitDirections = isChecked }
+                view.context.userSettings.updateData { settings ->
+                    settings.copy { threeDigitDirections = isChecked }
                 }
             }
         }

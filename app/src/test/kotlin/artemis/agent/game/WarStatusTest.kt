@@ -11,7 +11,9 @@ class WarStatusTest :
             val colors = listOf(R.color.connected, R.color.heartbeatLost, R.color.failedToConnect)
 
             withData(
-                nameFn = { (status) -> status.name.let { it[0] + it.substring(1).lowercase() } },
+                nameFn = { (status) ->
+                    status.name.lowercase().replaceFirstChar { it.uppercase() }
+                },
                 WarStatus.entries.zip(colors),
             ) { (status, color) ->
                 status.backgroundColor shouldBeEqual color

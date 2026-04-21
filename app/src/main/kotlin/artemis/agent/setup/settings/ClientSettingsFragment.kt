@@ -127,12 +127,12 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
             val text = binding.serverPortField.text?.toString()
             viewModel.viewModelScope.launch {
-                binding.root.context.userSettings.updateData {
+                binding.root.context.userSettings.updateData { settings ->
                     if (text.isNullOrBlank()) {
-                        binding.serverPortField.setText(it.serverPort.formatString())
-                        it
+                        binding.serverPortField.setText(settings.serverPort.formatString())
+                        settings
                     } else {
-                        it.copy { serverPort = text.toInt() }
+                        settings.copy { serverPort = text.toInt() }
                     }
                 }
             }
@@ -145,8 +145,8 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                 UserSettingsSerializer.DEFAULT_SERVER_PORT.formatString()
             )
             viewModel.viewModelScope.launch {
-                binding.root.context.userSettings.updateData {
-                    it.copy { serverPort = UserSettingsSerializer.DEFAULT_SERVER_PORT }
+                binding.root.context.userSettings.updateData { settings ->
+                    settings.copy { serverPort = UserSettingsSerializer.DEFAULT_SERVER_PORT }
                 }
             }
         }
@@ -160,8 +160,8 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
         binding.showNetworkInfoButton.setOnCheckedChangeListener { _, isChecked ->
             viewModel.viewModelScope.launch {
-                binding.root.context.userSettings.updateData {
-                    it.copy { showNetworkInfo = isChecked }
+                binding.root.context.userSettings.updateData { settings ->
+                    settings.copy { showNetworkInfo = isChecked }
                 }
             }
         }
@@ -188,8 +188,10 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
             val text = binding.addressLimitField.text?.toString()
             viewModel.viewModelScope.launch {
-                binding.root.context.userSettings.updateData {
-                    it.copy { recentAddressLimit = if (text.isNullOrBlank()) 0 else text.toInt() }
+                binding.root.context.userSettings.updateData { settings ->
+                    settings.copy {
+                        recentAddressLimit = if (text.isNullOrBlank()) 0 else text.toInt()
+                    }
                 }
             }
         }
@@ -202,8 +204,8 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
         binding.addressLimitEnableButton.setOnCheckedChangeListener { _, isChecked ->
             viewModel.viewModelScope.launch {
-                binding.root.context.userSettings.updateData {
-                    it.copy { recentAddressLimitEnabled = isChecked }
+                binding.root.context.userSettings.updateData { settings ->
+                    settings.copy { recentAddressLimitEnabled = isChecked }
                 }
             }
         }
@@ -236,8 +238,8 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     viewModel.playSound(SoundEffect.BEEP_2)
                     viewModel.viewModelScope.launch {
-                        context.userSettings.updateData {
-                            it.copy { updateInterval = viewModel.updateObjectsInterval }
+                        context.userSettings.updateData { settings ->
+                            settings.copy { updateInterval = viewModel.updateObjectsInterval }
                         }
                     }
                 }

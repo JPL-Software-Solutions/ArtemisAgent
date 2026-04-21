@@ -7,7 +7,6 @@ androidx-core = "1.18.0"
 androidx-datastore = "1.2.1"
 androidx-fragment = "1.8.9"
 androidx-lifecycle = "2.10.0"
-androidx-multidex = "2.0.1"
 androidx-recyclerview = "1.4.0"
 androidx-splashscreen = "1.2.0"
 androidx-startup = "1.2.0"
@@ -29,7 +28,7 @@ espresso = "3.7.0"
 firebase-bom = "34.12.0"
 git-hooks = "0.0.2"
 google-services = "4.4.4"
-gradle = "8.13.2"
+gradle = "9.2.0"
 gradle-pitest = "1.19.0"
 hamcrest = "3.0"
 jspecify = "1.0.0"
@@ -123,7 +122,6 @@ lifecycle-common = { module = "androidx.lifecycle:lifecycle-common", version.ref
 lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "androidx-lifecycle" }
 lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
-multidex = { module = "androidx.multidex:multidex", version.ref = "androidx-multidex" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
 startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 
@@ -200,6 +198,7 @@ bouncycastle = { module = "org.bouncycastle:bcpkix-jdk18on", version = "latest.r
 commons-compress = { module = "org.apache.commons:commons-compress", version = "latest.release" }
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "latest.release" }
 guava = { module = "com.google.guava:guava", version = "latest.release" }
+httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.+" }
 jdom2 = { module = "org.jdom:jdom2", version = "latest.release" }
 jose4j = { module = "org.bitbucket.b_c:jose4j", version = "latest.release" }
 jsoup = { module = "org.jsoup:jsoup", version = "latest.release" }
@@ -244,7 +243,6 @@ app = [
     "lifecycle-runtime",
     "lifecycle-service",
     "lifecycle-viewmodel",
-    "multidex",
     "recyclerview",
     "startup",
     "konnection",

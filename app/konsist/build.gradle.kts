@@ -1,9 +1,9 @@
+import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.library")
-    kotlin("android")
     alias(libs.plugins.detekt)
     alias(libs.plugins.dependency.analysis)
 }
@@ -12,14 +12,11 @@ val sdkVersion: Int by rootProject.extra
 val minimumSdkVersion: Int by rootProject.extra
 val javaVersion: JavaVersion by rootProject.extra
 
-android {
-    namespace = "artemis.agent"
+extensions.configure<LibraryExtension> {
+    namespace = "artemis.agent.konsist"
     compileSdk = sdkVersion
 
-    defaultConfig {
-        minSdk = minimumSdkVersion
-        multiDexEnabled = true
-    }
+    defaultConfig { minSdk = minimumSdkVersion }
 
     buildTypes {
         release {
