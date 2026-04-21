@@ -178,9 +178,7 @@ dependencies {
         androidLintTool(libs.commons.lang3) {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }
-        androidLintTool(libs.httpclient) {
-            because("Version 4.5.13 patches an XSS vulnerability")
-        }
+        androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
     }
 
     coreLibraryDesugaring(libs.desugaring)
