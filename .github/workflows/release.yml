@@ -172,7 +172,7 @@ jobs:
           args: deploy --only remoteconfig
 
       - name: Upload to Google Play Store
-        uses: r0adkll/upload-google-play@7f5b759879c088a86faf85d18779f7f14e79a086 # v1.1.4
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
         with:
           releaseName: Artemis Agent v${{ steps.nextVersionName.outputs.new_version }}
           serviceAccountJson: ${{ steps.auth.outputs.credentials_file_path }}
