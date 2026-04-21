@@ -117,6 +117,8 @@ androidComponents {
     onVariants { variant ->
         val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
 
+        // As of AGP 9, release test tasks are no longer generated, so we depend on the
+        // debug task instead
         tasks
             .named { it == "assemble${variantName}" }
             .configureEach { dependsOn(":app:konsist:testDebugUnitTest") }
