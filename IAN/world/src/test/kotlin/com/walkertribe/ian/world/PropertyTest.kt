@@ -7,6 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
 import io.kotest.datatest.withData
+import io.kotest.engine.names.WithDataTestName
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.equals.shouldNotBeEqual
@@ -602,10 +603,7 @@ enum class NewOldIdentifier(private val receiverIdName: String) {
 
     suspend fun describeScenarios(scope: DescribeSpecContainerScope, testCase: PropertyTestCase) {
         val specifiedIdentifiers = SpecifiedIdentifier.entries.toList()
-        scope.withData(
-            nameFn = { it.name.run { this[0] + substring(1).lowercase() } },
-            specifiedIdentifiers,
-        ) { sender ->
+        scope.withData(specifiedIdentifiers) { sender ->
             withData(
                 nameFn = { scenario ->
                     "${scenario.expectedBehaviourDescription} $receiverIdName, " +
@@ -637,9 +635,11 @@ enum class NewOldIdentifier(private val receiverIdName: String) {
     override fun toString(): String = name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
-enum class SpecifiedIdentifier {
+enum class SpecifiedIdentifier : WithDataTestName {
     SPECIFIED,
-    UNSPECIFIED,
+    UNSPECIFIED;
+
+    override fun dataTestName(): String = name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
 data class PropertyUpdateScenario(
