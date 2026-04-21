@@ -120,7 +120,7 @@ androidComponents {
         // As of AGP 9, release test tasks are no longer generated, so we depend on the
         // debug task instead
         tasks
-            .matching { it.name == "assemble${variantName}" }
+            .named { it == "assemble${variantName}" }
             .configureEach { dependsOn(":app:konsist:testDebugUnitTest") }
         tasks
             .named { it.startsWith("ksp$variantName") && it.endsWith("Kotlin") }
