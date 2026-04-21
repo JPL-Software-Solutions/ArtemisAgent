@@ -198,6 +198,7 @@ bouncycastle = { module = "org.bouncycastle:bcpkix-jdk18on", version = "latest.r
 commons-compress = { module = "org.apache.commons:commons-compress", version = "latest.release" }
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "latest.release" }
 guava = { module = "com.google.guava:guava", version = "latest.release" }
+httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.5.+" }
 jdom2 = { module = "org.jdom:jdom2", version = "latest.release" }
 jose4j = { module = "org.bitbucket.b_c:jose4j", version = "latest.release" }
 jsoup = { module = "org.jsoup:jsoup", version = "latest.release" }

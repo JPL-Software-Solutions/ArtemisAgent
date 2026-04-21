@@ -175,6 +175,12 @@ dependencies {
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")
         }
+        androidLintTool(libs.commons.lang3) {
+            because("Version 3.18 fixes an uncontrolled recursion error")
+        }
+        androidLintTool(libs.httpclient) {
+            because("Version 4.5.13 patches an XSS vulnerability")
+        }
     }
 
     coreLibraryDesugaring(libs.desugaring)
