@@ -219,17 +219,15 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
 
             override fun preview() {
                 viewModel.settingsPage.value = null
-                binding.backPressAlpha.visibility = View.VISIBLE
             }
 
             override fun revert() {
                 viewModel.settingsPage.value = openedPage
-                binding.backPressAlpha.visibility = View.GONE
             }
 
             override fun close() {
+                viewModel.activateHaptic()
                 viewModel.playSound(SoundEffect.BEEP_1)
-                binding.backPressAlpha.visibility = View.GONE
             }
         }
     }
@@ -237,6 +235,10 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.backPreview = backPreview
+
+        viewLifecycleOwner.collectLatestWhileStarted(backPreview.isPreviewing) { isPreviewing ->
+            binding.backPressAlpha.visibility = if (isPreviewing) View.VISIBLE else View.GONE
+        }
 
         viewLifecycleOwner.collectLatestWhileStarted(viewModel.settingsPage) {
             currentPage = it?.also { backPreview.isEnabled = true }

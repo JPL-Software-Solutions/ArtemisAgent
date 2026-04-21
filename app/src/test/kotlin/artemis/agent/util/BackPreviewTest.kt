@@ -66,6 +66,7 @@ class BackPreviewTest :
                     )
 
                     backPreview.isEnabled.shouldBeTrue()
+                    backPreview.isPreviewing.value.shouldBeTrue()
                     beforePreview.shouldBeTrue()
                     previewed.shouldBeTrue()
                     reverted.shouldBeFalse()
@@ -90,6 +91,7 @@ class BackPreviewTest :
                         )
 
                         backPreview.isEnabled.shouldBeTrue()
+                        backPreview.isPreviewing.value shouldBeEqual shouldPreview
                         beforePreview.shouldBeFalse()
                         previewed shouldBeEqual shouldPreview
                         reverted shouldBeEqual !shouldPreview
@@ -102,6 +104,7 @@ class BackPreviewTest :
                 backPreview.handleOnBackCancelled()
 
                 backPreview.isEnabled.shouldBeTrue()
+                backPreview.isPreviewing.value.shouldBeFalse()
                 beforePreview.shouldBeFalse()
                 previewed.shouldBeFalse()
                 reverted.shouldBeTrue()
@@ -112,6 +115,7 @@ class BackPreviewTest :
                 backPreview.handleOnBackPressed()
 
                 backPreview.isEnabled.shouldBeFalse()
+                backPreview.isPreviewing.value.shouldBeFalse()
                 beforePreview.shouldBeFalse()
                 previewed.shouldBeTrue()
                 reverted.shouldBeFalse()

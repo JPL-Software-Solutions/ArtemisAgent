@@ -41,18 +41,15 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
 
             override fun preview() {
                 viewModel.helpTopicIndex.value = MENU
-                binding.backPressAlpha.visibility = View.VISIBLE
             }
 
             override fun revert() {
                 viewModel.helpTopicIndex.value = currentTopicIndex
-                binding.backPressAlpha.visibility = View.GONE
             }
 
             override fun close() {
                 viewModel.activateHaptic()
                 viewModel.playSound(SoundEffect.BEEP_1)
-                binding.backPressAlpha.visibility = View.GONE
             }
         }
     }
@@ -61,6 +58,10 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.settingsPage.value = null
         viewModel.backPreview = backPreview
+
+        viewLifecycleOwner.collectLatestWhileStarted(backPreview.isPreviewing) { isPreviewing ->
+            binding.backPressAlpha.visibility = if (isPreviewing) View.VISIBLE else View.GONE
+        }
 
         val helpTopicContent = binding.helpTopicContent
 
