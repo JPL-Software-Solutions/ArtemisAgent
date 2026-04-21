@@ -179,6 +179,14 @@ dependencies {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }
         androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
+
+        // Add constraints on Unified Test Platform dependencies - same reasons as above
+        configurations
+            .named { it.startsWith("unified-test-platform") }
+            .all {
+                add(name, libs.commons.lang3)
+                add(name, libs.httpclient)
+            }
     }
 
     coreLibraryDesugaring(libs.desugaring)
