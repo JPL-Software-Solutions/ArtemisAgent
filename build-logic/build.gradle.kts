@@ -31,6 +31,9 @@ dependencies {
     runtimeOnly(libs.gradle)
 
     constraints {
+        runtimeOnly(libs.commons.lang3) {
+            because("Version 3.18 fixes an uncontrolled recursion error")
+        }
         runtimeOnly(libs.jdom2) {
             because("Version 2.0.6.1 patches a high-level security vulnerability")
         }
