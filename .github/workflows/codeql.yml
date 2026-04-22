@@ -85,6 +85,15 @@ jobs:
               - 'Dangerfile'
               - 'Gemfile*'
 
+      - name: Replace double quotes
+        id: replace-quotes
+        if: ${{ github.event_name != 'schedule' }}
+        uses: frabert/replace-string-action@9c9aeb483eab07adb9d0be75b5212cc0bcef0d4b # v2.5.1
+        with:
+          string: ${{ steps.check-files.outputs.changes }}
+          pattern: '"'
+          replace-with: "'"
+
       # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
       # Use `actions` to analyze code written in workflow files like this one
       # Use `c-cpp` to analyze code written in C, C++ or both
