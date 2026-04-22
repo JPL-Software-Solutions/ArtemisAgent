@@ -46,5 +46,8 @@ dependencies {
         runtimeOnly(libs.jose4j) {
             because("Version 0.9.6 patches a high-level security vulnerability")
         }
+        runtimeOnly(libs.bouncycastle) {
+            because("Version 1.84 patches five moderate security vulnerabilities")
+        }
     }
 }
