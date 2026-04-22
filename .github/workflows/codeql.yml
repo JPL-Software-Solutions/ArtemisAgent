@@ -50,23 +50,21 @@ on:
     - cron: '20 19 * * 0'
 
 jobs:
-  check-files:
-    name: Check relevant files
+  generate-matrix:
+    name: Build language matrix
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'schedule' }}
     permissions:
       contents: read
     outputs:
-      actions: ${{ steps.filter.outputs.actions }}
-      java-kotlin: ${{ steps.filter.outputs.java-kotlin }}
-      ruby: ${{ steps.filter.outputs.ruby }}
+      matrix: ${{ steps.filter.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check relevant files
+        id: check-files
+        if: ${{ github.event_name != 'schedule' }}
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
-        id: filter
         with:
           filters: |
             actions:
@@ -87,11 +85,26 @@ jobs:
               - 'Dangerfile'
               - 'Gemfile*'
 
+      # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
+      # Use `actions` to analyze code written in workflow files like this one
+      # Use `c-cpp` to analyze code written in C, C++ or both
+      # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+      # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
+      # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
+      # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
+      # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
+      # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+      - name: Filter CodeQL languages
+        id: filter
+        uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # v2.0.1
+        with:
+          inputFile: .github/workflows/codeql.json
+          filter: github.event_name == 'schedule' && '[]' || '[?contains(${{ steps.check-files.outputs.changes }})]'
+
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: 'ubuntu-latest'
     needs: check-files
-    if: always()
     timeout-minutes: 10
     permissions:
       # required for all workflows
@@ -106,25 +119,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        include:
-        - language: actions
-          build-mode: none
-          if: github.event_name == 'schedule' || needs.filter.outputs.actions == 'true'
-        - language: java-kotlin
-          build-mode: autobuild
-          if: github.event_name == 'schedule' || needs.filter.outputs.java-kotlin == 'true'
-        - language: ruby
-          build-mode: none
-          if: github.event_name == 'schedule' || needs.filter.outputs.ruby == 'true'
-        # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        # Use `c-cpp` to analyze code written in C, C++ or both
-        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
-        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
-        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
-        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
-        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
-        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}

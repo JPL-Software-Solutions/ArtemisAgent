@@ -1,0 +1,14 @@
+[
+  {
+    "language": "actions",
+    "build-mode": "none"
+  },
+  {
+    "language": "java-kotlin",
+    "build-mode": "autobuild"
+  },
+  {
+    "language": "ruby",
+    "build-mode": "none"
+  }
+]
