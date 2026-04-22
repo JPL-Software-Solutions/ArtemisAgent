@@ -88,11 +88,12 @@ jobs:
       - name: Replace double quotes
         id: replace-quotes
         if: ${{ github.event_name != 'schedule' }}
-        uses: frabert/replace-string-action@9c9aeb483eab07adb9d0be75b5212cc0bcef0d4b # v2.5.1
+        uses: mad9000/actions-find-and-replace-string@bce4d50390d08b67e1822bd72fb54b3cf11b0ce9 # 5
         with:
-          string: ${{ steps.check-files.outputs.changes }}
-          pattern: '"'
-          replace-with: "'"
+          source: ${{ steps.check-files.outputs.changes }}
+          find: '"'
+          replace: "'"
+          replaceAll: true
 
       # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
       # Use `actions` to analyze code written in workflow files like this one
@@ -108,7 +109,7 @@ jobs:
         uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # v2.0.1
         with:
           inputFile: .github/workflows/codeql.json
-          filter: github.event_name == 'schedule' && '[]' || '[?contains(${{ steps.replace-quotes.outputs.replaced }}, language)]'
+          filter: github.event_name == 'schedule' && '[]' || '[?contains(${{ steps.replace-quotes.outputs.value }}, language)]'
 
   analyze:
     name: Analyze (${{ matrix.language }})
