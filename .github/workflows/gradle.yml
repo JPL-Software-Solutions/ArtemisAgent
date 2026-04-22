@@ -32,6 +32,7 @@ on:
       - 'app/src/main/res/**'
       - 'app/src/test/**'
       - 'gradle/**'
+      - '!version.properties'
   pull_request:
     branches: [ "main" ]
   merge_group:
