@@ -31,9 +31,6 @@ dependencies {
     runtimeOnly(libs.gradle)
 
     constraints {
-        runtimeOnly(libs.commons.compress) {
-            because("Version 1.26 patches two high-level security vulnerabilities")
-        }
         runtimeOnly(libs.jdom2) {
             because("Version 2.0.6.1 patches a high-level security vulnerability")
         }
