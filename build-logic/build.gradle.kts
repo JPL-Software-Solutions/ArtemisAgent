@@ -31,20 +31,14 @@ dependencies {
     runtimeOnly(libs.gradle)
 
     constraints {
-        runtimeOnly(libs.commons.compress) {
-            because("Version 1.26 patches two high-level security vulnerabilities")
-        }
-        runtimeOnly(libs.netty.codec) {
-            because("Version 4.1.125.Final patches a moderate security vulnerability")
-        }
-        runtimeOnly(libs.netty.http2) {
-            because("Version 4.1.124.Final patches a high-level security vulnerability")
-        }
         runtimeOnly(libs.jdom2) {
             because("Version 2.0.6.1 patches a high-level security vulnerability")
         }
         runtimeOnly(libs.jose4j) {
             because("Version 0.9.6 patches a high-level security vulnerability")
+        }
+        runtimeOnly(libs.bouncycastle) {
+            because("Version 1.84 patches five moderate security vulnerabilities")
         }
     }
 }
