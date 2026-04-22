@@ -91,9 +91,7 @@ jobs:
     name: Analyze (${{ matrix.language }})
     runs-on: 'ubuntu-latest'
     needs: check-files
-    if: |
-      always() &&
-      (github.event_name == 'schedule' || needs.filter.outputs[matrix.language] == 'true')
+    if: always()
     timeout-minutes: 10
     permissions:
       # required for all workflows
@@ -112,10 +110,13 @@ jobs:
         include:
         - language: actions
           build-mode: none
+          if: github.event_name == 'schedule' || needs.filter.outputs.actions == 'true'
         - language: java-kotlin
           build-mode: autobuild
+          if: github.event_name == 'schedule' || needs.filter.outputs.java-kotlin == 'true'
         - language: ruby
           build-mode: none
+          if: github.event_name == 'schedule' || needs.filter.outputs.ruby == 'true'
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
