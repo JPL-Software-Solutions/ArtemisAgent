@@ -109,7 +109,7 @@ jobs:
         uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # v2.0.1
         with:
           inputFile: .github/workflows/codeql.json
-          filter: ${{ github.event_name == 'schedule' && '[]' || '[?contains(${{ steps.replace-quotes.outputs.value }}, language)]' }}
+          filter: ${{ github.event_name == 'schedule' && '[]' || '[?contains({{ steps.replace-quotes.outputs.value }}, language)]' }}
 
   analyze:
     name: Analyze (${{ matrix.language }})
