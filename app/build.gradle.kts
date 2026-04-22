@@ -175,6 +175,9 @@ dependencies {
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")
         }
+        androidLintTool(libs.bouncycastle) {
+            because("Version 1.84 patches five moderate security vulnerabilities")
+        }
         androidLintTool(libs.commons.lang3) {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }

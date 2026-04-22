@@ -26,7 +26,7 @@ buildscript {
                 because("Version 4.1.124.Final patches a high-level security vulnerability")
             }
             classpath(libs.bouncycastle) {
-                because("Version 1.78 patches three moderate security vulnerabilities")
+                because("Version 1.84 patches five moderate security vulnerabilities")
             }
         }
 
