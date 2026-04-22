@@ -158,7 +158,7 @@ class ServerDiscoveryRequesterTest :
                                 )
                             }
 
-                            requesterJob?.join()
+                            requesterJob.join()
                             discoveredServers.shouldBeEmpty()
                         }
                     }

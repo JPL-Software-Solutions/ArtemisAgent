@@ -8,7 +8,9 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.float
+import io.kotest.property.arbitrary.numericFloat
 import io.kotest.property.arbitrary.of
+import io.kotest.property.arbitrary.positiveFloat
 import io.kotest.property.checkAll
 
 class BackPreviewTest :
@@ -64,6 +66,7 @@ class BackPreviewTest :
                     )
 
                     backPreview.isEnabled.shouldBeTrue()
+                    backPreview.isPreviewing.value.shouldBeTrue()
                     beforePreview.shouldBeTrue()
                     previewed.shouldBeTrue()
                     reverted.shouldBeFalse()
@@ -74,8 +77,8 @@ class BackPreviewTest :
             describe("On back progressed") {
                 withData(
                     nameFn = { "${it.first} preview" },
-                    Triple("Activate", Arb.float(0.01f, 1.0f), true),
-                    Triple("Revert", Arb.of(0.0f), false),
+                    Triple("Activate", Arb.positiveFloat(includeNaNs = false), true),
+                    Triple("Revert", Arb.numericFloat(max = 0.0f), false),
                 ) { (_, progressArb, shouldPreview) ->
                     checkAll(Arb.float(), Arb.float(), progressArb, swipeEdgeArb) {
                         touchX,
@@ -88,6 +91,7 @@ class BackPreviewTest :
                         )
 
                         backPreview.isEnabled.shouldBeTrue()
+                        backPreview.isPreviewing.value shouldBeEqual shouldPreview
                         beforePreview.shouldBeFalse()
                         previewed shouldBeEqual shouldPreview
                         reverted shouldBeEqual !shouldPreview
@@ -100,6 +104,7 @@ class BackPreviewTest :
                 backPreview.handleOnBackCancelled()
 
                 backPreview.isEnabled.shouldBeTrue()
+                backPreview.isPreviewing.value.shouldBeFalse()
                 beforePreview.shouldBeFalse()
                 previewed.shouldBeFalse()
                 reverted.shouldBeTrue()
@@ -110,6 +115,7 @@ class BackPreviewTest :
                 backPreview.handleOnBackPressed()
 
                 backPreview.isEnabled.shouldBeFalse()
+                backPreview.isPreviewing.value.shouldBeFalse()
                 beforePreview.shouldBeFalse()
                 previewed.shouldBeTrue()
                 reverted.shouldBeFalse()

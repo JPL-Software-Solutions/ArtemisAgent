@@ -1,7 +1,8 @@
 package com.walkertribe.ian.grid
 
 import com.walkertribe.ian.enums.ShipSystem
-import com.walkertribe.ian.util.PathResolver
+import com.walkertribe.ian.util.ResourceReader
+import com.walkertribe.ian.util.read
 import okio.IOException
 import okio.Path.Companion.toPath
 
@@ -10,11 +11,11 @@ class Grid internal constructor(nodes: List<Node>) {
     internal val nodeSystemMap: Map<ShipSystem, List<Node>> = nodes.groupBy { it.system }
 
     constructor(
-        pathResolver: PathResolver,
+        reader: ResourceReader,
         path: String,
     ) : this(
         try {
-            pathResolver(path.toPath()) {
+            reader.read(path.toPath()) {
                 Coordinate.ALL.mapNotNull { coord ->
                     skip(SKIP_BEFORE)
                     ShipSystem[readIntLe()]?.let { Node(coord, it) }.also { skip(SKIP_AFTER) }

@@ -51,8 +51,9 @@ class HailResponseEffectTest :
             describe("Invoke on ally") {
                 val ally = ObjectEntry.Ally(ArtemisNpc(0, 0L), mockVesselData, false)
 
-                val flyingBlindPartition =
-                    testData.partition { it.status == AllyStatus.FLYING_BLIND }
+                val flyingBlindPartition = testData.partition {
+                    it.status == AllyStatus.FLYING_BLIND
+                }
                 val invokeTestData = flyingBlindPartition.run { second + first + second }
 
                 invokeTestData.forEachIndexed { index, (response, status, messages) ->

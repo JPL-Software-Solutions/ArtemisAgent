@@ -42,7 +42,7 @@ data class EnemySorter(
             }
         }
 
-        fun buildCategoryMap(
+        inline fun buildCategoryMap(
             enemies: List<EnemyEntry>,
             sortBySurrendered: Boolean,
             map: (EnemyEntry) -> String?,

@@ -18,11 +18,13 @@ import artemis.agent.screens.SettingsPageScreen
 import artemis.agent.screens.SettingsPageScreen.Personal.soundMuteButton
 import artemis.agent.screens.SettingsPageScreen.Personal.soundVolumeBar
 import artemis.agent.screens.SettingsPageScreen.Personal.soundVolumeLabel
+import artemis.agent.startup.ThemeResInitializer
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import io.github.kakaocup.kakao.text.KTextView
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.random.Random
 import org.junit.Rule
 import org.junit.Test
@@ -43,10 +45,14 @@ class PersonalSettingsFragmentTest : TestCase() {
         testWithSettings(false) { SettingsPageScreen.backFromSubmenu() }
     }
 
-    private fun testWithSettings(shouldTestSettings: Boolean, closeSubmenu: () -> Unit) {
+    @OptIn(ExperimentalAtomicApi::class)
+    private inline fun testWithSettings(
+        shouldTestSettings: Boolean,
+        crossinline closeSubmenu: () -> Unit,
+    ) {
         run {
             mainScreenTest {
-                val themeIndex = AtomicInteger()
+                val themeIndex = ThemeResInitializer.themeIndex.load()
                 val threeDigits = AtomicBoolean()
                 val soundVolume = AtomicInteger()
                 val soundsMuted = AtomicBoolean()
@@ -55,7 +61,6 @@ class PersonalSettingsFragmentTest : TestCase() {
                 step("Fetch settings") {
                     activityScenarioRule.scenario.onActivity { activity ->
                         val viewModel = activity.viewModels<AgentViewModel>().value
-                        themeIndex.lazySet(viewModel.themeIndex)
                         threeDigits.lazySet(viewModel.threeDigitDirections)
                         soundVolume.lazySet(
                             (viewModel.volume * AgentViewModel.VOLUME_SCALE).toInt()
@@ -68,7 +73,7 @@ class PersonalSettingsFragmentTest : TestCase() {
                 scenario(SettingsMenuScenario)
                 scenario(SettingsSubmenuOpenScenario.Personal)
 
-                testThemeSetting(themeIndex.get())
+                testThemeSetting(themeIndex)
                 testThreeDigitsSetting(shouldTestSettings, threeDigits.get())
                 testSoundVolume(shouldTestSettings, soundVolume.get(), soundsMuted.get())
 

@@ -53,7 +53,7 @@ class HelpFragmentTest : TestCase() {
         }
     }
 
-    private fun testHelpFragment(goBack: HelpPageScreen.() -> Unit) {
+    private inline fun testHelpFragment(crossinline goBack: HelpPageScreen.() -> Unit) {
         run {
             mainScreenTest {
                 step("Navigate to Help page") { helpPageButton.click() }

@@ -27,7 +27,7 @@ class ListenerArgumentVisitor(private val codeGenerator: CodeGenerator) : KSVisi
         val packageName = classDeclaration.packageName.asString()
         val argModuleName = "${argClassName}ListenerModule"
 
-        val argClassNameLowercase = argClassName.let { it[0].lowercase() + it.substring(1) }
+        val argClassNameLowercase = argClassName.replaceFirstChar { it.lowercase() }
         val listPropertyName = "${argClassNameLowercase}Listeners"
 
         val listenerArgumentTypeName =

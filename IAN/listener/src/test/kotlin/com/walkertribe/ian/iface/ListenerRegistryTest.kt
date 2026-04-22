@@ -3,6 +3,7 @@ package com.walkertribe.ian.iface
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -20,9 +21,9 @@ class ListenerRegistryTest :
         }
 
         describe("ListenerRegistry") {
-            lateinit var registry: ListenerRegistry
+            val registry: ListenerRegistry by lazy { ListenerRegistry() }
 
-            it("Can create") { registry = ListenerRegistry() }
+            it("Can create") { registry.shouldBeInstanceOf<ListenerRegistry>() }
 
             it("Starts with no listener functions") {
                 registry.listeningFor(ListenerArgument::class).shouldBeEmpty()

@@ -7,6 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
 import io.kotest.datatest.withData
+import io.kotest.engine.names.WithDataTestName
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.equals.shouldNotBeEqual
@@ -513,15 +514,16 @@ enum class PropertyTestCase {
 
     open suspend fun describeMore(scope: DescribeSpecContainerScope) {}
 
-    override fun toString(): String = "${name[0]}${name.substring(1).lowercase()} property"
+    override fun toString(): String =
+        "${name.lowercase().replaceFirstChar { it.uppercase() }} property"
 
     private companion object {
         const val INITIAL_TEST_NAME = "Is unknown when initialized"
 
-        suspend fun <N, P> testComparisons(
+        suspend inline fun <N, P> testComparisons(
             arbPair: Arb<Pair<N, N>>,
-            propertyGenerator: (Long) -> P,
-            comparisonTest: (P, P) -> Boolean,
+            crossinline propertyGenerator: (Long) -> P,
+            crossinline comparisonTest: (P, P) -> Boolean,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> {
             arbPair.forAll { (first, second) ->
                 val firstProp = propertyGenerator(0L)
@@ -535,10 +537,10 @@ enum class PropertyTestCase {
             }
         }
 
-        suspend fun <N, P> testComparisonWithOneValue(
+        suspend inline fun <N, P> testComparisonWithOneValue(
             arb: Arb<N>,
-            propertyGenerator: (Long) -> P,
-            comparisonTest: (P, P) -> Boolean,
+            crossinline propertyGenerator: (Long) -> P,
+            crossinline comparisonTest: (P, P) -> Boolean,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> {
             arb.forAll { value ->
                 val propWithoutValue = propertyGenerator(0L)
@@ -549,12 +551,12 @@ enum class PropertyTestCase {
             }
         }
 
-        fun <N, P> DescribeSpecContainerScope.describeComparisonTests(
+        inline fun <N, P> DescribeSpecContainerScope.describeComparisonTests(
             strictArbPair: Arb<Pair<N, N>>,
             softArbPair: Arb<Pair<N, N>>,
             singleArb: Arb<N>,
             emptyPropertyGenerator: Gen<P>,
-            basePropertyGenerator: (Long) -> P,
+            crossinline basePropertyGenerator: (Long) -> P,
         ) where N : Number, N : Comparable<N>, P : Property<N, P>, P : Comparable<P> = launch {
             describe("Comparisons") {
                 it("Less than") {
@@ -601,10 +603,7 @@ enum class NewOldIdentifier(private val receiverIdName: String) {
 
     suspend fun describeScenarios(scope: DescribeSpecContainerScope, testCase: PropertyTestCase) {
         val specifiedIdentifiers = SpecifiedIdentifier.entries.toList()
-        scope.withData(
-            nameFn = { it.name.run { this[0] + substring(1).lowercase() } },
-            specifiedIdentifiers,
-        ) { sender ->
+        scope.withData(specifiedIdentifiers) { sender ->
             withData(
                 nameFn = { scenario ->
                     "${scenario.expectedBehaviourDescription} $receiverIdName, " +
@@ -633,12 +632,14 @@ enum class NewOldIdentifier(private val receiverIdName: String) {
 
     abstract fun <V, P : Property<V, P>> organize(old: P, new: P): Pair<P, P>
 
-    override fun toString(): String = name[0] + name.substring(1).lowercase()
+    override fun toString(): String = name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
-enum class SpecifiedIdentifier {
+enum class SpecifiedIdentifier : WithDataTestName {
     SPECIFIED,
-    UNSPECIFIED,
+    UNSPECIFIED;
+
+    override fun dataTestName(): String = name.lowercase().replaceFirstChar { it.uppercase() }
 }
 
 data class PropertyUpdateScenario(

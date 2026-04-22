@@ -29,7 +29,7 @@ enum class OrdnanceType(
     val buildTime: Long by lazy { buildMinutes.minutes.inWholeMilliseconds }
 
     private val label: String =
-        if (sentenceCase) name.let { it[0] + it.substring(1).lowercase() } else name
+        if (sentenceCase) name.lowercase().replaceFirstChar { it.uppercase() } else name
 
     private val alternateLabel: String? = legacyType?.let { "Type $it $label" }
 

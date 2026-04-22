@@ -82,10 +82,15 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
     }
 
     private fun prepareInfoLabels() {
-        val networkInfoVisibility = if (viewModel.showingNetworkInfo) View.VISIBLE else View.GONE
-        binding.addressLabel.visibility = networkInfoVisibility
-        binding.networkTypeLabel.visibility = networkInfoVisibility
-        binding.networkInfoDivider.visibility = networkInfoVisibility
+        viewLifecycleOwner.collectLatestWhileStarted(binding.root.context.userSettings.data) {
+            val isShowing = it.showNetworkInfo
+            viewModel.showingNetworkInfo = isShowing
+
+            val visibility = if (isShowing) View.VISIBLE else View.GONE
+            binding.addressLabel.visibility = visibility
+            binding.networkTypeLabel.visibility = visibility
+            binding.networkInfoDivider.visibility = visibility
+        }
 
         viewLifecycleOwner.collectLatestWhileStarted(
             Konnection.instance.observeNetworkConnection()
@@ -227,21 +232,22 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
             object : Filter() {
                 override fun performFiltering(constraint: CharSequence?): FilterResults =
                     FilterResults().apply {
-                        if (constraint.isNullOrBlank()) {
-                            values = servers.joinToString("\n")
-                            count = servers.size
-                        } else {
-                            val regex =
-                                Regex(
-                                    constraint
-                                        .split('.')
-                                        .filter(String::isNotBlank)
-                                        .joinToString(".*\\..*")
-                                )
-                            val newValues = servers.filter(regex::containsMatchIn)
-                            values = newValues.joinToString("\n")
-                            count = newValues.size
-                        }
+                        val results =
+                            if (constraint.isNullOrBlank()) {
+                                servers
+                            } else {
+                                val regex =
+                                    Regex(
+                                        constraint
+                                            .split('.')
+                                            .filter(String::isNotBlank)
+                                            .joinToString(".*\\..*")
+                                    )
+                                servers.filter(regex::containsMatchIn)
+                            }
+
+                        values = results.joinToString("\n")
+                        count = results.size
                     }
 
                 override fun publishResults(constraint: CharSequence?, results: FilterResults) {

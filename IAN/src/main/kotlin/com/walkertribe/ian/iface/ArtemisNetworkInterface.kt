@@ -19,10 +19,6 @@ interface ArtemisNetworkInterface {
 
     fun addListenerModule(module: ListenerModule)
 
-    fun addListeners(listeners: Iterable<ListenerFunction<out ListenerArgument>>) {
-        addListenerModule(CompositeListenerModule(listeners.toList()))
-    }
-
     /**
      * Sets whether heartbeat packets should be sent to the remote machine automatically. Defaults
      * to true. Set this to false if you pass this object to another interface's proxyTo() method
@@ -62,4 +58,10 @@ interface ArtemisNetworkInterface {
 
     /** Disposes of all resources used by the interface. */
     fun dispose()
+}
+
+fun ArtemisNetworkInterface.addListeners(
+    listeners: Iterable<ListenerFunction<out ListenerArgument>>
+) {
+    addListenerModule(CompositeListenerModule(listeners.toList()))
 }

@@ -5,11 +5,12 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import artemis.agent.R
 import artemis.agent.isHidden
 import artemis.agent.isRemoved
+import io.github.kakaocup.kakao.common.views.KDSLView
 import io.github.kakaocup.kakao.common.views.KView
 import io.github.kakaocup.kakao.image.KImageView
 import io.github.kakaocup.kakao.text.KTextView
 
-class KTimeInputBinder(@IdRes parentId: Int) {
+class KTimeInputBinder(@IdRes parentId: Int) : KDSLView<KTimeInputBinder>() {
     private val parentMatcher = withId(parentId)
     private val root = KView { withMatcher(parentMatcher) }
 
@@ -43,10 +44,6 @@ class KTimeInputBinder(@IdRes parentId: Int) {
     }
 
     private val allChildren by lazy { minutesChildren + secondsChildren }
-
-    operator fun invoke(function: KTimeInputBinder.() -> Unit) {
-        function(this)
-    }
 
     fun isDisplayed(withMinutes: Boolean) {
         root.isCompletelyDisplayed()

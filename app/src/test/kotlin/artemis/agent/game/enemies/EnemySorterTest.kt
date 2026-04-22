@@ -1,6 +1,6 @@
 package artemis.agent.game.enemies
 
-import com.walkertribe.ian.util.FilePathResolver
+import com.walkertribe.ian.util.FileSystemResourceReader
 import com.walkertribe.ian.vesseldata.VesselData
 import com.walkertribe.ian.world.ArtemisNpc
 import io.kotest.core.spec.style.DescribeSpec
@@ -27,27 +27,25 @@ class EnemySorterTest :
             val datFile = File(datDir, "vesselData.xml")
             datFile.writeText(EnemySorter::class.java.getResource("vesselData.xml")!!.readText())
 
-            val vesselData = VesselData.load(FilePathResolver(tmpDir.toOkioPath()))
+            val vesselData = VesselData.load(FileSystemResourceReader(tmpDir.toOkioPath()))
 
-            val entries =
-                data.map { entry ->
-                    val faction = vesselData.getFaction(entry.hullId)!!
-                    val vessel = vesselData[entry.hullId]!!
-                    val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
-                    EnemyEntry(enemy, vessel, faction, vesselData).also {
-                        it.range = entry.distance
-                        entry.status.applyTo(it)
-                    }
+            val entries = data.map { entry ->
+                val faction = vesselData.getFaction(entry.hullId)!!
+                val vessel = vesselData[entry.hullId]!!
+                val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
+                EnemyEntry(enemy, vessel, faction, vesselData).also {
+                    it.range = entry.distance
+                    entry.status.applyTo(it)
                 }
+            }
 
             sortingTests.forEach { sortingTest ->
                 describe(sortingTest.dataTestName()) {
                     val sorter = sortingTest.toSorter()
-                    lateinit var actualSort: List<EnemyEntry>
+                    val actualSort by lazy { entries.sortedWith(sorter) }
 
                     it("Sorted correctly") {
                         val expectedSort = sortingTest.sortedIndices.map { entries[it] }
-                        actualSort = entries.sortedWith(sorter)
                         actualSort shouldContainExactly expectedSort
                     }
 

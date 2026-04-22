@@ -108,20 +108,23 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/networkTypeLabel" />
     <TextView
         android:id="@+id/networkTypeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/finding_network"
-        android:textSize="@dimen/baseTextSize" />
+        android:textSize="@dimen/baseTextSize"
+        android:visibility="gone"  />
     <TextView
         android:id="@+id/addressLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/paddingSmall"
         android:gravity="end"
-        android:textSize="@dimen/baseTextSize" />
+        android:textSize="@dimen/baseTextSize"
+        android:visibility="gone" />
     <androidx.constraintlayout.helper.widget.Flow
         android:id="@+id/networkInfoFlow"
         android:layout_width="match_parent"

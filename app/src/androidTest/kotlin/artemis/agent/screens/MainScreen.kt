@@ -7,6 +7,7 @@ import artemis.agent.R
 import artemis.agent.isDisplayedWithText
 import artemis.agent.isRemoved
 import com.kaspersky.kaspresso.device.Device
+import com.kaspersky.kaspresso.device.permissions.Permissions
 import com.kaspersky.kaspresso.screens.KScreen
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import io.github.kakaocup.kakao.check.KCheckBox
@@ -28,9 +29,9 @@ object MainScreen : KScreen<MainScreen>() {
 
     private val isTiramisu by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
 
-    fun TestContext<*>.mainScreenTest(
+    inline fun TestContext<*>.mainScreenTest(
         backButtonShouldCloseApp: Boolean = true,
-        test: MainScreen.() -> Unit,
+        crossinline test: MainScreen.() -> Unit,
     ) {
         this@MainScreen {
             step("Accept permissions") { acceptPermissions(device) }
@@ -44,7 +45,7 @@ object MainScreen : KScreen<MainScreen>() {
         }
     }
 
-    private fun assertCloseOnBackButton() {
+    fun assertCloseOnBackButton() {
         try {
             pressBack()
             Assert.fail("Expected back button to close the app")
@@ -58,9 +59,11 @@ object MainScreen : KScreen<MainScreen>() {
         device.permissions.allowViaDialog()
     }
 
-    fun denyPermissions(device: Device) {
+    fun denyPermissions(device: Device, isFirstTime: Boolean) {
         if (!isTiramisu) return
-        device.permissions.denyViaDialog()
+        device.permissions.denyViaDialog(
+            if (isFirstTime) Permissions.Button.DENY else Permissions.Button.DENY_AND_DONT_ASK_AGAIN
+        )
     }
 
     fun assertPermissionsDialogOpen(device: Device) {

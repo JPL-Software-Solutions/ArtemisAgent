@@ -6,10 +6,9 @@ on:
     paths:
       - .tool-versions
       - Gemfile
-  pull_request:
-    paths:
-      - .tool-versions
-      - Gemfile
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,24 +20,26 @@ jobs:
     runs-on: macos-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Setup Ruby
-      uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
+      uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
       with:
         bundler-cache: true
 
     - name: Update lockfile
-      run: bundle update
+      run: |
+        rm Gemfile.lock
+        bundle config set frozen false
+        bundle update --all
 
-    - name: Commit
-      uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
       with:
-        commit_message: Update Gemfile.lock
-        commit_options: "--no-verify"
-        commit_user_name: ${{ github.triggering_actor }}
-        commit_user_email: ${{ github.triggering_actor }}@users.noreply.github.com
-        add_options: "-u"
+        add-paths: Gemfile.lock
+        commit-message: "Update Gemfile.lock"
+        title: "Update Gemfile.lock"

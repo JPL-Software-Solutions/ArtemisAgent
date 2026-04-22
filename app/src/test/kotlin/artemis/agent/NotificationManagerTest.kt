@@ -258,8 +258,9 @@ class NotificationManagerTest :
                 }
 
                 it("All channels") {
-                    val testChannels =
-                        groups.flatMap { group -> group.channels.map { it to group.id } }
+                    val testChannels = groups.flatMap { group ->
+                        group.channels.map { it to group.id }
+                    }
                     channels shouldBeSameSizeAs testChannels
 
                     val channelMap = testChannels.associateBy { it.first.id }

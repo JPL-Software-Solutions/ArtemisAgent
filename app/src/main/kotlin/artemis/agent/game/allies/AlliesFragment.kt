@@ -52,22 +52,21 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
 
             override fun preview() {
                 viewModel.focusedAlly.value = null
-                binding.backPressAlpha.visibility = View.VISIBLE
             }
 
             override fun revert() {
                 viewModel.focusedAlly.value = focusedAlly
-                binding.backPressAlpha.visibility = View.GONE
             }
 
             override fun close() {
                 viewModel.playSound(SoundEffect.BEEP_1)
-                binding.backPressAlpha.visibility = View.GONE
             }
         }
     }
 
-    private val commandInfoBinder: AllyInfoBinder by lazy { AllyInfoBinder(binding.allyInfoLayout) }
+    private val commandInfoBinder: AllyInfoBinder by lazy {
+        AllyInfoBinder(binding.allyInfoLayout, backPreview)
+    }
 
     private val aliveAdapter: LivingAlliesListAdapter by lazy { LivingAlliesListAdapter() }
     private val destroyedAdapter: GenericDataAdapter by lazy { GenericDataAdapter() }
@@ -95,6 +94,10 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.backPreview = backPreview
+
+        viewLifecycleOwner.collectLatestWhileStarted(backPreview.isPreviewing) { isPreviewing ->
+            binding.backPressAlpha.visibility = if (isPreviewing) View.VISIBLE else View.GONE
+        }
 
         with(binding) {
             prepareAlliesListViewAndSelector()
@@ -191,7 +194,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
     ) {
         commandInfoBinder.bind(ally, viewModel)
         root.setBackgroundColor(ally.getBackgroundColor(root.context))
-        backPreview.isEnabled = !viewModel.isSingleAlly
+        backPreview.isEnabled = viewModel.allyBackEnabled && !viewModel.isSingleAlly
 
         var targetsAdapter = destinationAdapter
         if (targetsAdapter == null) {
@@ -242,10 +245,17 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
         alliesListView.visibility = View.GONE
     }
 
-    private class AllyInfoBinder(val entryBinding: AlliesEntryBinding) {
+    private class AllyInfoBinder(
+        val entryBinding: AlliesEntryBinding,
+        private val backPreview: BackPreview,
+    ) {
         constructor(
-            parent: ViewGroup
-        ) : this(AlliesEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            parent: ViewGroup,
+            backPreview: BackPreview,
+        ) : this(
+            AlliesEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            backPreview,
+        )
 
         fun bind(entry: Ally, viewModel: AgentViewModel) {
             entryBinding.allyNameLabel.text = entry.fullName
@@ -291,7 +301,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                     viewModel.activateHaptic()
                     viewModel.playSound(SoundEffect.BEEP_1)
                     if (!viewModel.isSingleAlly) {
-                        viewModel.backPreview?.handleOnBackPressed()
+                        backPreview.handleOnBackPressed()
                     }
                 }
             } else {
@@ -501,7 +511,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
         override fun getItemCount(): Int = allies.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllyViewHolder =
-            AllyViewHolder(AllyInfoBinder(parent))
+            AllyViewHolder(AllyInfoBinder(parent, backPreview))
 
         override fun onBindViewHolder(holder: AllyViewHolder, position: Int) {
             holder.binder.bind(allies[position], viewModel)

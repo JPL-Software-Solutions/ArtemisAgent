@@ -1,5 +1,6 @@
 package artemis.agent.setup.settings
 
+import android.os.Build
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.test.ext.junit.rules.activityScenarioRule
@@ -15,7 +16,6 @@ import artemis.agent.scenario.ConnectScenario
 import artemis.agent.scenario.SettingsMenuScenario
 import artemis.agent.scenario.SettingsSubmenuOpenScenario
 import artemis.agent.screens.ConnectPageScreen
-import artemis.agent.screens.MainScreen
 import artemis.agent.screens.MainScreen.mainScreenTest
 import artemis.agent.screens.SettingsPageScreen
 import artemis.agent.screens.SetupPageScreen
@@ -26,6 +26,8 @@ import io.github.kakaocup.kakao.dialog.KAlertDialog
 import io.github.kakaocup.kakao.text.KButton
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.roundToInt
+import kotlin.random.Random
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +62,10 @@ class ClientSettingsFragmentTest : TestCase() {
         }
     }
 
-    private fun testWithSettings(shouldTestSettings: Boolean, closeSubmenu: () -> Unit) {
+    private inline fun testWithSettings(
+        shouldTestSettings: Boolean,
+        crossinline closeSubmenu: () -> Unit,
+    ) {
         run {
             mainScreenTest {
                 val expectedPort = AtomicInteger()
@@ -89,27 +94,17 @@ class ClientSettingsFragmentTest : TestCase() {
                     shouldTest = shouldTestSettings,
                 )
                 testAddressFieldSetting(shouldTestSettings)
+                testServerPortSetting(expectedPort.get(), shouldTestSettings)
+
+                step("Test showing info setting") {
+                    SettingsPageScreen.Client.showNetworkInfoToggleSetting.testSingleToggle(
+                        showingInfo.get()
+                    )
+                }
+
+                testUpdateIntervalSetting(expectedUpdateInterval.get(), shouldTestSettings)
 
                 SettingsPageScreen.Client {
-                    step("Test showing info setting") {
-                        showNetworkInfoToggleSetting.testSingleToggle(showingInfo.get())
-                    }
-
-                    step("Test server port setting") {
-                        serverPortDivider.scrollTo()
-                        serverPortTitle.isDisplayedWithText(R.string.server_port)
-                        serverPortField.isDisplayedWithText(expectedPort.get().toString())
-                    }
-
-                    step("Test update interval setting") {
-                        updateIntervalDivider.scrollTo()
-                        updateIntervalTitle.isDisplayedWithText(R.string.update_interval)
-                        updateIntervalField.isDisplayedWithText(
-                            expectedUpdateInterval.get().toString()
-                        )
-                        updateIntervalMilliseconds.isDisplayedWithText(R.string.milliseconds)
-                    }
-
                     step("Close submenu") {
                         closeSubmenu()
                         testScreenClosed()
@@ -119,10 +114,10 @@ class ClientSettingsFragmentTest : TestCase() {
         }
     }
 
-    private fun testVesselDataWarningDialog(
+    private inline fun testVesselDataWarningDialog(
         shouldChange: Boolean,
         @StringRes connectedString: Int,
-        button: KAlertDialog.() -> KButton,
+        crossinline button: KAlertDialog.() -> KButton,
     ) {
         run {
             mainScreenTest(shouldChange) {
@@ -151,13 +146,17 @@ class ClientSettingsFragmentTest : TestCase() {
                     scenario(SettingsMenuScenario)
                     scenario(SettingsSubmenuOpenScenario.Client)
 
+                    step("Disclaimer should be showing") {
+                        SettingsPageScreen.Client.vesselDataDisclaimer.isDisplayedWithText(
+                            R.string.vessel_data_setting_disclaimer
+                        )
+                    }
+
                     step("Select option #${index + 1}") { vesselDataButtons[index].first.click() }
 
-                    MainScreen {
-                        step("Warning dialog should be displayed") { assertVesselDataWarningOpen() }
+                    step("Warning dialog should be displayed") { assertVesselDataWarningOpen() }
 
-                        step("Dismiss warning dialog") { alertDialog.button().click() }
-                    }
+                    step("Dismiss warning dialog") { alertDialog.button().click() }
 
                     step("Check vessel data setting") {
                         val expectedIndex = if (shouldChange) index else 0
@@ -176,6 +175,12 @@ class ClientSettingsFragmentTest : TestCase() {
     }
 
     private companion object {
+        const val PORT_TEST_COUNT = 5
+        const val INTERVAL_TEST_COUNT = 20
+        const val BASE_MAX_PROGRESS = 100f
+        const val MAX_INTERVAL = 500
+        const val PROGRESS_SCALE = 5
+
         val vesselDataButtons by lazy {
             listOf(
                 SettingsPageScreen.Client.vesselDataDefaultButton to R.string.default_setting,
@@ -204,6 +209,8 @@ class ClientSettingsFragmentTest : TestCase() {
                         }
                     }
 
+                    step("Disclaimer not displayed") { vesselDataDisclaimer.isRemoved() }
+
                     if (shouldTest) {
                         step("Select different options") {
                             vesselDataButtons.take(count).forEachIndexed { i, (button) ->
@@ -215,6 +222,33 @@ class ClientSettingsFragmentTest : TestCase() {
                         }
 
                         step("Revert setting") { vesselDataButtons[index].first.click() }
+                    }
+                }
+            }
+        }
+
+        fun TestContext<*>.testServerPortSetting(expectedPort: Int, shouldTestReset: Boolean) {
+            val expectedPortText = expectedPort.toString()
+
+            SettingsPageScreen.Client {
+                step("Test server port setting") {
+                    serverPortDivider.scrollTo()
+                    serverPortTitle.isDisplayedWithText(R.string.server_port)
+                    serverPortField.isDisplayedWithText(expectedPortText)
+                    serverPortInfo.isDisplayedWithText(R.string.server_port_info)
+                    serverPortResetButton.isDisplayedWithText(R.string.reset)
+                }
+
+                if (!shouldTestReset) return@Client
+
+                step("Test resetting port") {
+                    repeat(PORT_TEST_COUNT) {
+                        serverPortField.replaceText(
+                            Random.nextInt(UShort.MAX_VALUE.toInt()).toString()
+                        )
+                        serverPortResetButton.click()
+                        serverPortField.isDisplayedWithText("2010")
+                        serverPortField.replaceText(expectedPortText)
                     }
                 }
             }
@@ -259,12 +293,50 @@ class ClientSettingsFragmentTest : TestCase() {
             }
         }
 
+        fun TestContext<*>.testUpdateIntervalSetting(expectedInterval: Int, shouldTest: Boolean) {
+            SettingsPageScreen.Client {
+                step("Test update interval setting") {
+                    updateIntervalDivider.scrollTo()
+                    updateIntervalTitle.isDisplayedWithText(R.string.update_interval)
+                    updateIntervalMilliseconds.isDisplayedWithText(R.string.milliseconds)
+                    updateIntervalDisclaimer.isDisplayedWithText(
+                        R.string.update_interval_disclaimer
+                    )
+                    updateIntervalBar {
+                        isCompletelyDisplayed()
+                        hasProgress(getProgressScale(expectedInterval))
+                    }
+                }
+
+                if (!shouldTest) return@Client
+
+                step("Test changing update interval") {
+                    val intervalTests =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            List(INTERVAL_TEST_COUNT) { Random.nextInt(MAX_INTERVAL + 1) }
+                        } else {
+                            List(INTERVAL_TEST_COUNT) {
+                                Random.nextInt(MAX_INTERVAL / PROGRESS_SCALE + 1) * PROGRESS_SCALE
+                            }
+                        } + expectedInterval
+
+                    intervalTests.forEach { interval ->
+                        updateIntervalBar.setProgress(getProgressScale(interval))
+                        updateIntervalLabel.isDisplayedWithText(interval.toString())
+                    }
+                }
+            }
+        }
+
         fun SettingsPageScreen.Client.testScreenClosed() {
             vesselDataTitle.doesNotExist()
             vesselDataButtons.forEach { (button) -> button.doesNotExist() }
+            vesselDataDisclaimer.doesNotExist()
             vesselDataDivider.doesNotExist()
             serverPortTitle.doesNotExist()
             serverPortField.doesNotExist()
+            serverPortResetButton.doesNotExist()
+            serverPortInfo.doesNotExist()
             serverPortDivider.doesNotExist()
             showNetworkInfoToggleSetting.testNotExist()
             addressLimitTitle.doesNotExist()
@@ -273,9 +345,18 @@ class ClientSettingsFragmentTest : TestCase() {
             addressLimitField.doesNotExist()
             addressLimitDivider.doesNotExist()
             updateIntervalTitle.doesNotExist()
-            updateIntervalField.doesNotExist()
+            updateIntervalLabel.doesNotExist()
             updateIntervalMilliseconds.doesNotExist()
+            updateIntervalBar.doesNotExist()
+            updateIntervalDisclaimer.doesNotExist()
             updateIntervalDivider.doesNotExist()
         }
+
+        fun getProgressScale(progress: Int): Int =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                progress
+            } else {
+                (progress * BASE_MAX_PROGRESS / MAX_INTERVAL).roundToInt()
+            }
     }
 }

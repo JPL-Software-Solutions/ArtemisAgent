@@ -1,4 +1,4 @@
-import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.android.build.api.dsl.ApplicationExtension
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
-    kotlin("android")
     kotlin("plugin.serialization")
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
@@ -37,7 +36,7 @@ val changelog =
 val versionProperties =
     Properties().apply { rootProject.file("version.properties").inputStream().use { load(it) } }
 
-android {
+extensions.configure<ApplicationExtension> {
     namespace = appId
     compileSdk = sdkVersion
 
@@ -47,7 +46,6 @@ android {
         targetSdk = sdkVersion
         versionCode = versionProperties.getProperty("versionCode").toInt()
         versionName = versionProperties.getProperty("versionName")
-        multiDexEnabled = true
 
         testInstrumentationRunner = "com.kaspersky.kaspresso.runner.KaspressoRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
@@ -105,22 +103,27 @@ android {
 
     packaging.jniLibs.excludes.add("lib/*/libdatastore_shared_counter.so")
 
-    applicationVariants.all {
-        val variant = name[0].uppercase() + name.substring(1)
-        tasks.named("assemble$variant").dependsOn(":app:konsist:test${variant}UnitTest")
-    }
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        resValues = true
     }
 
-    tasks.preBuild.dependsOn(":IAN:konsistCollect")
+    tasks.preBuild.configure { dependsOn(":IAN:konsistCollect") }
+}
 
-    project.afterEvaluate {
+androidComponents {
+    onVariants { variant ->
+        val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+
+        // As of AGP 9, release test tasks are no longer generated, so we depend on the
+        // debug task instead
         tasks
-            .named { it.startsWith("ksp") && it.endsWith("Kotlin") }
-            .configureEach { mustRunAfter("generate${name.substring(3, name.length - 6)}Proto") }
+            .named { it == "assemble${variantName}" }
+            .configureEach { dependsOn(":app:konsist:testDebugUnitTest") }
+        tasks
+            .named { it.startsWith("ksp$variantName") && it.endsWith("Kotlin") }
+            .configureEach { mustRunAfter("generate${variantName}Proto") }
     }
 }
 
@@ -148,6 +151,7 @@ dependencies {
 
     testImplementation(platform(libs.kotest.bom))
     testImplementation(libs.bundles.app.test)
+    testDebugImplementation(libs.bundles.app.test.debug)
     testRuntimeOnly(libs.bundles.app.test.runtime)
 
     androidTestImplementation(libs.bundles.app.androidTest) {
@@ -171,6 +175,18 @@ dependencies {
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")
         }
+        androidLintTool(libs.commons.lang3) {
+            because("Version 3.18 fixes an uncontrolled recursion error")
+        }
+        androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
+
+        // Add constraints on Unified Test Platform dependencies - same reasons as above
+        configurations
+            .named { it.startsWith("unified-test-platform") }
+            .all {
+                add(name, libs.commons.lang3)
+                add(name, libs.httpclient)
+            }
     }
 
     coreLibraryDesugaring(libs.desugaring)
@@ -188,8 +204,8 @@ protobuf {
     protoc { artifact = libs.protoc.get().toString() }
 
     generateProtoTasks {
-        all().forEach {
-            it.builtins {
+        all().configureEach {
+            builtins {
                 create("java") { option("lite") }
                 create("kotlin") { option("lite") }
             }
