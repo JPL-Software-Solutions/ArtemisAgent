@@ -14,16 +14,87 @@ name: "CodeQL"
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/**'
+      - '.tool-versions'
+      - 'Dangerfile'
+      - 'Gemfile*'
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.properties'
+      - '**/src/**/resources/**'
+      - 'app/src/main/AndroidManifest.xml'
+      - 'app/src/main/proto/**'
+      - 'app/src/main/res/**'
+      - 'app/src/test/**'
+      - 'app/proguard-rules.pro'
+      - 'gradle/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/**'
+      - '.tool-versions'
+      - 'Dangerfile'
+      - 'Gemfile*'
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.properties'
+      - '**/src/**/resources/**'
+      - 'app/src/main/AndroidManifest.xml'
+      - 'app/src/main/proto/**'
+      - 'app/src/main/res/**'
+      - 'app/src/test/**'
+      - 'app/proguard-rules.pro'
+      - 'gradle/**'
   schedule:
     - cron: '20 19 * * 0'
 
 jobs:
+  check-files:
+    name: Check relevant files
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
+    permissions:
+      contents: read
+    outputs:
+      actions: ${{ steps.filter.outputs.actions }}
+      java-kotlin: ${{ steps.filter.outputs.java-kotlin }}
+      ruby: ${{ steps.filter.outputs.ruby }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check relevant files
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            actions:
+              - '.github/workflows/**'
+            java-kotlin:
+              - '**/*.kt'
+              - '**/*.kts'
+              - '**/*.properties'
+              - '**/src/**/resources/**'
+              - 'app/src/main/AndroidManifest.xml'
+              - 'app/src/main/proto/**'
+              - 'app/src/main/res/**'
+              - 'app/src/test/**'
+              - 'app/proguard-rules.pro'
+              - 'gradle/**'
+            ruby:
+              - '.tool-versions'
+              - 'Dangerfile'
+              - 'Gemfile*'
+
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: 'ubuntu-latest'
-    timeout-minutes: 120
+    needs: check-files
+    if: |
+      always() &&
+      (github.event_name == 'schedule' || needs.filter.outputs[matrix.language] == 'true')
+    timeout-minutes: 10
     permissions:
       # required for all workflows
       security-events: write
