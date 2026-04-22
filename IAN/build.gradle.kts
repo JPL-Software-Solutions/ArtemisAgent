@@ -33,7 +33,6 @@ tasks.assemble.dependsOn(konsistCollect)
 dependencies {
     compileOnly(projects.ian.annotations)
 
-    api(projects.ian.enums)
     api(projects.ian.listener)
     api(projects.ian.packets)
     api(projects.ian.util)
@@ -52,6 +51,7 @@ dependencies {
     testImplementation(testFixtures(projects.ian.util))
 
     testImplementation(platform(libs.kotest.bom))
+    testImplementation(projects.ian.enums)
     testImplementation(libs.bundles.ian.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
 
