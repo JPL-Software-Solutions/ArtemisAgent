@@ -3,8 +3,20 @@ name: Dependency Analysis
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/dependency-analysis.yml'
+      - '**/*.kt'
+      - '**/*.kts'
+      - 'app/src/main/res/**'
+      - 'gradle/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/dependency-analysis.yml'
+      - '**/*.kt'
+      - '**/*.kts'
+      - 'app/src/main/res/**'
+      - 'gradle/**'
   merge_group:
     types: [ checks_requested ]
 
