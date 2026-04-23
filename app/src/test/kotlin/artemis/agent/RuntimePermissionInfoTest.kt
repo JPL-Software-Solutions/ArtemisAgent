@@ -7,21 +7,19 @@ import io.kotest.matchers.equals.shouldBeEqual
 class RuntimePermissionInfoTest :
     DescribeSpec({
         describe("RuntimePermissionInfo") {
-            val rationaleResIds =
-                intArrayOf(R.string.notification_rationale, R.string.local_network_rationale)
-            val permissionNames =
+            val permissions =
                 arrayOf(
-                    "android.permission.POST_NOTIFICATIONS",
-                    "android.permission.ACCESS_LOCAL_NETWORK",
+                    "android.permission.POST_NOTIFICATIONS" to R.string.notification_rationale,
+                    "android.permission.ACCESS_LOCAL_NETWORK" to R.string.local_network_rationale,
                 )
 
             withData(nameFn = { it.name }, RuntimePermissionInfo.entries) { info ->
                 it("Permission name") {
-                    info.permission shouldBeEqual permissionNames[info.ordinal]
+                    info.permission shouldBeEqual permissions[info.ordinal].first
                 }
 
                 it("Rationale message") {
-                    info.rationaleMessage shouldBeEqual rationaleResIds[info.ordinal]
+                    info.rationaleMessage shouldBeEqual permissions[info.ordinal].second
                 }
             }
         }
