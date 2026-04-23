@@ -43,6 +43,11 @@ class PermissionRationaleTest : TestCase() {
     }
 
     private companion object {
+        val rationaleMessages = intArrayOf(
+            R.string.notification_rationale,
+            R.string.local_network_rationale,
+        )
+
         inline fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
             MainScreen.alertDialog.button().click()
         }
@@ -51,9 +56,9 @@ class PermissionRationaleTest : TestCase() {
             MainScreen {
                 step("Deny permissions") { denyPermissions(isFirstTime = true) }
 
-                repeat(numPermissionDialogs) {
+                repeat(numPermissionDialogs) { index ->
                     step("Check for permission rationale dialog") {
-                        assertPermissionRationaleDialogOpen()
+                        assertPermissionRationaleDialogOpen(rationaleMessages[index])
                     }
 
                     withDialog()
