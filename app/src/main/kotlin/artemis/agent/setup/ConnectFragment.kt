@@ -56,7 +56,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         prepareScanningSection()
 
         viewLifecycleOwner.collectLatestWhileStarted(view.context.userSettings.data) {
-            recentAdapter.servers =
+            recentAdapter.filter.servers =
                 it.recentServersList.apply {
                     var addressText = firstOrNull() ?: ""
                     if (viewModel.connectedUrl.value.isBlank()) {
@@ -226,45 +226,49 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
     private class RecentServersAdapter(context: Context) :
         ArrayAdapter<String>(context, R.layout.generic_data_entry, R.id.entryNameLabel) {
-        var servers: List<String> = emptyList()
-        private val suggestions: MutableList<String> = mutableListOf()
-        private val filter =
-            object : Filter() {
-                override fun performFiltering(constraint: CharSequence?): FilterResults =
-                    FilterResults().apply {
-                        val results =
-                            if (constraint.isNullOrBlank()) {
-                                servers
-                            } else {
-                                val regex =
-                                    Regex(
-                                        constraint
-                                            .split('.')
-                                            .filter(String::isNotBlank)
-                                            .joinToString(".*\\..*")
-                                    )
-                                servers.filter(regex::containsMatchIn)
-                            }
+        val filter = RecentServersFilter(this)
 
-                        values = results.joinToString("\n")
-                        count = results.size
-                    }
+        override fun getCount(): Int = filter.suggestions.size
 
-                override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-                    suggestions.clear()
-                    if (results.count > 0) {
-                        suggestions.addAll(results.values.toString().split('\n'))
-                        notifyDataSetChanged()
-                    } else {
-                        notifyDataSetInvalidated()
-                    }
-                }
-            }
-
-        override fun getCount(): Int = suggestions.size
-
-        override fun getItem(position: Int): String = suggestions[position]
+        override fun getItem(position: Int): String = filter.suggestions[position]
 
         override fun getFilter(): Filter = filter
+    }
+
+    private class RecentServersFilter(private val adapter: RecentServersAdapter) : Filter() {
+        var servers: List<String> = emptyList()
+        private val mutSuggestions: MutableList<String> = mutableListOf()
+        val suggestions: List<String>
+            get() = mutSuggestions
+
+        override fun performFiltering(constraint: CharSequence?): FilterResults =
+            FilterResults().apply {
+                val results =
+                    if (constraint.isNullOrBlank()) {
+                        servers
+                    } else {
+                        val regex =
+                            Regex(
+                                constraint
+                                    .split('.')
+                                    .filter(String::isNotBlank)
+                                    .joinToString(".*\\..*")
+                            )
+                        servers.filter(regex::containsMatchIn)
+                    }
+
+                values = results.joinToString("\n")
+                count = results.size
+            }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults) {
+            mutSuggestions.clear()
+            if (results.count > 0) {
+                mutSuggestions.addAll(results.values.toString().split('\n'))
+                adapter.notifyDataSetChanged()
+            } else {
+                adapter.notifyDataSetInvalidated()
+            }
+        }
     }
 }
