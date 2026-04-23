@@ -1,6 +1,7 @@
 package artemis.agent.screens
 
 import android.os.Build
+import androidx.annotation.StringRes
 import androidx.test.espresso.NoActivityResumedException
 import artemis.agent.MainActivity
 import artemis.agent.R
@@ -82,11 +83,11 @@ object MainScreen : KScreen<MainScreen>() {
         Assert.assertTrue(device.permissions.isDialogVisible())
     }
 
-    fun assertPermissionRationaleDialogOpen() {
+    fun assertPermissionRationaleDialogOpen(@StringRes rationaleMessage: Int) {
         alertDialog {
             isCompletelyDisplayed()
             title.isRemoved()
-            message.isDisplayedWithText(R.string.notification_rationale)
+            message.isDisplayedWithText(rationaleMessage)
             positiveButton.isDisplayedWithText(R.string.yes)
             negativeButton.isDisplayedWithText(R.string.no)
             neutralButton.isRemoved()
