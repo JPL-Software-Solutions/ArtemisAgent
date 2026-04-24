@@ -59,27 +59,66 @@ import kotlin.reflect.KMutableProperty0
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
-    protected val objectType: ObjectType
-) {
+internal sealed class ObjectTestSuite<
+    T : BaseArtemisObject<T>,
+    P : ObjectTestSuite.BaseProperties<T>,
+>(protected val objectType: ObjectType) {
     abstract val arbObject: Arb<T>
     abstract val arbObjectPair: Arb<Pair<T, T>>
+    protected abstract val arbProperties: Arb<P>
     protected abstract val partialUpdateTestSuites:
         List<PartialUpdateTestSuite<T, out BaseArtemisObject.Dsl<T>, *, *>>
 
     abstract suspend fun testCreateUnknown()
 
-    abstract suspend fun testCreateFromDsl()
+    suspend fun testCreateFromDsl() {
+        checkAll(Arb.int(), Arb.long(), arbProperties) { id, timestamp, test ->
+            shouldNotThrow<IllegalStateException> {
+                test.testKnownObject(test.createThroughDsl(id, timestamp))
+            }
+        }
+    }
 
-    abstract suspend fun testCreateAndUpdateManually()
+    suspend fun testCreateAndUpdateManually() {
+        checkAll(arbObject, arbProperties) { obj, test ->
+            test.updateDirectly(obj)
+            test.testKnownObject(obj)
+        }
+    }
 
-    abstract suspend fun testCreateAndUpdateFromDsl()
+    suspend fun testCreateAndUpdateFromDsl() {
+        checkAll(arbObject, arbProperties) { obj, test ->
+            test.updateThroughDsl(obj)
+            test.testKnownObject(obj)
+        }
+    }
 
-    abstract suspend fun testUnknownObjectDoesNotProvideUpdates()
+    suspend fun testUnknownObjectDoesNotProvideUpdates() {
+        checkAll(arbObjectPair, arbProperties) { (old, new), test ->
+            test.updateDirectly(old)
+            new updates old
+            test.testKnownObject(old)
+        }
+    }
 
-    abstract suspend fun testKnownObjectProvidesUpdates()
+    suspend fun testKnownObjectProvidesUpdates() {
+        checkAll(arbObjectPair, arbProperties) { (old, new), test ->
+            test.updateDirectly(old)
+            new updates old
+            test.testKnownObject(old)
+        }
+    }
 
-    abstract suspend fun testDslCannotUpdateKnownObject()
+    suspend fun testDslCannotUpdateKnownObject() {
+        checkAll(arbObject, arbProperties) { obj, test ->
+            test.updateDirectly(obj)
+            testDslThrows(obj, test)
+        }
+    }
+
+    open fun testDslThrows(obj: T, test: P) {
+        shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(obj) }
+    }
 
     fun tests(): TestFactory = describeSpec {
         describe("Artemis${this@ObjectTestSuite.javaClass.simpleName}") {
@@ -307,7 +346,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
         }
     }
 
-    protected interface BaseProperties<T : ArtemisObject<T>> {
+    interface BaseProperties<T : ArtemisObject<T>> {
         val location: Location
 
         fun updateDirectly(obj: T) {
@@ -346,11 +385,11 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
         }
     }
 
-    data object Base : ObjectTestSuite<ArtemisBase>(ObjectType.BASE) {
+    data object Base : ObjectTestSuite<ArtemisBase, Base.Properties>(ObjectType.BASE) {
         private val NAME = Arb.string()
         private val HULL_ID = Arb.int().filter { it != -1 }
 
-        private data class Properties(
+        data class Properties(
             private val name: String,
             private val shields: ShieldStrength,
             private val hullId: Int,
@@ -410,6 +449,14 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisBase(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> =
+            Arb.bind(
+                genA = NAME,
+                genB = SHIELDS,
+                genC = HULL_ID,
+                genD = LOCATION,
+                bindFn = ::Properties,
+            )
 
         override val partialUpdateTestSuites =
             listOf(
@@ -456,106 +503,6 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             arbObject.checkAll { it.shouldBeUnknownObject(it.id, objectType) }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(
-                Arb.int(),
-                Arb.long(),
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { id, timestamp, test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { base, test ->
-                test.updateDirectly(base)
-                test.testKnownObject(base)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { base, test ->
-                test.updateThroughDsl(base)
-                test.testKnownObject(base)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldBase, newBase), test ->
-                test.updateDirectly(oldBase)
-                newBase updates oldBase
-                test.testKnownObject(oldBase)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldBase, newBase), test ->
-                test.updateDirectly(newBase)
-                newBase updates oldBase
-                test.testKnownObject(oldBase)
-            }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS,
-                    genC = HULL_ID,
-                    genD = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { base, test ->
-                test.updateDirectly(base)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(base) }
-            }
-        }
-
         override fun DescribeSpecContainerScope.describeMore() = launch {
             describeVesselDataTests(arbObject, HULL_ID)
             describeFullNameTests(arbObject, NAME)
@@ -577,9 +524,9 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             )
     }
 
-    data object BlackHole : ObjectTestSuite<ArtemisBlackHole>(ObjectType.BLACK_HOLE) {
-        private data class Properties(override val location: Location) :
-            BaseProperties<ArtemisBlackHole> {
+    data object BlackHole :
+        ObjectTestSuite<ArtemisBlackHole, BlackHole.Properties>(ObjectType.BLACK_HOLE) {
+        data class Properties(override val location: Location) : BaseProperties<ArtemisBlackHole> {
             override fun createThroughDsl(id: Int, timestamp: Long): ArtemisBlackHole =
                 ArtemisBlackHole.Dsl.let { dsl ->
                     dsl.x = location.x
@@ -613,6 +560,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisBlackHole(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> = LOCATION.map(::Properties)
 
         override val partialUpdateTestSuites =
             listOf(
@@ -631,53 +579,6 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             arbObject.checkAll { it.shouldBeUnknownObject(it.id, objectType) }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(Arb.int(), Arb.long(), LOCATION.map(::Properties)) { id, timestamp, test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { blackHole, test ->
-                test.updateDirectly(blackHole)
-                test.testKnownObject(blackHole)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { blackHole, test ->
-                test.updateThroughDsl(blackHole)
-                test.testKnownObject(blackHole)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(arbObjectPair, LOCATION.map(::Properties)) { (oldBlackHole, newBlackHole), test
-                ->
-                test.updateDirectly(oldBlackHole)
-                newBlackHole updates oldBlackHole
-                test.testKnownObject(oldBlackHole)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            checkAll(arbObjectPair, LOCATION.map(::Properties)) { (oldBlackHole, newBlackHole), test
-                ->
-                test.updateDirectly(newBlackHole)
-                newBlackHole updates oldBlackHole
-                test.testKnownObject(oldBlackHole)
-            }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { blackHole, test ->
-                test.updateDirectly(blackHole)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(blackHole) }
-            }
-        }
-
         private fun <V, P : Property<V, P>> partialUpdateTest(
             name: String,
             propGen: Gen<V>,
@@ -694,13 +595,12 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             )
     }
 
-    data object Creature : ObjectTestSuite<ArtemisCreature>(ObjectType.CREATURE) {
+    data object Creature :
+        ObjectTestSuite<ArtemisCreature, Creature.Properties>(ObjectType.CREATURE) {
         private val IS_NOT_TYPHON = Arb.boolState()
 
-        private data class Properties(
-            private val isNotTyphon: BoolState,
-            override val location: Location,
-        ) : BaseProperties<ArtemisCreature> {
+        data class Properties(private val isNotTyphon: BoolState, override val location: Location) :
+            BaseProperties<ArtemisCreature> {
             override fun updateDirectly(obj: ArtemisCreature) {
                 super.updateDirectly(obj)
                 obj.isNotTyphon.value = isNotTyphon
@@ -743,6 +643,8 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisCreature(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> =
+            Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)
 
         override val partialUpdateTestSuites =
             listOf(
@@ -771,58 +673,6 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(Arb.int(), Arb.long(), Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) {
-                id,
-                timestamp,
-                test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(arbObject, Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) { creature, test ->
-                test.updateDirectly(creature)
-                test.testKnownObject(creature)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(arbObject, Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) { creature, test ->
-                test.updateThroughDsl(creature)
-                test.testKnownObject(creature)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(arbObjectPair, Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) {
-                (oldCreature, newCreature),
-                test ->
-                test.updateDirectly(oldCreature)
-                newCreature updates oldCreature
-                test.testKnownObject(oldCreature)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            checkAll(arbObjectPair, Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) {
-                (oldCreature, newCreature),
-                test ->
-                test.updateDirectly(newCreature)
-                newCreature updates oldCreature
-                test.testKnownObject(oldCreature)
-            }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(arbObject, Arb.bind(IS_NOT_TYPHON, LOCATION, ::Properties)) { creature, test ->
-                test.updateDirectly(creature)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(creature) }
-            }
-        }
-
         private fun <V, P : Property<V, P>> partialUpdateTest(
             name: String,
             propGen: Gen<V>,
@@ -839,9 +689,8 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             )
     }
 
-    data object Mine : ObjectTestSuite<ArtemisMine>(ObjectType.MINE) {
-        private data class Properties(override val location: Location) :
-            BaseProperties<ArtemisMine> {
+    data object Mine : ObjectTestSuite<ArtemisMine, Mine.Properties>(ObjectType.MINE) {
+        data class Properties(override val location: Location) : BaseProperties<ArtemisMine> {
             override fun createThroughDsl(id: Int, timestamp: Long): ArtemisMine =
                 ArtemisMine.Dsl.let { dsl ->
                     dsl.x = location.x
@@ -875,6 +724,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisMine(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> = LOCATION.map(::Properties)
 
         override val partialUpdateTestSuites =
             listOf(
@@ -893,61 +743,6 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             arbObject.checkAll { it.shouldBeUnknownObject(it.id, objectType) }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(Arb.int(), Arb.long(), LOCATION.map(::Properties)) { id, timestamp, test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { mine, test ->
-                test.updateDirectly(mine)
-                test.testKnownObject(mine)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { mine, test ->
-                test.updateThroughDsl(mine)
-                test.testKnownObject(mine)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(arbObjectPair, LOCATION.map(::Properties)) { (oldMine, newMine), test ->
-                test.updateDirectly(oldMine)
-                newMine updates oldMine
-                test.testKnownObject(oldMine)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            Arb.pair(arbObject, LOCATION.map(::Properties))
-                .flatMap { (mine, test) ->
-                    Arb.long()
-                        .filter { it != mine.timestamp }
-                        .map { timestamp ->
-                            val otherMine = ArtemisMine(mine.id, timestamp)
-                            if (timestamp < mine.timestamp) Triple(otherMine, mine, test)
-                            else Triple(mine, otherMine, test)
-                        }
-                }
-                .checkAll { (oldMine, newMine, test) ->
-                    test.updateDirectly(newMine)
-                    newMine updates oldMine
-                    test.testKnownObject(oldMine)
-                }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(arbObject, LOCATION.map(::Properties)) { mine, test ->
-                test.updateDirectly(mine)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(mine) }
-            }
-        }
-
         private fun <V, P : Property<V, P>> partialUpdateTest(
             name: String,
             propGen: Gen<V>,
@@ -964,7 +759,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             )
     }
 
-    data object Npc : ObjectTestSuite<ArtemisNpc>(ObjectType.NPC_SHIP) {
+    data object Npc : ObjectTestSuite<ArtemisNpc, Npc.Properties>(ObjectType.NPC_SHIP) {
         private val NAME = Arb.string()
         private val SHIELDS_PAIR = Arb.pair(SHIELDS, SHIELDS)
         private val HULL_ID = Arb.int().filter { it != -1 }
@@ -975,7 +770,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
         private val SCAN_BITS = Arb.int()
         private val SIDE = Arb.byte().filter { it.toInt() != -1 }
 
-        private data class Properties(
+        data class Properties(
             private val name: String,
             private val shields: Pair<ShieldStrength, ShieldStrength>,
             private val hullId: Int,
@@ -1118,6 +913,20 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisNpc(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> =
+            Arb.bind(
+                genA = NAME,
+                genB = SHIELDS_PAIR,
+                genC = HULL_ID,
+                genD = IMPULSE,
+                genE = IS_ENEMY,
+                genF = IS_SURRENDERED,
+                genG = IN_NEBULA,
+                genH = SCAN_BITS,
+                genI = SIDE,
+                genJ = LOCATION,
+                bindFn = ::Properties,
+            )
 
         override val partialUpdateTestSuites =
             listOf(
@@ -1224,142 +1033,6 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(
-                Arb.int(),
-                Arb.long(),
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { id, timestamp, test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { npc, test ->
-                test.updateDirectly(npc)
-                test.testKnownObject(npc)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { npc, test ->
-                test.updateThroughDsl(npc)
-                test.testKnownObject(npc)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldNpc, newNpc), test ->
-                test.updateDirectly(oldNpc)
-                newNpc updates oldNpc
-                test.testKnownObject(oldNpc)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldNpc, newNpc), test ->
-                test.updateDirectly(newNpc)
-                newNpc updates oldNpc
-                test.testKnownObject(oldNpc)
-            }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = SHIELDS_PAIR,
-                    genC = HULL_ID,
-                    genD = IMPULSE,
-                    genE = IS_ENEMY,
-                    genF = IS_SURRENDERED,
-                    genG = IN_NEBULA,
-                    genH = SCAN_BITS,
-                    genI = SIDE,
-                    genJ = LOCATION,
-                    bindFn = ::Properties,
-                ),
-            ) { npc, test ->
-                test.updateDirectly(npc)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(npc) }
-            }
-        }
-
         override fun DescribeSpecContainerScope.describeMore() = launch {
             describe("Scanned by") {
                 ScanBitsTestCase.entries.forEach { case ->
@@ -1390,7 +1063,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             )
     }
 
-    data object Player : ObjectTestSuite<ArtemisPlayer>(ObjectType.PLAYER_SHIP) {
+    data object Player : ObjectTestSuite<ArtemisPlayer, Player.Properties>(ObjectType.PLAYER_SHIP) {
         private val NAME = Arb.string()
         private val ENERGY = Arb.numericFloat()
         private val SHIELDS_ACTIVE = Arb.boolState()
@@ -1419,7 +1092,7 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                 Artemis.MAX_TUBES..Artemis.MAX_TUBES,
             )
 
-        private data class Properties(
+        data class Properties(
             private val name: String,
             private val energy: Float,
             private val shields: Triple<ShieldStrength, ShieldStrength, BoolState>,
@@ -1619,6 +1292,24 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
                     ArtemisPlayer(id, max(timestampA, timestampB)),
                 )
             }
+        override val arbProperties: Arb<Properties> =
+            Arb.bind(
+                genA = NAME,
+                genB = ENERGY,
+                genC = SHIELDS_PROPS,
+                genD = HULL_ID,
+                genE = SPEED,
+                genF = SIDE,
+                genG = SHIP_INDEX,
+                genH = CAPITAL_SHIP_ID,
+                genI = ENUMS,
+                genJ = DOCKING_BASE,
+                genK = DOUBLE_AGENT,
+                genL = LOCATION,
+                genM = ORDNANCE_COUNTS,
+                genN = TUBES,
+                bindFn = ::Properties,
+            )
 
         override val partialUpdateTestSuites =
             listOf(
@@ -1801,166 +1492,10 @@ internal sealed class ObjectTestSuite<T : BaseArtemisObject<T>>(
             }
         }
 
-        override suspend fun testCreateFromDsl() {
-            checkAll(
-                Arb.int(),
-                Arb.long(),
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { id, timestamp, test ->
-                shouldNotThrow<IllegalStateException> {
-                    test.testKnownObject(test.createThroughDsl(id, timestamp))
-                }
-            }
-        }
-
-        override suspend fun testCreateAndUpdateManually() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { player, test ->
-                test.updateDirectly(player)
-                test.testKnownObject(player)
-            }
-        }
-
-        override suspend fun testCreateAndUpdateFromDsl() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { player, test ->
-                test.updateThroughDsl(player)
-                test.testKnownObject(player)
-            }
-        }
-
-        override suspend fun testUnknownObjectDoesNotProvideUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldPlayer, newPlayer), test ->
-                test.updateDirectly(oldPlayer)
-                newPlayer updates oldPlayer
-                test.testKnownObject(oldPlayer)
-            }
-        }
-
-        override suspend fun testKnownObjectProvidesUpdates() {
-            checkAll(
-                arbObjectPair,
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { (oldPlayer, newPlayer), test ->
-                test.updateDirectly(newPlayer)
-                newPlayer updates oldPlayer
-                test.testKnownObject(oldPlayer)
-            }
-        }
-
-        override suspend fun testDslCannotUpdateKnownObject() {
-            checkAll(
-                arbObject,
-                Arb.bind(
-                    genA = NAME,
-                    genB = ENERGY,
-                    genC = SHIELDS_PROPS,
-                    genD = HULL_ID,
-                    genE = SPEED,
-                    genF = SIDE,
-                    genG = SHIP_INDEX,
-                    genH = CAPITAL_SHIP_ID,
-                    genI = ENUMS,
-                    genJ = DOCKING_BASE,
-                    genK = DOUBLE_AGENT,
-                    genL = LOCATION,
-                    genM = ORDNANCE_COUNTS,
-                    genN = TUBES,
-                    bindFn = ::Properties,
-                ),
-            ) { player, test ->
-                test.updateDirectly(player)
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughPlayerDsl(player) }
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughWeaponsDsl(player) }
-                shouldThrowUnit<IllegalArgumentException> { test.updateThroughUpgradesDsl(player) }
-            }
+        override fun testDslThrows(obj: ArtemisPlayer, test: Properties) {
+            shouldThrowUnit<IllegalArgumentException> { test.updateThroughPlayerDsl(obj) }
+            shouldThrowUnit<IllegalArgumentException> { test.updateThroughWeaponsDsl(obj) }
+            shouldThrowUnit<IllegalArgumentException> { test.updateThroughUpgradesDsl(obj) }
         }
 
         override suspend fun describeTestCreateAndUpdatePartially(
