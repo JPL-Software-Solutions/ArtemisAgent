@@ -77,6 +77,7 @@ import com.walkertribe.ian.world.ArtemisMine
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import com.walkertribe.ian.world.ArtemisShielded
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -146,11 +147,11 @@ class AgentViewModel(application: Application) :
 
     private var damageVisJob: Job? = null
 
-    private var privateBackPreview: BackPreview? = null
+    private var privateBackPreview: WeakReference<BackPreview>? = null
     var backPreview: BackPreview?
-        get() = privateBackPreview?.takeIf { it.isEnabled }
+        get() = privateBackPreview?.get()?.takeIf { it.isEnabled }
         set(preview) {
-            privateBackPreview = preview
+            privateBackPreview = preview?.let { WeakReference(it) }
         }
 
     // Ship settings from packet
