@@ -252,9 +252,12 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
                                 constraint
                                     .split('.')
                                     .filter(String::isNotBlank)
-                                    .joinToString(".*\\..*")
+                                    .joinToString(".*\\..*") { Regex.escape(it) }
                             )
-                        servers.filter(regex::containsMatchIn)
+                        val dotCount = constraint.count { it == '.' }
+                        servers.filter { server ->
+                            regex.containsMatchIn(server) && server.count { it == '.' } >= dotCount
+                        }
                     }
 
                 values = results.joinToString("\n")
