@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Filter
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -56,7 +57,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         prepareScanningSection()
 
         viewLifecycleOwner.collectLatestWhileStarted(view.context.userSettings.data) {
-            recentAdapter.filter.servers =
+            recentAdapter.serverFilter.servers =
                 it.recentServersList.apply {
                     var addressText = firstOrNull() ?: ""
                     if (viewModel.connectedUrl.value.isBlank()) {
@@ -224,54 +225,62 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
                 ?.hostAddress
     }
 
-    private class RecentServersAdapter(context: Context) :
+    @VisibleForTesting
+    class RecentServersAdapter(context: Context) :
         ArrayAdapter<String>(context, R.layout.generic_data_entry, R.id.entryNameLabel) {
-        val filter = RecentServersFilter(this)
+        val serverFilter = RecentServersFilter(this)
 
-        override fun getCount(): Int = filter.suggestions.size
+        override fun getCount(): Int = serverFilter.suggestions.size
 
-        override fun getItem(position: Int): String = filter.suggestions[position]
+        override fun getItem(position: Int): String = serverFilter.suggestions[position]
 
-        override fun getFilter(): Filter = filter
+        override fun getFilter(): RecentServersFilter = serverFilter
     }
 
-    private class RecentServersFilter(private val adapter: RecentServersAdapter) : Filter() {
+    @VisibleForTesting
+    class RecentServersFilter(private val adapter: RecentServersAdapter) : Filter() {
         var servers: List<String> = emptyList()
         private val mutSuggestions: MutableList<String> = mutableListOf()
         val suggestions: List<String>
             get() = mutSuggestions
 
+        @VisibleForTesting
+        fun doPerformFiltering(constraint: CharSequence?): List<String> =
+            if (constraint.isNullOrBlank()) {
+                servers
+            } else {
+                val regex =
+                    Regex(
+                        constraint.split('.').filter(String::isNotBlank).joinToString(".*\\..*") {
+                            Regex.escape(it)
+                        }
+                    )
+                val dotCount = constraint.count { it == '.' }
+                servers.filter { server ->
+                    regex.containsMatchIn(server) && server.count { it == '.' } >= dotCount
+                }
+            }
+
+        @VisibleForTesting
+        fun doPublishResults(values: List<String>, count: Int) {
+            mutSuggestions.clear()
+            if (count > 0) {
+                mutSuggestions.addAll(values)
+                adapter.notifyDataSetChanged()
+            } else {
+                adapter.notifyDataSetInvalidated()
+            }
+        }
+
         override fun performFiltering(constraint: CharSequence?): FilterResults =
             FilterResults().apply {
-                val results =
-                    if (constraint.isNullOrBlank()) {
-                        servers
-                    } else {
-                        val regex =
-                            Regex(
-                                constraint
-                                    .split('.')
-                                    .filter(String::isNotBlank)
-                                    .joinToString(".*\\..*") { Regex.escape(it) }
-                            )
-                        val dotCount = constraint.count { it == '.' }
-                        servers.filter { server ->
-                            regex.containsMatchIn(server) && server.count { it == '.' } >= dotCount
-                        }
-                    }
-
+                val results = doPerformFiltering(constraint)
                 values = results.joinToString("\n")
                 count = results.size
             }
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-            mutSuggestions.clear()
-            if (results.count > 0) {
-                mutSuggestions.addAll(results.values.toString().split('\n'))
-                adapter.notifyDataSetChanged()
-            } else {
-                adapter.notifyDataSetInvalidated()
-            }
+            doPublishResults(results.values.toString().split('\n'), results.count)
         }
     }
 }
