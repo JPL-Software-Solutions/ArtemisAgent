@@ -37,7 +37,6 @@ import io.kotest.property.exhaustive.bytes
 import io.kotest.property.exhaustive.filterNot
 import io.kotest.property.exhaustive.of
 import kotlin.reflect.KClass
-import org.koin.ksp.generated.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
 
@@ -45,7 +44,7 @@ class ProtocolTest : DescribeSpec(), KoinTest {
     private val protocol: Protocol by inject()
 
     init {
-        extension(KoinExtension(ProtocolModule().module, mode = KoinLifecycleMode.Root))
+        extension(KoinExtension(ProtocolModule().module(), mode = KoinLifecycleMode.Root))
 
         describe("Protocol") {
             describe("Has factories registered for server packets") {
