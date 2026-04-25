@@ -156,6 +156,19 @@ sealed class StatusInfoTestCategory<SI : StatusInfo, TC : StatusInfoTestCase<SI,
         }
     }
 
+    data object Time : StatusInfoTestCategory<StatusInfo.Time, StatusInfoTestCase.Time>() {
+        override val items: List<StatusInfoTestCase.Time> = listOf(StatusInfoTestCase.Time)
+
+        override fun equalsLabel(item: StatusInfoTestCase.Time): String = "Time regardless of value"
+
+        override suspend fun describeItemNotEqualsTests(
+            scope: DescribeSpecContainerScope,
+            index: Int,
+        ) {
+            // No tests
+        }
+    }
+
     abstract val items: List<TC>
 
     open fun equalsLabel(item: TC): String = toString()
@@ -205,6 +218,6 @@ sealed class StatusInfoTestCategory<SI : StatusInfo, TC : StatusInfoTestCase<SI,
     override fun dataTestName(): String = toString()
 
     companion object {
-        val ALL = listOf(Empty, Header, Energy, Shield, OrdnanceCount, Singleseat, DamageReport)
+        val ALL = listOf(Empty, Header, Energy, Shield, OrdnanceCount, Singleseat, DamageReport, Time)
     }
 }

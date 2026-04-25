@@ -159,6 +159,9 @@ class AgentViewModel(application: Application) :
 
     // Game status
     val gameIsRunning: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
+    var gameStartTime: Long = 0L
+        private set
+
     var isDeepStrikePossible: Boolean = false
     var isBorderWarPossible: Boolean = false
     val isBorderWar: StateFlow<Boolean> by lazy {
@@ -1046,6 +1049,7 @@ class AgentViewModel(application: Application) :
 
     @Listener
     fun onPacket(packet: GameStartPacket) {
+        gameStartTime = packet.timestamp
         playerChange = false
         when (packet.gameType) {
             GameType.BORDER_WAR -> {
