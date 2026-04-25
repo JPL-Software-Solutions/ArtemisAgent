@@ -197,7 +197,7 @@ jobs:
           path: coverage
 
       - name: Code Coverage (${{ matrix.module }})
-        uses: mi-kas/kover-report@d7cc6d4b9642e3f71800cc0e79bdb3ce4ba07bb6 # v2.1
+        uses: mi-kas/kover-report@59a0909d4a2c2d72a5a31c3f055f35d9bc99a9de # v2.2-rc.1
         with:
           title: Code Coverage (${{ matrix.module }})
           path: coverage/${{ matrix.module }}/build/reports/kover/report.xml
@@ -221,7 +221,7 @@ jobs:
           path: coverage
 
       - name: Total Code Coverage
-        uses: mi-kas/kover-report@d7cc6d4b9642e3f71800cc0e79bdb3ce4ba07bb6 # v2.1
+        uses: mi-kas/kover-report@59a0909d4a2c2d72a5a31c3f055f35d9bc99a9de # v2.2-rc.1
         with:
           title: Total Code Coverage
           path: coverage/**/build/reports/kover/report.xml
