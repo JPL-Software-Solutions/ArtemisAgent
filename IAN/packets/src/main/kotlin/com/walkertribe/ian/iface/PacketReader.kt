@@ -35,7 +35,7 @@ import kotlinx.io.readShortLe
 import org.koin.core.Koin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.ksp.generated.koinApplication
+import org.koin.plugin.module.dsl.koinApplication
 
 /**
  * Facilitates reading packets from an [ByteReadChannel]. This object may be reused to read as many
@@ -48,7 +48,7 @@ class PacketReader(
     private val channel: ByteReadChannel,
     private val listenerRegistry: ListenerRegistry,
 ) : KoinComponent {
-    private val koinApp = IAN.koinApplication()
+    private val koinApp = koinApplication<IAN>()
 
     private val protocol: Protocol by inject()
 

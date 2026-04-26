@@ -16,6 +16,7 @@ import artemis.agent.R
 import artemis.agent.databinding.StatusFragmentBinding
 import artemis.agent.databinding.fragmentViewBinding
 import artemis.agent.game.route.RouteObjective
+import artemis.agent.util.TimerText
 import artemis.agent.util.collectLatestWhileStarted
 import com.walkertribe.ian.enums.DriveType
 import com.walkertribe.ian.enums.OrdnanceType
@@ -61,6 +62,9 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
 
     private fun getStatusReport(): List<StatusInfo> = buildList {
         val player = viewModel.playerShip ?: return@buildList
+
+        add(StatusInfo.Time(TimerText.getTimeSince(viewModel.gameStartTime)))
+        add(StatusInfo.Empty)
 
         addAll(getEnergyAndShields(player))
         addAll(getOrdnanceAndFighters(player))

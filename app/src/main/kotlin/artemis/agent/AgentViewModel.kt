@@ -77,6 +77,7 @@ import com.walkertribe.ian.world.ArtemisMine
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import com.walkertribe.ian.world.ArtemisShielded
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -146,11 +147,11 @@ class AgentViewModel(application: Application) :
 
     private var damageVisJob: Job? = null
 
-    private var privateBackPreview: BackPreview? = null
+    private var privateBackPreview: WeakReference<BackPreview>? = null
     var backPreview: BackPreview?
-        get() = privateBackPreview?.takeIf { it.isEnabled }
+        get() = privateBackPreview?.get()?.takeIf { it.isEnabled }
         set(preview) {
-            privateBackPreview = preview
+            privateBackPreview = preview?.let { WeakReference(it) }
         }
 
     // Ship settings from packet
@@ -158,6 +159,9 @@ class AgentViewModel(application: Application) :
 
     // Game status
     val gameIsRunning: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
+    var gameStartTime: Long = 0L
+        private set
+
     var isDeepStrikePossible: Boolean = false
     var isBorderWarPossible: Boolean = false
     val isBorderWar: StateFlow<Boolean> by lazy {
@@ -1045,6 +1049,7 @@ class AgentViewModel(application: Application) :
 
     @Listener
     fun onPacket(packet: GameStartPacket) {
+        gameStartTime = packet.timestamp
         playerChange = false
         when (packet.gameType) {
             GameType.BORDER_WAR -> {

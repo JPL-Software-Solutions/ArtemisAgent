@@ -296,6 +296,35 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
         override fun dataTestName(): String = toString()
     }
 
+    data object Time : StatusInfoTestCase<StatusInfo.Time, Time> {
+        private const val PREFIX = "Time: "
+
+        override val context: Context by lazy {
+            mockk<Context> {
+                every { getString(R.string.time, *varargAny { nArgs == 1 }) } answers
+                    {
+                        PREFIX + lastArg<Array<Any?>>().first().toString()
+                    }
+            }
+        }
+
+        override val statusInfoGen: Gen<StatusInfo.Time> = Arb.bind()
+
+        override val statusInfoEqualsGen: Gen<Pair<StatusInfo.Time, StatusInfo.Time>> = Arb.bind()
+
+        override fun statusInfoNotEqualsGen(
+            other: Time
+        ): Gen<Pair<StatusInfo.Time, StatusInfo.Time>>? = null
+
+        override suspend fun testText() {
+            Arb.string().checkAll { time ->
+                StatusInfo.Time(time).getString(context) shouldBeEqual PREFIX + time
+            }
+        }
+
+        override fun dataTestName(): String = toString()
+    }
+
     val context: Context
 
     val statusInfoGen: Gen<T>

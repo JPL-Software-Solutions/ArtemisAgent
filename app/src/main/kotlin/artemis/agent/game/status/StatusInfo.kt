@@ -81,6 +81,12 @@ sealed interface StatusInfo {
             other is DamageReport && systemLabel == other.systemLabel
     }
 
+    data class Time(@all:VisibleForTesting val text: String) : StatusInfo {
+        override fun getString(context: Context): String = context.getString(R.string.time, text)
+
+        override fun itemEquals(other: StatusInfo): Boolean = other is Time
+    }
+
     private companion object {
         const val ENERGY_PERCENT_SCALE = 0.1f
     }

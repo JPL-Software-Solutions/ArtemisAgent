@@ -60,7 +60,7 @@ class ObjectUpdatePacket(reader: PacketReader) : Packet.Server(reader) {
         objects.forEach { it.offerTo(module) }
     }
 
-    private companion object {
+    internal companion object {
         val PARSERS =
             listOf(
                     PlayerShipParser,

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Filter
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -56,7 +57,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         prepareScanningSection()
 
         viewLifecycleOwner.collectLatestWhileStarted(view.context.userSettings.data) {
-            recentAdapter.servers =
+            recentAdapter.serverFilter.servers =
                 it.recentServersList.apply {
                     var addressText = firstOrNull() ?: ""
                     if (viewModel.connectedUrl.value.isBlank()) {
@@ -224,47 +225,62 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
                 ?.hostAddress
     }
 
-    private class RecentServersAdapter(context: Context) :
+    @VisibleForTesting
+    class RecentServersAdapter(context: Context) :
         ArrayAdapter<String>(context, R.layout.generic_data_entry, R.id.entryNameLabel) {
+        val serverFilter = RecentServersFilter(this)
+
+        override fun getCount(): Int = serverFilter.suggestions.size
+
+        override fun getItem(position: Int): String = serverFilter.suggestions[position]
+
+        override fun getFilter(): RecentServersFilter = serverFilter
+    }
+
+    @VisibleForTesting
+    class RecentServersFilter(private val adapter: RecentServersAdapter) : Filter() {
         var servers: List<String> = emptyList()
-        private val suggestions: MutableList<String> = mutableListOf()
-        private val filter =
-            object : Filter() {
-                override fun performFiltering(constraint: CharSequence?): FilterResults =
-                    FilterResults().apply {
-                        val results =
-                            if (constraint.isNullOrBlank()) {
-                                servers
-                            } else {
-                                val regex =
-                                    Regex(
-                                        constraint
-                                            .split('.')
-                                            .filter(String::isNotBlank)
-                                            .joinToString(".*\\..*")
-                                    )
-                                servers.filter(regex::containsMatchIn)
-                            }
+        private val mutSuggestions: MutableList<String> = mutableListOf()
+        val suggestions: List<String>
+            get() = mutSuggestions
 
-                        values = results.joinToString("\n")
-                        count = results.size
-                    }
-
-                override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-                    suggestions.clear()
-                    if (results.count > 0) {
-                        suggestions.addAll(results.values.toString().split('\n'))
-                        notifyDataSetChanged()
-                    } else {
-                        notifyDataSetInvalidated()
-                    }
+        @VisibleForTesting
+        fun doPerformFiltering(constraint: CharSequence?): List<String> =
+            if (constraint.isNullOrBlank()) {
+                servers
+            } else {
+                val regex =
+                    Regex(
+                        constraint.split('.').filter(String::isNotBlank).joinToString(".*\\..*") {
+                            Regex.escape(it)
+                        }
+                    )
+                val dotCount = constraint.count { it == '.' }
+                servers.filter { server ->
+                    regex.containsMatchIn(server) && server.count { it == '.' } >= dotCount
                 }
             }
 
-        override fun getCount(): Int = suggestions.size
+        @VisibleForTesting
+        fun doPublishResults(values: List<String>, count: Int) {
+            mutSuggestions.clear()
+            if (count > 0) {
+                mutSuggestions.addAll(values)
+                adapter.notifyDataSetChanged()
+            } else {
+                adapter.notifyDataSetInvalidated()
+            }
+        }
 
-        override fun getItem(position: Int): String = suggestions[position]
+        override fun performFiltering(constraint: CharSequence?): FilterResults =
+            FilterResults().apply {
+                val results = doPerformFiltering(constraint)
+                values = results.joinToString("\n")
+                count = results.size
+            }
 
-        override fun getFilter(): Filter = filter
+        override fun publishResults(constraint: CharSequence?, results: FilterResults) {
+            doPublishResults(results.values.toString().split('\n'), results.count)
+        }
     }
 }
