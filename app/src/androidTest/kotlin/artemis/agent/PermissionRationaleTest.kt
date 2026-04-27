@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import artemis.agent.screens.MainScreen
+import artemis.agent.screens.MainScreen.denyPermissions
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import io.github.kakaocup.kakao.dialog.KAlertDialog
@@ -36,33 +37,32 @@ class PermissionRationaleTest : TestCase() {
             testPermissionDialog {
                 step("Click negative button") { clickRationaleDialogButton { negativeButton } }
 
-                step("Check for permissions dialog again") {
-                    MainScreen.assertPermissionsDialogOpen(device)
-                }
-
-                step("Deny permissions again") {
-                    MainScreen.denyPermissions(device, isFirstTime = false)
-                }
+                step("Deny permissions again") { denyPermissions(isFirstTime = false) }
             }
         }
     }
 
     private companion object {
+        val rationaleMessages = intArrayOf(
+            R.string.notification_rationale,
+            R.string.local_network_rationale,
+        )
+
         inline fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
             MainScreen.alertDialog.button().click()
         }
 
         fun TestContext<*>.testPermissionDialog(withDialog: TestContext<*>.() -> Unit) {
             MainScreen {
-                step("Check for permissions dialog") { assertPermissionsDialogOpen(device) }
+                step("Deny permissions") { denyPermissions(isFirstTime = true) }
 
-                step("Deny permissions") { denyPermissions(device, isFirstTime = true) }
+                repeat(numPermissionDialogs) { index ->
+                    step("Check for permission rationale dialog") {
+                        assertPermissionRationaleDialogOpen(rationaleMessages[index])
+                    }
 
-                step("Check for permission rationale dialog") {
-                    assertPermissionRationaleDialogOpen()
+                    withDialog()
                 }
-
-                withDialog()
 
                 step("Check for changelog") {
                     assertChangelogOpen()

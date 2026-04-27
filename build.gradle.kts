@@ -29,7 +29,7 @@ buildscript {
 val javaVersion = JavaVersion.VERSION_21
 
 extra.apply {
-    set("sdkVersion", 36)
+    set("sdkVersion", 37)
     set("minimumSdkVersion", 23)
     set("javaVersion", javaVersion)
 }
