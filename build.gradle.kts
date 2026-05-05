@@ -1,5 +1,6 @@
 import com.ncorti.ktfmt.gradle.KtfmtExtension
 import com.ncorti.ktfmt.gradle.KtfmtPlugin
+import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
@@ -52,6 +53,7 @@ allprojects {
     configure<KtfmtExtension> {
         kotlinLangStyle()
         maxWidth.set(100)
+        trailingCommaManagementStrategy.set(TrailingCommaManagementStrategy.ONLY_ADD)
     }
 }
 
