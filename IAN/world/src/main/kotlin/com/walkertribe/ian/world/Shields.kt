@@ -13,10 +13,10 @@ class Shields(timestamp: Long) {
         private set
 
     /** The current strength of the shield. Unspecified: Float.NaN */
-    val strength = Property.FloatProperty(timestamp).apply { addListener { refresh() } }
+    val strength = Property.FloatProperty(timestamp) { refresh() }
 
     /** The maximum strength of the shield. Unspecified: Float.NaN */
-    val maxStrength = Property.FloatProperty(timestamp).apply { addListener { refresh() } }
+    val maxStrength = Property.FloatProperty(timestamp) { refresh() }
 
     val hasData: Boolean
         get() = strength.hasValue || maxStrength.hasValue
