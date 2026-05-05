@@ -218,6 +218,7 @@ sealed class StatusInfoTestCategory<SI : StatusInfo, TC : StatusInfoTestCase<SI,
     override fun dataTestName(): String = toString()
 
     companion object {
-        val ALL = listOf(Empty, Header, Energy, Shield, OrdnanceCount, Singleseat, DamageReport, Time)
+        val ALL =
+            listOf(Empty, Header, Energy, Shield, OrdnanceCount, Singleseat, DamageReport, Time)
     }
 }

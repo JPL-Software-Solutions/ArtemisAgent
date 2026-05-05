@@ -49,7 +49,10 @@ plugins {
 allprojects {
     apply<KtfmtPlugin>()
 
-    configure<KtfmtExtension> { kotlinLangStyle() }
+    configure<KtfmtExtension> {
+        kotlinLangStyle()
+        maxWidth.set(100)
+    }
 }
 
 tasks.detekt { jvmTarget = javaVersion.toString() }

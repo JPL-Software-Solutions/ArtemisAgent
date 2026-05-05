@@ -21,7 +21,11 @@ class SortMethodDependentScenario(
             }
 
             step(
-                "Sort by ${dependentSort.second} should be ${if (dependentFirst) "" else "in"}active"
+                "Sort by ${
+                    dependentSort.second
+                } should be ${
+                    if (dependentFirst) "" else "in"
+                }active"
             ) {
                 dependentSort.first.isCheckedIf(dependentFirst)
             }
@@ -37,7 +41,11 @@ class SortMethodDependentScenario(
             }
 
             step(
-                "Sort by ${dependentSort.second} should now be ${if (dependentFirst) "in" else ""}active"
+                "Sort by ${
+                    dependentSort.second
+                } should now be ${
+                    if (dependentFirst) "in" else ""
+                }active"
             ) {
                 dependentSort.first.isCheckedIf(!dependentFirst)
             }

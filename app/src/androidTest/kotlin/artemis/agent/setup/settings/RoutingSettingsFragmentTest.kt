@@ -281,7 +281,11 @@ class RoutingSettingsFragmentTest : TestCase() {
                         ) { index, on ->
                             val setting = avoidanceSettings[index]
                             step(
-                                "Clearance input #${index + 1} should ${if (on) "" else "not "}be displayed"
+                                "Clearance input #${
+                                    index + 1
+                                } should ${
+                                    if (on) "" else "not "
+                                }be displayed"
                             ) {
                                 if (on) {
                                     setting.input.isDisplayedWithText(clearances[index].toString())

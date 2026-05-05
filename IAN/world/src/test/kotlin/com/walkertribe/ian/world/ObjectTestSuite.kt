@@ -1020,7 +1020,9 @@ internal sealed class ObjectTestSuite<
                 partialUpdateTest(name = "Y", propGen = Y, dslProperty = ArtemisNpc.Dsl::y) {
                     it.y
                 },
-                partialUpdateTest(name = "Z", propGen = Z, dslProperty = ArtemisNpc.Dsl::z) { it.z },
+                partialUpdateTest(name = "Z", propGen = Z, dslProperty = ArtemisNpc.Dsl::z) {
+                    it.z
+                },
             )
 
         override suspend fun testCreateUnknown() {
