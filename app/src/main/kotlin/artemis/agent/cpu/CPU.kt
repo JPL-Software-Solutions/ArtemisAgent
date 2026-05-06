@@ -366,27 +366,26 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
         }
     }
 
-    private fun deleteEnemy(id: Int): ArtemisNpc? =
-        viewModel.enemiesManager.let { enemiesManager ->
-            enemiesManager.allEnemies.remove(id)?.let { entry ->
-                val enemy = entry.enemy
-                enemiesManager.destroyedEnemyName.tryEmit(entry.fullName)
+    private fun deleteEnemy(id: Int): ArtemisNpc? = viewModel.run {
+        val entry = enemiesManager.allEnemies.remove(id) ?: return@run null
+        val enemy = entry.enemy
 
-                val name = enemy.name.value
-                viewModel.allyShips.values.forEach {
-                    if (!it.isAttacking || it.destination != name) return@forEach
-                    it.isAttacking = false
-                    it.destination = null
-                }
-                name?.also(enemiesManager.nameIndex::remove)
+        enemiesManager.destroyedEnemyName.tryEmit(entry.fullName)
 
-                if (enemiesManager.selection.value == entry) {
-                    enemiesManager.selection.value = null
-                }
-
-                enemy
-            }
+        val name = enemy.name.value
+        allyShips.values.forEach {
+            if (!it.isAttacking || it.destination != name) return@forEach
+            it.isAttacking = false
+            it.destination = null
         }
+        name?.also(enemiesManager.nameIndex::remove)
+
+        if (enemiesManager.selection.value == entry) {
+            enemiesManager.selection.value = null
+        }
+
+        enemy
+    }
 
     private fun deleteAlly(id: Int): ArtemisNpc? =
         viewModel.allyShips.remove(id)?.let { ally ->
