@@ -165,8 +165,8 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
                 .toInt()
 
         override fun onLayoutChildren(
-            recycler: RecyclerView.Recycler?,
-            state: RecyclerView.State?,
+            recycler: RecyclerView.Recycler,
+            state: RecyclerView.State,
         ) {
             spanCount =
                 if (orientation == VERTICAL) {
