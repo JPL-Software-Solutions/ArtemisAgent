@@ -373,12 +373,11 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
                 enemiesManager.destroyedEnemyName.tryEmit(entry.fullName)
 
                 val name = enemy.name.value
-                viewModel.allyShips.values
-                    .filter { it.isAttacking && it.destination == name }
-                    .forEach {
-                        it.isAttacking = false
-                        it.destination = null
-                    }
+                viewModel.allyShips.values.forEach {
+                    if (!it.isAttacking || it.destination != name) return@forEach
+                    it.isAttacking = false
+                    it.destination = null
+                }
                 name?.also(enemiesManager.nameIndex::remove)
 
                 if (enemiesManager.selection.value == entry) {

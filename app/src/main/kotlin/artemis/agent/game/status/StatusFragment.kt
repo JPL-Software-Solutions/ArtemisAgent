@@ -107,8 +107,9 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
         addAll(
             intArrayOf(dockedFighters, launchedFighters, lostFighters)
                 .zip(fighterStockStrings)
-                .filter { it.first > 0 }
-                .map { (count, fighterLabel) -> StatusInfo.Singleseat(fighterLabel, count) }
+                .mapNotNull { (count, fighterLabel) ->
+                    if (count <= 0) null else StatusInfo.Singleseat(fighterLabel, count)
+                }
         )
     }
 

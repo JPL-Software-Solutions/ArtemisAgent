@@ -481,26 +481,27 @@ sealed interface MessageParser {
             val timestamp =
                 System.currentTimeMillis() +
                     missionManager.completedDismissalSeconds.inWholeMilliseconds
-            missionManager.allMissions
-                .filterNot { mission ->
+            missionManager.allMissions.forEach { mission ->
+                if (
                     mission.associatedShipName != shipName ||
                         mission.isCompleted ||
                         destination != mission.destination.fullName
-                }
-                .forEach { mission ->
-                    mission.completionTimestamp = timestamp
-                    missionManager.displayedRewards.forEach {
-                        missionManager.payouts[it.ordinal] += mission.rewards[it.ordinal]
-                    }
+                )
+                    return@forEach
 
-                    mission.destination.apply {
-                        missions -=
-                            missionManager.displayedRewards.sumOf { mission.rewards[it.ordinal] }
-                        if (this is ObjectEntry.Station) {
-                            speedFactor += mission.rewards[RewardType.PRODUCTION.ordinal]
-                        }
+                mission.completionTimestamp = timestamp
+                missionManager.displayedRewards.forEach {
+                    missionManager.payouts[it.ordinal] += mission.rewards[it.ordinal]
+                }
+
+                mission.destination.apply {
+                    missions -=
+                        missionManager.displayedRewards.sumOf { mission.rewards[it.ordinal] }
+                    if (this is ObjectEntry.Station) {
+                        speedFactor += mission.rewards[RewardType.PRODUCTION.ordinal]
                     }
                 }
+            }
             missionManager.updatePayouts()
         }
 
