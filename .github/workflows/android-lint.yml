@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - '.github/workflows/android-lint.yml'
+      - '*.gradle.kts'
       - 'app/**/*.kt'
       - 'app/**/*.kts'
       - 'app/lint.xml'
@@ -16,6 +17,7 @@ on:
     branches: [ "main" ]
     paths:
       - '.github/workflows/android-lint.yml'
+      - '*.gradle.kts'
       - 'app/**/*.kt'
       - 'app/**/*.kts'
       - 'app/lint.xml'
