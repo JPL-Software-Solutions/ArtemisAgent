@@ -6,11 +6,8 @@ plugins {
     id("ian-library")
     id("fixtures")
     alias(libs.plugins.ksp)
-    alias(libs.plugins.koin)
     id("info.solidsoft.pitest")
 }
-
-koinCompiler { userLogs = true }
 
 configureTests(maxMemoryGb = 4)
 
