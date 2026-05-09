@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>TooManyFunctions:PacketReader.kt$PacketReader : KoinComponent</ID>
+    <ID>TooManyFunctions:PacketReader.kt$PacketReader</ID>
   </CurrentIssues>
 </SmellBaseline>

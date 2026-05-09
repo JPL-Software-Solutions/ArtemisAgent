@@ -22,8 +22,6 @@ import com.walkertribe.ian.protocol.core.world.DockedPacket
 import com.walkertribe.ian.protocol.core.world.ObjectUpdatePacket
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
-import io.kotest.koin.KoinExtension
-import io.kotest.koin.KoinLifecycleMode
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -37,16 +35,12 @@ import io.kotest.property.exhaustive.bytes
 import io.kotest.property.exhaustive.filterNot
 import io.kotest.property.exhaustive.of
 import kotlin.reflect.KClass
-import org.koin.test.KoinTest
-import org.koin.test.inject
 
-class ProtocolTest : DescribeSpec(), KoinTest {
-    private val protocol: Protocol by inject()
-
-    init {
-        extension(KoinExtension(ProtocolModule().module(), mode = KoinLifecycleMode.Root))
-
+class ProtocolTest :
+    DescribeSpec({
         describe("Protocol") {
+            val protocol = ArtemisProtocol
+
             describe("Has factories registered for server packets") {
                 data class ServerPacketRegistration(
                     val packetClass: KClass<out Packet>,
@@ -225,5 +219,4 @@ class ProtocolTest : DescribeSpec(), KoinTest {
                 }
             }
         }
-    }
-}
+    })
