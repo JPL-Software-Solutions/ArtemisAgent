@@ -3,8 +3,8 @@ import artemis.agent.gradle.configureTests
 import artemis.agent.gradle.dependsOnKonsist
 
 plugins {
-    id("ian-library")
-    id("fixtures")
+    alias(conventions.plugins.ian.library)
+    alias(conventions.plugins.fixtures)
     id("info.solidsoft.pitest")
 }
 

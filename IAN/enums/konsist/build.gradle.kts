@@ -1,1 +1,1 @@
-plugins { id("konsist-tests") }
+plugins { alias(conventions.plugins.konsist.tests) }
