@@ -59,6 +59,7 @@ jobs:
 
       - name: Check report
         id: check-build-health
+        if: ${{ always() }}
         run: |
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           if [ -s build/reports/dependency-analysis/build-health-report.txt ]; then
