@@ -289,7 +289,6 @@ app-androidTest = [
 ]
 
 ian = [
-    "kotlinx-coroutines",
     "ktor-io",
     "ktor-network",
 ]
@@ -339,6 +338,7 @@ ian-listener-test = [
 ian-packets-api = [
     "kotlin-stdlib",
     "kotlinx-coroutines",
+    "kotlinx-io",
     "korlibs-string",
     "ktor-io",
 ]
@@ -380,6 +380,10 @@ ian-udp-test = [
 ian-util = [
     "korlibs-string",
     "ktor-io",
+]
+ian-util-api = [
+    "kotlin-stdlib",
+    "kotlinx-io",
     "okio",
 ]
 ian-util-test = [
@@ -400,10 +404,6 @@ ian-util-test-fixtures = [
     "mockk",
 ]
 
-ian-vesseldata = [
-    "korlibs-serialization",
-    "okio",
-]
 ian-vesseldata-test = [
     "kotest-assertions-core",
     "kotest-assertions-shared",

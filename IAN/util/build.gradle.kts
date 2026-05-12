@@ -15,9 +15,7 @@ pitest.configure(rootPackage = "com.walkertribe.ian.util", threads = 2)
 dependsOnKonsist()
 
 dependencies {
-    api(libs.kotlin.stdlib)
-    api(libs.kotlinx.io)
-
+    api(libs.bundles.ian.util.api)
     implementation(libs.bundles.ian.util)
 
     testImplementation(platform(libs.kotest.bom))
