@@ -4,6 +4,7 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.classesAndInterfaces
 import com.lemonappdev.konsist.api.ext.list.objects
 import com.lemonappdev.konsist.api.ext.list.withRepresentedTypeOf
+import com.lemonappdev.konsist.api.ext.provider.hasParentClassOf
 import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
@@ -25,6 +26,9 @@ class BoolStateKonsistTest :
 
             describe("Members") {
                 it("Count: ${expectedNames.size}") { stateObjects shouldBeSameSizeAs expectedNames }
+                it("All inheritors") {
+                    stateObjects.assertTrue { state -> state.hasParentClassOf<BoolState>() }
+                }
 
                 withData(nameFn = { it.name }, stateObjects) { state ->
                     state.assertTrue { expectedNames.contains(it.name) }
