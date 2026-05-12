@@ -21,7 +21,7 @@ arcmutate-base = "1.7.0"
 arcmutate-git = "2.3.2"
 arcmutate-kotlin = "1.5.0"
 crashlytics-plugin = "3.0.7"
-dependency-analysis = "3.10.0"
+dependency-analysis = "3.11.0"
 desugar = "2.1.5"
 detekt = "1.23.8"
 espresso = "3.7.0"
@@ -289,7 +289,6 @@ app-androidTest = [
 ]
 
 ian = [
-    "kotlinx-coroutines",
     "ktor-io",
     "ktor-network",
 ]
@@ -339,6 +338,7 @@ ian-listener-test = [
 ian-packets-api = [
     "kotlin-stdlib",
     "kotlinx-coroutines",
+    "kotlinx-io",
     "korlibs-string",
     "ktor-io",
 ]
@@ -380,6 +380,10 @@ ian-udp-test = [
 ian-util = [
     "korlibs-string",
     "ktor-io",
+]
+ian-util-api = [
+    "kotlin-stdlib",
+    "kotlinx-io",
     "okio",
 ]
 ian-util-test = [
@@ -400,10 +404,6 @@ ian-util-test-fixtures = [
     "mockk",
 ]
 
-ian-vesseldata = [
-    "korlibs-serialization",
-    "okio",
-]
 ian-vesseldata-test = [
     "kotest-assertions-core",
     "kotest-assertions-shared",

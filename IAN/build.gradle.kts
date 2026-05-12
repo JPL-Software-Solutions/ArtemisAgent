@@ -39,6 +39,7 @@ dependencies {
     api(projects.ian.world)
 
     api(libs.kotlin.stdlib)
+    api(libs.kotlinx.coroutines)
 
     ksp(projects.ian.processor)
 

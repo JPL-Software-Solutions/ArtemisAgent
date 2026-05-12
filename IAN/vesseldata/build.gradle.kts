@@ -18,9 +18,11 @@ dependencies {
     api(projects.ian.enums)
     api(projects.ian.grid)
     api(projects.ian.util)
-    api(libs.kotlin.stdlib)
 
-    implementation(libs.bundles.ian.vesseldata)
+    api(libs.kotlin.stdlib)
+    api(libs.korlibs.serialization)
+
+    implementation(libs.okio)
 
     testFixturesApi(projects.ian.grid)
     testFixturesImplementation(projects.ian.enums)

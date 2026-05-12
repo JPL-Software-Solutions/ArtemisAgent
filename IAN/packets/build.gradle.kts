@@ -33,7 +33,6 @@ dependencies {
     ksp(projects.ian.processor)
 
     implementation(libs.kotlin.reflect)
-    implementation(libs.kotlinx.io)
 
     testImplementation(testFixtures(projects.ian.listener))
     testImplementation(testFixtures(projects.ian.vesseldata))
