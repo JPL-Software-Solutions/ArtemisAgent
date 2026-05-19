@@ -1,0 +1,7 @@
+<resources>
+    <string name="local_network_rationale">
+        Artemis Agent will not be able to access local networks or Artemis servers running on them.
+        If you want to re-enable this feature, open the Settings app and grant the permission to
+        access local networks. Are you sure you want to disable this?
+    </string>
+</resources>
