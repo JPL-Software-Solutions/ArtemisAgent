@@ -80,6 +80,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
+      - name: Setup FFmpeg
+        uses: AnimMouse/setup-ffmpeg@v1
+
+      - name: Enable script execution
+        run: chmod +x .github/workflows/instrumented-test-recording.sh
+
       - name: Run tests on API ${{ matrix.api-level }}
         uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
@@ -89,7 +95,7 @@ jobs:
           force-avd-creation: true
           emulator-options: -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin ${{ matrix.orientation.skin }}
           disable-animations: true
-          script: ./gradlew connectedCheck
+          script: .github/workflows/instrumented-test-recording.sh ${{ matrix.api-level }} ${{ matrix.orientation.rotation }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -97,6 +103,13 @@ jobs:
         with:
           name: "Instrumented Test Results (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }})"
           path: ${{ github.workspace }}/app/build/outputs/androidTest-results/connected/**/*.xml
+
+      - name: Upload Test Recordings
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: "Instrumented Test Recording (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }})"
+          path: testRecording-${{ matrix.api-level }}-${{ matrix.orientation.rotation }}.mp4
 
   publish:
     needs: test
