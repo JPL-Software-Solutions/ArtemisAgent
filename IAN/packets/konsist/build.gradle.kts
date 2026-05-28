@@ -1,4 +1,4 @@
-plugins { id("konsist-tests") }
+plugins { alias(conventions.plugins.konsist.tests) }
 
 dependencies {
     testImplementation(projects.ian.annotations)

@@ -27,9 +27,10 @@ data class RouteEntry(val objEntry: ObjectEntry<*>) {
         buildList {
                 if (objEntry is ObjectEntry.Ally) {
                     addAll(
-                        viewModel.routeIncentives
-                            .filter { it.matches(objEntry) }
-                            .map { context.getString(it.getTextFor(objEntry)) }
+                        viewModel.routeIncentives.mapNotNull {
+                            if (it.matches(objEntry)) context.getString(it.getTextFor(objEntry))
+                            else null
+                        }
                     )
                 }
 

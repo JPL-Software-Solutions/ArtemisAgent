@@ -17,26 +17,24 @@ androidx-test-runner = "1.7.0"
 androidx-test-orchestrator = "1.6.1"
 app-review = "2.0.2"
 app-update = "2.1.0"
-arcmutate-base = "1.7.0"
-arcmutate-git = "2.3.2"
-arcmutate-kotlin = "1.5.0"
+arcmutate-base = "1.7.1"
+arcmutate-git = "2.3.3"
+arcmutate-kotlin = "1.5.1"
 crashlytics-plugin = "3.0.7"
-dependency-analysis = "3.9.0"
+dependency-analysis = "3.14.0"
 desugar = "2.1.5"
 detekt = "1.23.8"
 espresso = "3.7.0"
-firebase-bom = "34.12.0"
+firebase-bom = "34.13.0"
 git-hooks = "0.0.2"
 google-services = "4.4.4"
-gradle = "9.2.0"
+gradle = "9.2.1"
 gradle-pitest = "1.19.0"
 hamcrest = "3.0"
 jspecify = "1.0.0"
 junit4 = "4.13.2"
 kakao = "3.7.0"
 kaspresso = "1.6.1"
-koin = "4.2.1"
-koin-plugin = "1.0.0-RC2"
 konnection = "1.4.5"
 konsist = "0.17.3"
 korlibs-serialization = "6.0.1"
@@ -44,24 +42,24 @@ korlibs-string = "6.0.0"
 kotest = "6.1.11"
 kotest-arbs = "2.1.2"
 kotlin = "2.3.21"
-kotlin-coroutines = "1.10.2"
+kotlin-coroutines = "1.11.0"
 kotlin-io = "0.9.0"
 kotlin-serialization = "1.11.0"
 kotlinpoet = "2.3.0"
 kover = "0.9.8"
-ksp = "2.3.7"
+ksp = "2.3.9"
 ktfmt = "0.26.0"
-ktor = "3.4.3"
+ktor = "3.5.0"
 leakcanary = "2.14"
 lint-security = "1.0.4"
 markwon = "4.6.2"
-material = "1.13.0"
+material = "1.14.0"
 mockk = "1.14.9"
 okio = "3.17.0"
 perf-plugin = "2.0.2"
 play-services-tasks = "18.4.1"
 process-phoenix = "3.0.0"
-protobuf = "4.34.1"
+protobuf = "4.35.0"
 protobuf-plugin = "0.10.0"
 task-tree = "4.0.1"
 
@@ -83,10 +81,6 @@ kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",
 kotlinx-coroutines-play = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlin-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlin-io" }
-
-koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
@@ -171,7 +165,6 @@ kotest-assertions-core = { module = "io.kotest:kotest-assertions-core" }
 kotest-assertions-shared = { module = "io.kotest:kotest-assertions-shared" }
 kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
 kotest-common = { module = "io.kotest:kotest-common" }
-kotest-extensions-koin = { module = "io.kotest:kotest-extensions-koin" }
 kotest-extensions-pitest = { module = "io.kotest:kotest-extensions-pitest" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine" }
 kotest-property = { module = "io.kotest:kotest-property" }
@@ -296,7 +289,6 @@ app-androidTest = [
 ]
 
 ian = [
-    "kotlinx-coroutines",
     "ktor-io",
     "ktor-network",
 ]
@@ -346,8 +338,7 @@ ian-listener-test = [
 ian-packets-api = [
     "kotlin-stdlib",
     "kotlinx-coroutines",
-    "koin-annotations",
-    "koin-core",
+    "kotlinx-io",
     "korlibs-string",
     "ktor-io",
 ]
@@ -355,10 +346,8 @@ ian-packets-test = [
     "kotest-assertions-core",
     "kotest-assertions-shared",
     "kotest-common",
-    "kotest-extensions-koin",
     "kotest-framework-engine",
     "kotest-property",
-    "koin-test",
     "mockk",
     "mockk-core",
     "mockk-dsl",
@@ -391,6 +380,10 @@ ian-udp-test = [
 ian-util = [
     "korlibs-string",
     "ktor-io",
+]
+ian-util-api = [
+    "kotlin-stdlib",
+    "kotlinx-io",
     "okio",
 ]
 ian-util-test = [
@@ -411,10 +404,6 @@ ian-util-test-fixtures = [
     "mockk",
 ]
 
-ian-vesseldata = [
-    "korlibs-serialization",
-    "okio",
-]
 ian-vesseldata-test = [
     "kotest-assertions-core",
     "kotest-assertions-shared",
@@ -491,7 +480,6 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "perf-plugin" }
 git-hooks = { id = "com.github.jakemarsden.git-hooks", version.ref = "git-hooks" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
-koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

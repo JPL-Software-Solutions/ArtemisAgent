@@ -107,8 +107,9 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
         addAll(
             intArrayOf(dockedFighters, launchedFighters, lostFighters)
                 .zip(fighterStockStrings)
-                .filter { it.first > 0 }
-                .map { (count, fighterLabel) -> StatusInfo.Singleseat(fighterLabel, count) }
+                .mapNotNull { (count, fighterLabel) ->
+                    if (count <= 0) null else StatusInfo.Singleseat(fighterLabel, count)
+                }
         )
     }
 
@@ -164,8 +165,8 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
                 .toInt()
 
         override fun onLayoutChildren(
-            recycler: RecyclerView.Recycler?,
-            state: RecyclerView.State?,
+            recycler: RecyclerView.Recycler,
+            state: RecyclerView.State,
         ) {
             spanCount =
                 if (orientation == VERTICAL) {

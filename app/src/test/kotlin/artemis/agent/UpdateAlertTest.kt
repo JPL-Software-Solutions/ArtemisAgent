@@ -70,7 +70,11 @@ class UpdateAlertTest :
                             mockRestart,
                             UpdateAlert.ArtemisVersion::Restart,
                         ),
-                        ArtemisVersionTest("Update", mockUpdate, UpdateAlert.ArtemisVersion::Update),
+                        ArtemisVersionTest(
+                            "Update",
+                            mockUpdate,
+                            UpdateAlert.ArtemisVersion::Update,
+                        ),
                     )
                     .forEach { (name, prefix, createFn) ->
                         describe(name) {
@@ -106,7 +110,12 @@ class UpdateAlertTest :
                         immediateTitle,
                         immediateMessage,
                     ),
-                    NonVersionTest("Flexible", UpdateAlert.Flexible, flexibleTitle, flexibleMessage),
+                    NonVersionTest(
+                        "Flexible",
+                        UpdateAlert.Flexible,
+                        flexibleTitle,
+                        flexibleMessage,
+                    ),
                 )
                 .forEach { (name, alert, title, message) ->
                     describe(name) {

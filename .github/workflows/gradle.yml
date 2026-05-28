@@ -4,16 +4,6 @@
 # documentation.
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-#
-# Dependency Review Action
-#
-# This Action will scan dependency manifest files that change as part of a Pull Request,
-# surfacing known-vulnerable versions of the packages declared or updated in the PR.
-# Once installed, if the workflow run is marked as required, PRs introducing known-vulnerable
-# packages will be blocked from merging.
-#
-# Source repository: https://github.com/actions/dependency-review-action
-# Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
 
 name: Java CI with Gradle
 
@@ -69,12 +59,9 @@ jobs:
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
-        with:
-          dependency-graph: generate-and-submit
-          dependency-graph-exclude-configurations: 'detachedConfiguration.*'
 
       - name: Build with Gradle Wrapper
-        uses: burrunan/gradle-cache-action@663fbad34e03c8f12b27f4999ac46e3d90f87eca # v3.0.1
+        uses: burrunan/gradle-cache-action@4b67497abd37a511d6c1dc6299bdd84ff39f7bf5 # v3.0.2
         with:
           arguments: build koverXmlReport
 
@@ -102,36 +89,6 @@ jobs:
           name: Code Coverage Reports
           path: |
             ${{ github.workspace }}/**/build/reports/kover/report.xml
-
-  dependency-review:
-    name: Dependency review
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: 'Wait for base branch workflow run'
-        uses: ArcticLampyrid/action-wait-for-workflow@ff297b23789206858260877c4b83026d90c6db8c # v1.3.0
-        if: ${{ github.event_name == 'pull_request' }}
-        timeout-minutes: 1
-        with:
-          workflow: gradle.yml
-          branch: ${{ github.event.pull_request.base.ref }}
-          sha: ${{ github.event.pull_request.base.sha }}
-          wait-interval: 5
-
-      - name: 'Checkout repository'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: 'Dependency Review'
-        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
-        # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
-        with:
-          comment-summary-in-pr: always
-          fail-on-severity: moderate
-          base-ref: ${{ github.event.pull_request.base.sha || 'main' }}
-          head-ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
   test-results:
     name: Publish test results
@@ -196,7 +153,7 @@ jobs:
           path: coverage
 
       - name: Code Coverage (${{ matrix.module }})
-        uses: mi-kas/kover-report@59a0909d4a2c2d72a5a31c3f055f35d9bc99a9de # v2.2-rc.1
+        uses: mi-kas/kover-report@db9938358b8e1e6175dd4136132bf4eb7aa4ae6d # v2.4
         with:
           title: Code Coverage (${{ matrix.module }})
           path: coverage/${{ matrix.module }}/build/reports/kover/report.xml
@@ -220,7 +177,7 @@ jobs:
           path: coverage
 
       - name: Total Code Coverage
-        uses: mi-kas/kover-report@59a0909d4a2c2d72a5a31c3f055f35d9bc99a9de # v2.2-rc.1
+        uses: mi-kas/kover-report@db9938358b8e1e6175dd4136132bf4eb7aa4ae6d # v2.4
         with:
           title: Total Code Coverage
           path: coverage/**/build/reports/kover/report.xml

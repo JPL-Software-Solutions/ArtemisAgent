@@ -1,8 +1,7 @@
-plugins { id("ian-library") }
+plugins { alias(conventions.plugins.ian.library) }
 
 dependencies {
     api(libs.kotlin.stdlib)
-    api(libs.koin.annotations)
     api(libs.ksp.api)
     api(libs.kotlinpoet)
 

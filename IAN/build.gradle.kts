@@ -3,7 +3,7 @@ import artemis.agent.gradle.configureTests
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 plugins {
-    id("ian-library")
+    alias(conventions.plugins.ian.library)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
     id("info.solidsoft.pitest")
@@ -39,6 +39,7 @@ dependencies {
     api(projects.ian.world)
 
     api(libs.kotlin.stdlib)
+    api(libs.kotlinx.coroutines)
 
     ksp(projects.ian.processor)
 
