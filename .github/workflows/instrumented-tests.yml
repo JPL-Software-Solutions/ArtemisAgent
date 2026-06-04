@@ -84,7 +84,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.api-level >= 28 && 'playstore' || 'default' }}
+          target: 'google_apis'
           arch: x86_64
           force-avd-creation: true
           emulator-options: -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin ${{ matrix.orientation.skin }}
