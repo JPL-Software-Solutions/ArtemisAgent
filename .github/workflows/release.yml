@@ -80,7 +80,7 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@5e2ebd065dc2488b7a6ad670704656cbbe1e8f60 # v6.1.1
 
       - name: Read version from properties file
         uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
@@ -127,13 +127,13 @@ jobs:
 
       - name: Set Firebase Project
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@a95a1d1dfeea8f7efbe0eb13fd3bf429cb4ac437 # v15.19.0
+        uses: w9jds/firebase-action@b3c725170700a48b168a32972e7aaa4c92bf1061 # v15.19.1
         with:
           args: use ${{ secrets.GCP_PROJECT }}
 
       - name: Get Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@a95a1d1dfeea8f7efbe0eb13fd3bf429cb4ac437 # v15.19.0
+        uses: w9jds/firebase-action@b3c725170700a48b168a32972e7aaa4c92bf1061 # v15.19.1
         with:
           args: remoteconfig:get -o app/remote-config.json
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Publish Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@a95a1d1dfeea8f7efbe0eb13fd3bf429cb4ac437 # v15.19.0
+        uses: w9jds/firebase-action@b3c725170700a48b168a32972e7aaa4c92bf1061 # v15.19.1
         with:
           args: deploy --only remoteconfig
 
