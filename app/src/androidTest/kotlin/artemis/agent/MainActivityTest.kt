@@ -26,8 +26,7 @@ class MainActivityTest : TestCase() {
     fun changelogTest() {
         run {
             MainScreen {
-                step("Accept permissions") { acceptPermissions(device) }
-
+                acceptPermissions()
                 step("Check that dialog showing changelog is visible") { assertChangelogOpen() }
             }
         }
