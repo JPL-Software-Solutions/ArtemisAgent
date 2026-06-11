@@ -11,6 +11,8 @@ plugins {
 
 configureTests(maxMemoryGb = 4)
 
+kover.useJacoco()
+
 pitest {
     configure(rootPackage = "com.walkertribe.ian.protocol", threads = 8)
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
