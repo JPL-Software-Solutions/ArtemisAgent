@@ -6,8 +6,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.mockk.clearMocks
 import io.mockk.mockk
 
-class ArtemisObjectTest :
-    DescribeSpec({
+class ArtemisObjectTest : DescribeSpec() {
+    init {
         arrayOf(
                 ObjectTestSuite.Base,
                 ObjectTestSuite.BlackHole,
@@ -16,7 +16,7 @@ class ArtemisObjectTest :
                 ObjectTestSuite.Npc,
                 ObjectTestSuite.Player,
             )
-            .forEach { include(it.tests()) }
+            .withEach { createTests() }
 
         describe("ArtemisObjectListenerModule") {
             val mockArgument = mockk<ListenerArgument>()
@@ -28,4 +28,11 @@ class ArtemisObjectTest :
 
             clearMocks(mockArgument)
         }
-    })
+    }
+
+    private companion object {
+        inline fun <T> Array<T>.withEach(crossinline block: T.() -> Unit) {
+            for (element in this) element.block()
+        }
+    }
+}
