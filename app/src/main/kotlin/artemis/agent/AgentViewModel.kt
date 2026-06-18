@@ -1107,8 +1107,6 @@ class AgentViewModel(application: Application) :
         volume = 0f
         sounds.forEach { it?.release() }
         sounds.clear()
-
-        super.onCleared()
     }
 
     @OptIn(ExperimentalAtomicApi::class)
