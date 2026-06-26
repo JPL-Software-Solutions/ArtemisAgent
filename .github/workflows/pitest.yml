@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 2
 
       - name: Restore Pitest history file
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}/${{ matrix.path }}/build/pitHistory.txt
           key: pitest-history:${{ matrix.path }}
@@ -89,7 +89,7 @@ jobs:
           annotation-types: ALL
 
       - name: Cache Pitest history file
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}/${{ matrix.path }}/build/pitHistory.txt
           key: pitest-history:${{ matrix.path }}-${{ hashFiles('**/build/pitHistory.txt') }}
