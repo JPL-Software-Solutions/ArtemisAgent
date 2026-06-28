@@ -15,9 +15,8 @@ import com.walkertribe.ian.vesseldata.VesselData
 import com.walkertribe.ian.vesseldata.vesselData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrowUnit
-import io.kotest.core.factory.TestFactory
-import io.kotest.core.spec.style.describeSpec
 import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
+import io.kotest.core.spec.style.scopes.DescribeSpecRootScope
 import io.kotest.datatest.withData
 import io.kotest.engine.names.WithDataTestName
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -120,7 +119,7 @@ internal sealed class ObjectTestSuite<
         shouldThrowUnit<IllegalArgumentException> { test.updateThroughDsl(obj) }
     }
 
-    fun tests(): TestFactory = describeSpec {
+    fun DescribeSpecRootScope.createTests() {
         describe("Artemis${this@ObjectTestSuite.javaClass.simpleName}") {
             it("Can create with no data") { testCreateUnknown() }
 
