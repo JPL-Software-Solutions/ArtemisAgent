@@ -8,7 +8,7 @@ plugins {
     id("com.autonomousapps.dependency-analysis")
 }
 
-val javaVersion: JavaVersion by rootProject.extra
+val javaVersion = rootProject.extra["javaVersion"] as JavaVersion
 
 java {
     sourceCompatibility = javaVersion

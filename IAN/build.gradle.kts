@@ -13,7 +13,7 @@ configureTests(maxMemoryGb = 8)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
 
-val konsistCollect by tasks.registering {
+val konsistCollect = tasks.register("konsistCollect") {
     group = "build"
     description = "Runs all Konsist unit tests of all subprojects."
 }

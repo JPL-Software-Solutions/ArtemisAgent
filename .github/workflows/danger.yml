@@ -48,13 +48,13 @@ jobs:
         -r sarif:${{ github.workspace }}/detekt.sarif.json
 
     - name: Upload Detekt SARIF report
-      uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4.37.1
+      uses: github/codeql-action/upload-sarif@e0647621c2984b5ed2f768cb892365bf2a616ad1 # v4.37.2
       with:
         sarif_file: ${{ github.workspace }}/detekt.sarif.json
         checkout_path: ${{ github.workspace }}
 
     - name: Setup Ruby
-      uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+      uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1.320.0
       with:
         bundler-cache: true
 
@@ -66,7 +66,7 @@ jobs:
         "
 
     - name: Upload Rubocop SARIF report
-      uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4.37.1
+      uses: github/codeql-action/upload-sarif@e0647621c2984b5ed2f768cb892365bf2a616ad1 # v4.37.2
       with:
         sarif_file: ${{ github.workspace }}/rubocop.sarif
         checkout_path: ${{ github.workspace }}
