@@ -30,8 +30,6 @@ extensions.configure<LibraryExtension> {
         targetCompatibility = javaVersion
     }
 
-    lint.sarifReport = true
-
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())

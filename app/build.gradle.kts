@@ -57,10 +57,7 @@ extensions.configure<ApplicationExtension> {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    lint {
-        lintConfig = file("lint.xml")
-        sarifReport = true
-    }
+    lint.lintConfig = file("lint.xml")
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
