@@ -52,15 +52,14 @@ data class AllySorterTestCase(
             sortByName = sortByName,
         )
 
-    override fun dataTestName(): String =
-        buildList {
-                if (sortByClassFirst) add("Class")
-                if (sortByEnergy) add("Energy")
-                if (sortByStatus) add("Status")
-                if (sortByClassSecond) add("Class")
-                if (sortByName) add("Name")
-            }
-            .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
-            .joinToString()
-            .ifEmpty { "Unsorted" }
+    override fun dataTestName(): String = buildList {
+        if (sortByClassFirst) add("Class")
+        if (sortByEnergy) add("Energy")
+        if (sortByStatus) add("Status")
+        if (sortByClassSecond) add("Class")
+        if (sortByName) add("Name")
+    }
+        .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
+        .joinToString()
+        .ifEmpty { "Unsorted" }
 }
