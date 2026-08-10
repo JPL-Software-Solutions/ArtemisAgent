@@ -38,6 +38,12 @@
       "changelogUrl": "https://github.com/cortinico/ktfmt-gradle/releases"
     },
     {
+      "groupName": "Gradle task tree plugin",
+      "matchDepNames": ["com.dorongold.task-tree"],
+      "sourceUrl": "https://github.com/dorongold/gradle-task-tree",
+      "changelogUrl": "https://github.com/dorongold/gradle-task-tree/releases"
+    },
+    {
       "groupName": "typesafe conventions plugin",
       "matchDepNames": ["dev.panuszewski.typesafe-conventions"],
       "sourceUrl": "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin",
