@@ -63,16 +63,18 @@ jobs:
         id: check-build-health
         if: ${{ always() }}
         run: |
+          status=0
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "## Dependency Analysis" | tee -a "$GITHUB_STEP_SUMMARY" | tee -a "$GITHUB_OUTPUT"
           if [ -s build/reports/dependency-analysis/build-health-report.txt ]; then
             cat build/reports/dependency-analysis/build-health-report.txt | tee -a "$GITHUB_STEP_SUMMARY" | tee -a "$GITHUB_OUTPUT"
             echo >> "$GITHUB_OUTPUT"
-            echo EOF >> "$GITHUB_OUTPUT"
-            exit 1
+            status=1
           else
             echo "No dependency violations found. :+1:" | tee -a "$GITHUB_STEP_SUMMARY" | tee -a "$GITHUB_OUTPUT"
-            echo EOF >> "$GITHUB_OUTPUT"
           fi
+          echo EOF >> "$GITHUB_OUTPUT"
+          exit $status
 
       - name: Report health status
         if: ${{ always() && github.event_name == 'pull_request' }}
