@@ -61,7 +61,6 @@ extensions.configure<ApplicationExtension> {
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.add("-Xannotation-target-all")
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
             javaParameters = true
         }
