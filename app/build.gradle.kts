@@ -185,6 +185,8 @@ dependencies {
     lintChecks(libs.lint.security)
 }
 
+kover.useJacoco()
+
 detekt {
     source.from(files("src/androidTest/kotlin"))
     ignoredBuildTypes = listOf(release)
