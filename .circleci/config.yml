@@ -50,7 +50,7 @@ jobs:
           command: |
             echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
             echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
-      - android/run-tests:
+      - android/run_tests:
           system-image: system-images;android-36;google_apis_playstore;x86_64
           test-command: ./gradlew connectedCheck
       - store_test_results:
