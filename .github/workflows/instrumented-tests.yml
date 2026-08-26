@@ -84,7 +84,7 @@ jobs:
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Run tests on API ${{ matrix.api-level }}
-        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        uses: reactivecircus/android-emulator-runner@main
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.api-level >= 35 && 'google_apis_ps16k' || matrix.api-level >= 28 && 'google_apis' || 'default' }}
