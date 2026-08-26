@@ -1,10 +1,13 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:java:.,deps:ruby:.,tool:gradle:
 version: 2.1
+
+orbs:
+  android: circleci/android@3.2.0
+
 jobs:
-  test-java:
+  build-and-unit-test:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:21.0
+    resource_class: large
     steps:
       - checkout
       - run:
@@ -13,51 +16,51 @@ jobs:
             find . -name 'pom.xml' -o -name 'gradlew*' -o -name '*.gradle*' | \
                     sort | xargs cat > /tmp/CIRCLECI_CACHE_KEY
       - restore_cache:
+          name: Restore cache
           key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
       - run:
-          command: ./gradlew check
+          name: Restore secret files
+          command: |
+            echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
+            echo $KEYSTORE_FILE | base64 -d > app/artemis-agent-keystore.jks
+            echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
+      - run:
+          name: Build and test
+          command: ./gradlew build koverXmlReport
       - store_test_results:
-          path: build/test-results
+          path: app/build/test-results
       - save_cache:
+          name: Store Gradle caches
           key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
           paths:
             - ~/.gradle/caches
       - store_artifacts:
-          path: build/reports
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
+          path: app/build/reports
+          destination: reports
+
+  run-instrumented-tests:
+    executor:
+      name: android/android-machine
+      resource-class: xlarge
+      tag: default
     steps:
+      - checkout
       - run:
-          name: Plan deployment
-          command: |-
-            circleci run release plan deploy \
-              --environment-name="default" \
-              --component-name="deploy" \
-              --target-version="1.0.${CIRCLE_BUILD_NUM}-${CIRCLE_SHA1:0:7}"
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
-      - run:
-          name: Update deployment status to running
-          command: circleci run release update deploy --status=RUNNING
-      - run:
-          name: Update deployment status to success
-          command: circleci run release update deploy --status=SUCCESS
-          when: on_success
-      - run:
-          name: Update deployment status to failed
-          command: circleci run release update deploy --status=FAILED
-          when: on_fail
+          name: Restore secret files
+          command: |
+            echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
+            echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
+      - android/run-tests:
+          system-image: system-images;android-36;google_apis_playstore;x86_64
+          test-command: ./gradlew connectedCheck
+      - store_test_results:
+          path: app/build/outputs/androidTest-results/connected
+      - store_artifacts:
+          path: app/build/outputs/androidTest-results/connected
+          destination: instrumented-tests
+
 workflows:
-  build-and-test:
+  build-test-deploy:
     jobs:
-      - test-java
-    # - deploy:
-    #     requires:
-    #       - test-java
+      - build-and-unit-test
+      - run-instrumented-tests
