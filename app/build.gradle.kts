@@ -19,9 +19,9 @@ plugins {
 
 val appName = "Artemis Agent"
 val appId = "artemis.agent"
-val sdkVersion: Int by rootProject.extra
-val minimumSdkVersion: Int by rootProject.extra
-val javaVersion: JavaVersion by rootProject.extra
+val sdkVersion = rootProject.extra["sdkVersion"] as Int
+val minimumSdkVersion = rootProject.extra["minimumSdkVersion"] as Int
+val javaVersion = rootProject.extra["javaVersion"] as JavaVersion
 val stringRes = "string"
 
 val release = "release"
@@ -57,14 +57,10 @@ extensions.configure<ApplicationExtension> {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    lint {
-        lintConfig = file("lint.xml")
-        sarifReport = true
-    }
+    lint.lintConfig = file("lint.xml")
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.add("-Xannotation-target-all")
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
             javaParameters = true
         }

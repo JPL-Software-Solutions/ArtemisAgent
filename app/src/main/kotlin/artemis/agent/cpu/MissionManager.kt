@@ -173,13 +173,14 @@ class MissionManager(private val viewModel: AgentViewModel) {
     }
 
     private fun calculateMissionsFor(entry: ObjectEntry<*>, reward: RewardType): Int =
-        allMissions
-            .filter {
-                val isDest = it.destination == entry
+        allMissions.sumOf {
+            val isDest = it.destination == entry
+            val shouldInclude =
                 if (it.isStarted) isDest && it.associatedShipName == viewModel.playerName
                 else isDest || it.source == entry
-            }
-            .sumOf { it.rewards[reward.ordinal] }
+
+            if (shouldInclude) it.rewards[reward.ordinal] else 0
+        }
 
     private companion object {
         const val DEFAULT_COMPLETED_DISMISSAL = 3

@@ -240,9 +240,8 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
     @VisibleForTesting
     class RecentServersFilter(private val adapter: RecentServersAdapter) : Filter() {
         var servers: List<String> = emptyList()
-        private val mutSuggestions: MutableList<String> = mutableListOf()
         val suggestions: List<String>
-            get() = mutSuggestions
+            field = mutableListOf()
 
         @VisibleForTesting
         fun doPerformFiltering(constraint: CharSequence?): List<String> =
@@ -263,9 +262,9 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
         @VisibleForTesting
         fun doPublishResults(values: List<String>, count: Int) {
-            mutSuggestions.clear()
+            suggestions.clear()
             if (count > 0) {
-                mutSuggestions.addAll(values)
+                suggestions.addAll(values)
                 adapter.notifyDataSetChanged()
             } else {
                 adapter.notifyDataSetInvalidated()

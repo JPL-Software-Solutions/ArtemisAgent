@@ -74,7 +74,7 @@ jobs:
           echo ${{ secrets.GOOGLE_SERVICES }} | base64 -d > ${{ github.workspace }}/app/google-services.json
 
       - name: Set up JDK 21
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           java-version-file: .tool-versions
           distribution: 'temurin'
@@ -82,7 +82,7 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Read version from properties file
         uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
@@ -98,7 +98,7 @@ jobs:
 
       - name: Bump app version name
         id: nextVersionName
-        uses: cbrgm/semver-bump-action@33fadcb4c05794b306c5887b44d5ec35e01aafc4 # v1.0.51
+        uses: cbrgm/semver-bump-action@36dcbaaaee4e13572477d5978c7469fe07a409df # v1.0.52
         with:
           current-version: ${{ steps.version.outputs.versionName }}
           bump-level: ${{ inputs.versionBump }}
@@ -116,7 +116,7 @@ jobs:
           echo "${{ vars.CHANGELOG }}" > changelog/whatsnew-en-US
 
       - name: Bundle
-        uses: burrunan/gradle-cache-action@4b67497abd37a511d6c1dc6299bdd84ff39f7bf5 # v3.0.2
+        uses: burrunan/gradle-cache-action@404534c34a2faa40430357a3183522a845b04f3b # v3.0.3
         with:
           arguments: clean bundleRelease
 
@@ -129,13 +129,13 @@ jobs:
 
       - name: Set Firebase Project
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@af97ff3f81136bba7d9048915ba5f05ba42a551d # v15.24.0
+        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
         with:
           args: use ${{ secrets.GCP_PROJECT }}
 
       - name: Get Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@af97ff3f81136bba7d9048915ba5f05ba42a551d # v15.24.0
+        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
         with:
           args: remoteconfig:get -o app/remote-config.json
 
@@ -169,7 +169,7 @@ jobs:
 
       - name: Publish Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@af97ff3f81136bba7d9048915ba5f05ba42a551d # v15.24.0
+        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
         with:
           args: deploy --only remoteconfig
 
