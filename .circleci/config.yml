@@ -40,7 +40,7 @@ jobs:
 
   run-instrumented-tests:
     executor:
-      name: android/android-machine
+      name: android/android_machine
       resource-class: xlarge
       tag: default
     steps:
