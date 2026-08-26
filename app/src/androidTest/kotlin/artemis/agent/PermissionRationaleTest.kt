@@ -43,10 +43,11 @@ class PermissionRationaleTest : TestCase() {
     }
 
     private companion object {
-        val rationaleMessages = intArrayOf(
-            R.string.notification_rationale,
-            R.string.local_network_rationale,
-        )
+        val rationaleMessages =
+            intArrayOf(
+                R.string.notification_rationale,
+                R.string.local_network_rationale,
+            )
 
         inline fun clickRationaleDialogButton(button: KAlertDialog.() -> KButton) {
             MainScreen.alertDialog.button().click()
