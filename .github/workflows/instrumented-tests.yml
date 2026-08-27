@@ -87,9 +87,6 @@ jobs:
         with:
             bundler-cache: true
 
-      - name: Initialize Fastlane
-        run: bundle exec fastlane supply init
-
       - name: Run tests on API ${{ matrix.api-level }}
         run: bundle exec fastlane connected_test \
           api_level:${{ matrix.api-level }} \
