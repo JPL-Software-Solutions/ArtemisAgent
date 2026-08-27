@@ -33,9 +33,6 @@ val changelog =
         it.replaceFirst('*', '\u2022').replace("'", "\\'").replace("\"", "\\\"")
     }
 
-val versionProperties =
-    Properties().apply { rootProject.file("version.properties").inputStream().use { load(it) } }
-
 extensions.configure<ApplicationExtension> {
     namespace = appId
     compileSdk = sdkVersion
@@ -44,8 +41,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = appId
         minSdk = minimumSdkVersion
         targetSdk = sdkVersion
-        versionCode = versionProperties.getProperty("versionCode").toInt()
-        versionName = versionProperties.getProperty("versionName")
+        versionCode = 44
+        versionName = "1.6.2"
 
         testInstrumentationRunner = "com.kaspersky.kaspresso.runner.KaspressoRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"

@@ -84,13 +84,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
-      - name: Read version from properties file
-        uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
+      - name: Get app version code and name
         id: version
+        uses: ltDino/android-get-version-action@a9c3f368cdb03e455540ce0e2895a19220d2efa3 # v1.0
         with:
-          operation: read
-          file-path: version.properties
-          keys: 'versionCode,versionName'
+          gradlePath: app/build.gradle.kts
 
       - name: Increment app version code
         id: nextVersionCode
@@ -103,17 +101,18 @@ jobs:
           current-version: ${{ steps.version.outputs.versionName }}
           bump-level: ${{ inputs.versionBump }}
 
-      - name: Update version properties file
-        uses: kurt-code/gha-properties@a2a0b14f87e2389e7b65fced95cef9d7cea2fc20 # v0.0.2
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
-          operation: write
-          file-path: version.properties
-          key-value-pairs: '{"versionCode": "${{ steps.nextVersionCode.outputs.versionCode }}", "versionName": "${{ steps.nextVersionName.outputs.new_version }}"}'
+            bundler-cache: true
+
+      - name: Initialize Fastlane
+        run: bundle exec fastlane supply init
 
       - name: Update changelog
         run: |
-          rm changelog/*
-          echo "${{ vars.CHANGELOG }}" > changelog/whatsnew-en-US
+          rm fastlane/metadata/android/en-US/changelogs/*.txt
+          echo "${{ vars.CHANGELOG }}" > fastlane/metadata/android/en-US/changelogs/default.txt
 
       - name: Bundle
         uses: burrunan/gradle-cache-action@404534c34a2faa40430357a3183522a845b04f3b # v3.0.3
@@ -173,15 +172,8 @@ jobs:
         with:
           args: deploy --only remoteconfig
 
-      - name: Upload to Google Play Store
-        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
-        with:
-          releaseName: Artemis Agent v${{ steps.nextVersionName.outputs.new_version }}
-          serviceAccountJson: ${{ steps.auth.outputs.credentials_file_path }}
-          packageName: artemis.agent
-          releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: production
-          whatsNewDirectory: changelog
+      - name: Bundle and Upload
+        run: bundle exec fastlane android deploy version:${{ steps.nextVersionName.outputs.new_version }}
 
       - name: Update README
         run: |
