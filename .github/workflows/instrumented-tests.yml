@@ -88,6 +88,8 @@ jobs:
             bundler-cache: true
 
       - name: Run tests on API ${{ matrix.api-level }}
+        env:
+          JAVA_OPTS: "-XX:+IgnoreUnrecognizedVMOptions --add-modules java.xml.bind"
         run: bundle exec fastlane connected_test \
           api_level:${{ matrix.api-level }} \
           avd_target:${{ matrix.api-level >= 28 && 'google_apis_playstore' || 'default' }} \
