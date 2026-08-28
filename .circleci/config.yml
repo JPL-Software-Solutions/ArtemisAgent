@@ -5,19 +5,13 @@ orbs:
 
 jobs:
   build-and-unit-test:
-    docker:
-      - image: cimg/openjdk:21.0
-    resource_class: large
+    executor:
+      name: android/android_docker
+      resource_class: large
+      tag: default
     steps:
       - checkout
-      - run:
-          name: Calculate cache key
-          command: |-
-            find . -name 'pom.xml' -o -name 'gradlew*' -o -name '*.gradle*' | \
-                    sort | xargs cat > /tmp/CIRCLECI_CACHE_KEY
-      - restore_cache:
-          name: Restore cache
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
+      - android/restore_gradle_cache
       - run:
           name: Restore secret files
           command: |
@@ -29,11 +23,7 @@ jobs:
           command: ./gradlew build koverXmlReport
       - store_test_results:
           path: app/build/test-results
-      - save_cache:
-          name: Store Gradle caches
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
-          paths:
-            - ~/.gradle/caches
+      - android/save_gradle_cacle
       - store_artifacts:
           path: app/build/reports
           destination: reports
@@ -41,7 +31,7 @@ jobs:
   run-instrumented-tests:
     executor:
       name: android/android_machine
-      resource_class: xlarge
+      resource_class: large
       tag: default
     steps:
       - checkout
