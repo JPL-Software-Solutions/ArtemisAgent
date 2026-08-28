@@ -9,6 +9,7 @@ jobs:
       - image: cimg/android:2026.08
     resource_class: large
     steps:
+      - checkout
       - run:
           name: Restore secret files
           command: |
