@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   android: circleci/android@3.2.0
+  gradle: circleci/gradle@4.1
 
 jobs:
   build-and-unit-test:
@@ -10,20 +11,17 @@ jobs:
       resource_class: large
       tag: default
     steps:
-      - checkout
-      - android/restore_gradle_cache
       - run:
           name: Restore secret files
           command: |
             echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
             echo $KEYSTORE_FILE | base64 -d > app/artemis-agent-keystore.jks
             echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
-      - run:
+      - gradle/run:
           name: Build and test
-          command: ./gradlew build koverXmlReport
+          command: build koverXmlReport
       - store_test_results:
           path: app/build/test-results
-      - android/save_gradle_cacle
       - store_artifacts:
           path: app/build/reports
           destination: reports
