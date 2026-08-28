@@ -52,7 +52,8 @@ jobs:
             echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
       - android/start_emulator_and_run_tests:
           system_image: system-images;android-36;google_apis_playstore;x86_64
-          test_command: ./gradlew connectedCheck
+          camera_back: none
+          additional_emulator_args: -no-metrics
       - store_test_results:
           path: app/build/outputs/androidTest-results/connected
       - store_artifacts:
