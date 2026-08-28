@@ -17,7 +17,7 @@ jobs:
             echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
             echo $KEYSTORE_FILE | base64 -d > app/artemis-agent-keystore.jks
             echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
-      - gradle/run:
+      - gradle/run_with_cache:
           name: Build and test
           command: build koverXmlReport
       - store_test_results:
