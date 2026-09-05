@@ -15,9 +15,9 @@ PACKAGE="'system-images;android-$API_LEVEL;$TARGET;x86_64'"
 set -x
 set +e
 echo "Installing platform tools..."
-$ANDROID_HOME/cmdline-tools/latest/bin/android sdk install "build-tools;37.0.0" platform-tools "platforms;android-$API_LEVEL"
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;37.0.0" platform-tools "platforms;android-$API_LEVEL"
 echo "Installing system image..."
-$ANDROID_HOME/cmdline-tools/latest/bin/android sdk install $PACKAGE
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install $PACKAGE
 echo "Creating emulator..."
 echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package $PACKAGE
 echo "Starting emulator..."
