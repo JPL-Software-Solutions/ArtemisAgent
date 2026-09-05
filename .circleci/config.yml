@@ -26,7 +26,7 @@ jobs:
           key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
       - run:
           name: Build and test
-          command: ./gradlew build koverXmlReport
+          command: ./gradlew build koverXmlReport --no-daemon
       - store_test_results:
           path: app/build/test-results
       - save_cache:
