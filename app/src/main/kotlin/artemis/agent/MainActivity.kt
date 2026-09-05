@@ -68,6 +68,7 @@ import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.protocol.core.comm.CommsIncomingPacket
 import com.walkertribe.ian.util.Version
 import java.io.FileNotFoundException
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -603,7 +604,7 @@ class MainActivity : AppCompatActivity() {
         setupWindowInsets()
 
         lifecycleScope.launch(Dispatchers.Default) {
-            delay(SETUP_DELAY)
+            delay(SETUP_DELAY.milliseconds)
 
             setupConnectionObservers()
             setupUserSettingsObserver()
@@ -733,7 +734,7 @@ class MainActivity : AppCompatActivity() {
         if (isPreBaklava && isLongBackPressOverridden && keyCode == KeyEvent.KEYCODE_BACK) {
             viewModel.backPreview?.also { backPreview ->
                 longBackPress = lifecycleScope.launch {
-                    delay(ViewConfiguration.getLongPressTimeout().toLong())
+                    delay(ViewConfiguration.getLongPressTimeout().milliseconds)
                     if (isActive) backPreview.onBackStarted()
                 }
             }
@@ -971,7 +972,7 @@ class MainActivity : AppCompatActivity() {
             CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() }
         ) {
             if (checkType == UpdateCheck.STARTUP) {
-                delay(INITIAL_UPDATE_DELAY)
+                delay(INITIAL_UPDATE_DELAY.milliseconds)
             }
 
             val maxVersionFetch = async {
@@ -1119,8 +1120,8 @@ class MainActivity : AppCompatActivity() {
         const val GAME_PAGE_UNSPECIFIED = 6
 
         const val SPLASH_WIPE_DURATION = 250L
-        const val SETUP_DELAY = 250L
-        const val INITIAL_UPDATE_DELAY = 500L
+        const val SETUP_DELAY = 250
+        const val INITIAL_UPDATE_DELAY = 500
 
         const val MAX_VERSION_FILE_NAME = "max_version.dat"
 

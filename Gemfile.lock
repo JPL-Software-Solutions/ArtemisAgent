@@ -68,10 +68,10 @@ GEM
       faraday (>= 0.8)
     faraday-net_http (3.4.4)
       net-http (~> 0.5)
-    git (5.1.0)
+    git (5.4.1)
       activesupport (>= 5.0)
       addressable (~> 2.8)
-      process_executer (~> 4.0)
+      process_executer (~> 4.1)
       rchardet (~> 1.9)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
@@ -101,7 +101,7 @@ GEM
       ast (~> 2.4.1)
       racc
     prism (1.9.0)
-    process_executer (4.0.4)
+    process_executer (4.1.1)
       track_open_instances (~> 0.1)
     pstore (0.2.1)
     public_suffix (7.0.5)
@@ -180,7 +180,7 @@ CHECKSUMS
   faraday (2.14.3) sha256=1882247e6766615c8220b4392bf1d27f6ebb63d8e28267587cef1fb0bf37f278
   faraday-http-cache (2.7.0) sha256=cd7ac4bbe6c08592ea7af6655f98b2f76c4db0bad31bf40340df5aad719f0d89
   faraday-net_http (3.4.4) sha256=0e78af151747ed1b00f33e25973b4bc220d7f16c00c39676817c8b12331eb588
-  git (5.1.0) sha256=405b32aba933f685278e35371685cf45288bdc3d37ab4e780210d3fcb748225e
+  git (5.4.1) sha256=c301236ed09f3dbbc31c33c2fc916b5e267a6ca6184eb232c46119cca9fb251e
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   json (2.21.2) sha256=1f1d3b7cf2b3ba1a69beca0bb6db13d5438b80bff3cd54cdaaa620b9b07c1c6a
   kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
@@ -197,7 +197,7 @@ CHECKSUMS
   parallel (2.1.0) sha256=b35258865c2e31134c5ecb708beaaf6772adf9d5efae28e93e99260877b09356
   parser (3.3.12.0) sha256=21a6d7f755d5a24dfbdc6e6b772e4e879a52e7631a88bc5a3a134606052c9828
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
-  process_executer (4.0.4) sha256=6c179bd31b876e220e7a1ed30c8f8ee7333b9b5b4b8c301474b947b707c3ba6f
+  process_executer (4.1.1) sha256=02e93624eb984c94282a892084781d8343d39198b983a25753c862c228f1786e
   pstore (0.2.1) sha256=03904d0f2c66579e96d1e6704cdabc0c88df7ea8ed8782d9f3569f6f6c702c1a
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f

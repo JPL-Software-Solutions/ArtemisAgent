@@ -16,9 +16,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 class TimerTextTest :
     DescribeSpec({
         describe("TimerText") {
