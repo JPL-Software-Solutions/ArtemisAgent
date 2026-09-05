@@ -1,0 +1,36 @@
+#!/bin/sh
+
+API_LEVEL=$1
+SKIN=$2
+
+TARGET=""
+if [ $API_LEVEL -ge 28 ]; then
+    TARGET="google_apis_playstore"
+else
+    TARGET="default"
+fi
+
+PACKAGE="system-images;android-$API_LEVEL;$TARGET;x86_64"
+
+set -x
+set +e
+echo "Installing platform tools..."
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;37.0.0" platform-tools "platforms;android-$API_LEVEL"
+echo "Installing system image..."
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install $PACKAGE
+echo "Creating emulator..."
+echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package $PACKAGE
+echo "Starting emulator..."
+$ANDROID_HOME/emulator/emulator -avd test -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin $SKIN &
+
+start_time=$(date +%s)
+end_time=$((start_time + 600))
+while [ -z $($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed > /dev/null) ]; do
+    current_time=$(date +%s)
+    if [ $current_time -ge $end_time ]; then
+        exit 1
+    fi
+    sleep 15
+done
+
+./gradlew connectedCheck
