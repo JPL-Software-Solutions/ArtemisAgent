@@ -406,11 +406,7 @@ class AgentViewModel(application: Application) :
 
     // UDP server discovery requester
     private val serverDiscoveryRequester: ServerDiscoveryRequester
-        get() =
-            ServerDiscoveryRequester(
-                listener = this@AgentViewModel,
-                timeoutMs = scanTimeout.seconds.inWholeMilliseconds,
-            )
+        get() = ServerDiscoveryRequester(listener = this, timeout = scanTimeout.seconds)
 
     // Artemis version
     var version: Version = Version.DEFAULT
