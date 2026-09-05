@@ -10,6 +10,7 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -228,7 +229,7 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
 
         socket =
             try {
-                withTimeout(timeoutMs) {
+                withTimeout(timeoutMs.milliseconds) {
                     aSocket(SelectorManager(Dispatchers.IO)).tcp().connect(host, port) {
                         keepAlive = true
                     }

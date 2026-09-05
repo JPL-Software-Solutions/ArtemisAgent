@@ -7,6 +7,7 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.readShortLittleEndian
 import io.ktor.utils.io.core.readTextExactCharacters
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -36,7 +37,7 @@ class ServerDiscoveryRequester(private val listener: Listener, private val timeo
                         )
                     )
 
-                    withTimeoutOrNull(timeoutMs) {
+                    withTimeoutOrNull(timeoutMs.milliseconds) {
                         do {
                             val datagram = socket.receive()
                             val packet = datagram.packet
