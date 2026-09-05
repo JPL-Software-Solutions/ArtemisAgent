@@ -24,13 +24,13 @@ echo "Starting emulator..."
 $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin $SKIN &
 
 start_time=$(date +%s)
-end_time=$((start_time + 300))
+end_time=$((start_time + 600))
 while [ -z $($ANDROID_HOME/platform-tools/adb shell getprop sys.boot_completed > /dev/null) ]; do
     current_time=$(date +%s)
     if [ $current_time -ge $end_time ]; then
         exit 1
     fi
-    sleep 5
+    sleep 15
 done
 
 ./gradlew connectedCheck
