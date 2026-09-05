@@ -46,10 +46,11 @@ jobs:
       matrix:
         api-level: [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
         orientation: [ {name: portrait, rotation: 0, skin: 480x800}, {name: landscape, rotation: 1, skin: 800x480} ]
-    name: Test API ${{ matrix.api-level }} emulator (${{ matrix.orientation.name }})
+        shard: [0, 1, 2, 3, 4]
+    name: Test API ${{ matrix.api-level }} emulator (${{ matrix.orientation.name }}, shard ${{ matrix.shard }})
     timeout-minutes: 45
     concurrency:
-      group: ${{ github.workflow }}-${{ matrix.api-level }}-${{ matrix.orientation.rotation }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ matrix.api-level }}-${{ matrix.orientation.rotation }}-${{ matrix.shard }}-${{ github.ref }}
       cancel-in-progress: true
 
     steps:
@@ -92,13 +93,13 @@ jobs:
           force-avd-creation: true
           emulator-options: -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin ${{ matrix.orientation.skin }}
           disable-animations: true
-          script: ./gradlew connectedCheck
+          script: ./gradlew connectedCheck -Pandroid.testInstrumentationRunnerArguments.numShards=5 -Pandroid.testInstrumentationRunnerArguments.shardIndex=${{ matrix.shard }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
-          name: "Instrumented Test Results (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }})"
+          name: "Instrumented Test Results (API ${{ matrix.api-level }}, ${{ matrix.orientation.name }}, shard ${{ matrix.shard }})"
           path: ${{ github.workspace }}/app/build/outputs/androidTest-results/connected/**/*.xml
 
   publish:
