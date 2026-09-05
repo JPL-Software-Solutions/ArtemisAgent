@@ -83,10 +83,6 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
-      - name: Create API ${{ matrix.api-level }} emulator
-        run: |
-          echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package 'system-images;android-${{ matrix.api-level }};${{ matrix.api-level >= 28 && 'google_apis_playstore' || 'default' }};x86_64'
-
       - name: Run tests on API ${{ matrix.api-level }}
         run: .github/workflows/instrumented-tests.sh ${{ matrix.api-level }} ${{ matrix.orientation.skin }}
 
