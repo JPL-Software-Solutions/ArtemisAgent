@@ -7,7 +7,7 @@ jobs:
   build-and-unit-test:
     docker:
       - image: cimg/android:2026.08
-    resource_class: xlarge
+    resource_class: large
     steps:
       - checkout
       - run:
@@ -41,7 +41,7 @@ jobs:
   run-instrumented-tests:
     executor:
       name: android/android_machine
-      resource_class: xlarge
+      resource_class: large
       tag: default
     steps:
       - checkout
