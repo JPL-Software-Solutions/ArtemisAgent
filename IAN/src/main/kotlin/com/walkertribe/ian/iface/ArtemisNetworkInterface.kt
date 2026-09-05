@@ -28,7 +28,7 @@ interface ArtemisNetworkInterface {
     fun setAutoSendHeartbeat(autoSendHeartbeat: Boolean)
 
     /** Sets the timeout value for listening for heartbeat packets. */
-    fun setTimeout(timeout: Long)
+    fun setTimeout(timeout: Duration)
 
     /**
      * Attempts an outgoing client connection to an Artemis server. The send and receive streams

@@ -102,6 +102,7 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import kotlin.reflect.KClass
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -415,14 +416,14 @@ class ArtemisNetworkInterfaceTest :
                             gameStartData.buildPayload(),
                         )
 
-                        client.setTimeout(1L)
+                        client.setTimeout(1.milliseconds)
                         eventually(2.seconds) {
                             TestListener.calls<ConnectionEvent.HeartbeatLost>().shouldBeSingleton()
                         }
                     }
 
                     it("Can regain heartbeat") {
-                        client.setTimeout(1000L)
+                        client.setTimeout(1.seconds)
                         retry(3, 15.seconds) {
                             TestListener.clear()
                             sendChannel.writePacketWithHeader(
@@ -435,7 +436,7 @@ class ArtemisNetworkInterfaceTest :
                                     .shouldBeSingleton()
                             }
                         }
-                        client.setTimeout(15_000L)
+                        client.setTimeout(15.seconds)
                     }
 
                     it("Sends heartbeats intermittently") {

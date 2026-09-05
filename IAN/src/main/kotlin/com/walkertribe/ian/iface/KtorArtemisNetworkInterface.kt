@@ -122,7 +122,7 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
         heartbeatManager.setAutoSendHeartbeat(autoSendHeartbeat)
     }
 
-    override fun setTimeout(timeout: Long) {
+    override fun setTimeout(timeout: Duration) {
         heartbeatManager.setTimeout(timeout)
     }
 

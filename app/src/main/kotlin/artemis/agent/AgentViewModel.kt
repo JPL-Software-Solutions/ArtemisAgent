@@ -400,7 +400,7 @@ class AgentViewModel(application: Application) :
         set(value) {
             field = value
             if (isConnected) {
-                networkInterface.setTimeout(field.seconds.inWholeMilliseconds)
+                networkInterface.setTimeout(field.seconds)
             }
         }
 
