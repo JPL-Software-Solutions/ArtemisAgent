@@ -83,6 +83,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
+      - name: Enable script execution
+        run: chmod +x .github/workflows/instrumented-tests.sh
+
       - name: Run tests on API ${{ matrix.api-level }}
         run: .github/workflows/instrumented-tests.sh ${{ matrix.api-level }} ${{ matrix.orientation.skin }}
 
