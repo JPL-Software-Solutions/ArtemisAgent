@@ -551,7 +551,7 @@ class AgentViewModel(application: Application) :
                 networkInterface.connect(
                     host = url,
                     port = port,
-                    timeoutMs = connectTimeout.seconds.inWholeMilliseconds,
+                    timeout = connectTimeout.seconds,
                 )
             lastAttemptedHost = url
             attemptingConnection = false

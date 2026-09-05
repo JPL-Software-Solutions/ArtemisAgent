@@ -101,6 +101,7 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -128,7 +129,7 @@ class ArtemisNetworkInterfaceTest :
             val loopbackAddress = "127.0.0.1"
             val port = 2010
             val testTimeout = 1.minutes
-            val connectionTimeoutMs = 2000L
+            val connectionTimeout = 2.seconds
             val client =
                 KtorArtemisNetworkInterface(maxVersion = Version.DEFAULT).apply {
                     addListenerModule(TestListener.module)
@@ -152,7 +153,7 @@ class ArtemisNetworkInterfaceTest :
                                     client.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = connectionTimeoutMs,
+                                        timeout = connectionTimeout,
                                     )
                                 }
 
@@ -182,7 +183,7 @@ class ArtemisNetworkInterfaceTest :
                                     client.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = connectionTimeoutMs,
+                                        timeout = connectionTimeout,
                                     )
                                 }
 
@@ -504,7 +505,7 @@ class ArtemisNetworkInterfaceTest :
                                     client.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = connectionTimeoutMs,
+                                        timeout = connectionTimeout,
                                     )
                                 }
 
@@ -534,7 +535,7 @@ class ArtemisNetworkInterfaceTest :
                                     client.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = connectionTimeoutMs,
+                                        timeout = connectionTimeout,
                                     )
                                 }
 
@@ -578,7 +579,7 @@ class ArtemisNetworkInterfaceTest :
                                     client.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = 1000L,
+                                        timeout = 1.seconds,
                                     )
                                 }
 
@@ -630,7 +631,7 @@ class ArtemisNetworkInterfaceTest :
                                 spyClient.connect(
                                     host = loopbackAddress,
                                     port = port,
-                                    timeoutMs = connectionTimeoutMs,
+                                    timeout = connectionTimeout,
                                 )
                             }
 
@@ -702,7 +703,7 @@ class ArtemisNetworkInterfaceTest :
                                     debugClient.connect(
                                         host = loopbackAddress,
                                         port = port,
-                                        timeoutMs = connectionTimeoutMs,
+                                        timeout = connectionTimeout,
                                     )
                                 }
 
@@ -741,12 +742,14 @@ class ArtemisNetworkInterfaceTest :
             }
 
             it("Connection attempt can time out") {
-                client.connect(host = loopbackAddress, port = port, timeoutMs = 0L).shouldBeFalse()
+                client
+                    .connect(host = loopbackAddress, port = port, timeout = Duration.ZERO)
+                    .shouldBeFalse()
             }
 
             it("Cannot connect to invalid address") {
                 Arb.string(minSize = 1, codepoints = Codepoint.alphanumeric()).checkAll {
-                    client.connect(host = it, port = port, timeoutMs = 5000L).shouldBeFalse()
+                    client.connect(host = it, port = port, timeout = 5.seconds).shouldBeFalse()
                 }
             }
 

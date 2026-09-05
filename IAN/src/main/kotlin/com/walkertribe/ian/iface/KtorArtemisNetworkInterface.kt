@@ -10,7 +10,7 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -214,22 +214,12 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
         reader.close(disconnectCauseException)
     }
 
-    /**
-     * Attempts an outgoing client connection to an Artemis server. The send and receive streams
-     * won't actually be opened until [start] is called.
-     *
-     * @param host the hostname of the server.
-     * @param port the port on which to connect.
-     * @param timeoutMs how long (in milliseconds) IAN will wait for the connection to be
-     *   established before returning false.
-     * @return Whether the connection was successful.
-     */
-    override suspend fun connect(host: String, port: Int, timeoutMs: Long): Boolean {
+    override suspend fun connect(host: String, port: Int, timeout: Duration): Boolean {
         if (isRunning) stop()
 
         socket =
             try {
-                withTimeout(timeoutMs.milliseconds) {
+                withTimeout(timeout) {
                     aSocket(SelectorManager(Dispatchers.IO)).tcp().connect(host, port) {
                         keepAlive = true
                     }

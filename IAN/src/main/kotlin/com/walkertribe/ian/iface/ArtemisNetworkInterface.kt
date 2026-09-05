@@ -2,6 +2,7 @@ package com.walkertribe.ian.iface
 
 import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.util.Version
+import kotlin.time.Duration
 
 /** Interface for objects which can connect to an Artemis server and send and receive packets. */
 interface ArtemisNetworkInterface {
@@ -35,11 +36,11 @@ interface ArtemisNetworkInterface {
      *
      * @param host the hostname of the server.
      * @param port the port on which to connect.
-     * @param timeoutMs how long (in milliseconds) IAN will wait for the connection to be
-     *   established before returning false.
+     * @param timeout how long IAN will wait for the connection to be established before returning
+     *   false.
      * @return Whether the connection was successful.
      */
-    suspend fun connect(host: String, port: Int, timeoutMs: Long): Boolean
+    suspend fun connect(host: String, port: Int, timeout: Duration): Boolean
 
     /** Opens the send/receive streams to the remote machine. */
     fun start()
