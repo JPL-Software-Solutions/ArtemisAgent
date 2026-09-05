@@ -56,7 +56,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-            persist-credentials: false
+          persist-credentials: false
 
       - name: Generate secret files
         run: |
@@ -80,19 +80,15 @@ jobs:
 
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
+      - name: Create API ${{ matrix.api-level }} emulator
+        run: |
+          echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package 'system-images;android-${{ matrix.api-level }};${{ matrix.api-level >= 28 && 'google_apis_playstore' || 'default' }};x86_64'
+
       - name: Run tests on API ${{ matrix.api-level }}
-        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.api-level >= 28 && 'playstore' || 'default' }}
-          arch: x86_64
-          force-avd-creation: true
-          emulator-options: -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin ${{ matrix.orientation.skin }}
-          disable-animations: true
-          script: ./gradlew connectedCheck
+        run: .github/workflows/instrumented-tests.sh ${{ matrix.api-level }} ${{ matrix.orientation.skin }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
