@@ -10,10 +10,14 @@ else
     TARGET="default"
 fi
 
+PACKAGE="'system-images;android-$API_LEVEL;$TARGET;x86_64'"
+
 set -x
 set +e
+echo "Installing system image..."
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install $PACKAGE --channel=0
 echo "Creating emulator..."
-echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package "system-images;android-$API_LEVEL;$TARGET;x86_64"
+echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force -n test --package $PACKAGE
 echo "Starting emulator..."
 $ANDROID_HOME/emulator/emulator -avd test -no-snapshot-save -no-window -no-metrics -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin $SKIN &
 
