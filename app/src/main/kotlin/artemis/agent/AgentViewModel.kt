@@ -82,6 +82,8 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -398,7 +400,7 @@ class AgentViewModel(application: Application) :
         set(value) {
             field = value
             if (isConnected) {
-                networkInterface.setTimeout(field.seconds.inWholeMilliseconds)
+                networkInterface.setTimeout(field.seconds)
             }
         }
 
@@ -406,11 +408,7 @@ class AgentViewModel(application: Application) :
 
     // UDP server discovery requester
     private val serverDiscoveryRequester: ServerDiscoveryRequester
-        get() =
-            ServerDiscoveryRequester(
-                listener = this@AgentViewModel,
-                timeoutMs = scanTimeout.seconds.inWholeMilliseconds,
-            )
+        get() = ServerDiscoveryRequester(listener = this, timeout = scanTimeout.seconds)
 
     // Artemis version
     var version: Version = Version.DEFAULT
@@ -553,7 +551,7 @@ class AgentViewModel(application: Application) :
                 networkInterface.connect(
                     host = url,
                     port = port,
-                    timeoutMs = connectTimeout.seconds.inWholeMilliseconds,
+                    timeout = connectTimeout.seconds,
                 )
             lastAttemptedHost = url
             attemptingConnection = false
@@ -940,7 +938,12 @@ class AgentViewModel(application: Application) :
             routeMap[objective]?.also(routeList::tryEmit)
         }
 
-        delay(0L.coerceAtLeast(updateObjectsInterval + startTime - System.currentTimeMillis()))
+        delay(
+            maxOf(
+                Duration.ZERO,
+                (updateObjectsInterval + startTime - System.currentTimeMillis()).milliseconds,
+            )
+        )
     }
 
     internal fun checkGameStart() {
@@ -1036,7 +1039,7 @@ class AgentViewModel(application: Application) :
             damageVisJob?.cancel()
             damageVisJob = viewModelScope.launch {
                 rootOpacity.value = DAMAGED_ALPHA
-                delay(durationInMillis)
+                delay(durationInMillis.milliseconds)
                 rootOpacity.value = 1f
             }
         }
@@ -1088,7 +1091,7 @@ class AgentViewModel(application: Application) :
     fun onPacket(@Suppress("UNUSED_PARAMETER") packet: JumpEndPacket) {
         viewModelScope.launch {
             jumping.value = true
-            delay(JUMP_DURATION)
+            delay(JUMP_DURATION.milliseconds)
             jumping.value = false
         }
     }
@@ -1249,7 +1252,7 @@ class AgentViewModel(application: Application) :
         const val SECONDS_TO_MILLIS = 1000
         private const val PIRATE_SIDE = 8
         private const val DAMAGED_ALPHA = 0.5f
-        private const val JUMP_DURATION = 3000L
+        private const val JUMP_DURATION = 3000
         const val FULL_HEADING_RANGE = 360
         const val VOLUME_SCALE = 100f
         private const val PADDED_ZEROES = 3

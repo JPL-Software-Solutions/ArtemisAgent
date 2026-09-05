@@ -98,7 +98,7 @@ jobs:
 
       - name: Bump app version name
         id: nextVersionName
-        uses: cbrgm/semver-bump-action@36dcbaaaee4e13572477d5978c7469fe07a409df # v1.0.52
+        uses: cbrgm/semver-bump-action@e56a834e8b4c19fc8bc3fff281785704b3e48808 # v1.0.53
         with:
           current-version: ${{ steps.version.outputs.versionName }}
           bump-level: ${{ inputs.versionBump }}
@@ -129,13 +129,13 @@ jobs:
 
       - name: Set Firebase Project
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
+        uses: w9jds/firebase-action@c38233488869fe50f21a3ab4931095d09807cc7a # v15.29.0
         with:
           args: use ${{ secrets.GCP_PROJECT }}
 
       - name: Get Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
+        uses: w9jds/firebase-action@c38233488869fe50f21a3ab4931095d09807cc7a # v15.29.0
         with:
           args: remoteconfig:get -o app/remote-config.json
 
@@ -169,7 +169,7 @@ jobs:
 
       - name: Publish Firebase Remote Config
         if: ${{ inputs.securityRequiredUpdate || inputs.artemisRequiredUpdate || inputs.artemisSoftUpdate }}
-        uses: w9jds/firebase-action@5b73b1274a2229c7598af09e6e95addfb75f897b # v15.28.1
+        uses: w9jds/firebase-action@c38233488869fe50f21a3ab4931095d09807cc7a # v15.29.0
         with:
           args: deploy --only remoteconfig
 
