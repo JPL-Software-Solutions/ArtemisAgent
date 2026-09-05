@@ -7,7 +7,7 @@ jobs:
   build-and-unit-test:
     docker:
       - image: cimg/android:2026.08
-    resource_class: large
+    resource_class: xlarge
     steps:
       - checkout
       - run:
@@ -41,7 +41,7 @@ jobs:
   run-instrumented-tests:
     executor:
       name: android/android_machine
-      resource_class: large
+      resource_class: xlarge
       tag: default
     steps:
       - checkout
@@ -51,9 +51,10 @@ jobs:
             echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
             echo $GOOGLE_SERVICES | base64 -d > app/google-services.json
       - android/start_emulator_and_run_tests:
-          system_image: system-images;android-36;google_apis_playstore;x86_64
+          system_image: system-images;android-34;google_apis;x86_64
           camera_back: none
           additional_emulator_args: -no-metrics
+          no_output_timeout: 20m
       - store_test_results:
           path: app/build/outputs/androidTest-results/connected
       - store_artifacts:
