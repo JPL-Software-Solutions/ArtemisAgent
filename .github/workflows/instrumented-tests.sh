@@ -10,7 +10,7 @@ else
     TARGET="default"
 fi
 
-PACKAGE="'system-images;android-$API_LEVEL;$TARGET;x86_64'"
+PACKAGE="system-images;android-$API_LEVEL;$TARGET;x86_64"
 
 set -x
 set +e
