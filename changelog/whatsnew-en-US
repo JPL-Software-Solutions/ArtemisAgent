@@ -1,1 +1,9 @@
-* Added option to toggle whether back button cancels ally commands
+* Android 17 support
+* Implemented splash screen
+* Added "surrender burst" feature and settings
+* Refined client settings
+* Fixed bug with suggestions in Address bar
+* Supported Artemis versions shown in About page
+* Elapsed game time shown in Status page
+* Performance improvements
+* Dependency upgrades

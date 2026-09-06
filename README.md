@@ -1,4 +1,4 @@
-# Artemis Agent 1.6.2
+# Artemis Agent 1.7.0
 
 <a href="https://play.google.com/store/apps/details?id=artemis.agent">
 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play!" height="70">
