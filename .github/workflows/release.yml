@@ -180,7 +180,6 @@ jobs:
           serviceAccountJson: ${{ steps.auth.outputs.credentials_file_path }}
           packageName: artemis.agent
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: production
           whatsNewDirectory: changelog
 
       - name: Update README
