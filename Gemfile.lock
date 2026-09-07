@@ -75,7 +75,7 @@ GEM
       rchardet (~> 1.9)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    json (2.21.2)
+    json (3.0.0)
     kramdown (2.5.2)
       rexml (>= 3.4.4)
     kramdown-parser-gfm (1.1.0)
@@ -182,7 +182,7 @@ CHECKSUMS
   faraday-net_http (3.4.4) sha256=0e78af151747ed1b00f33e25973b4bc220d7f16c00c39676817c8b12331eb588
   git (5.4.1) sha256=c301236ed09f3dbbc31c33c2fc916b5e267a6ca6184eb232c46119cca9fb251e
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
-  json (2.21.2) sha256=1f1d3b7cf2b3ba1a69beca0bb6db13d5438b80bff3cd54cdaaa620b9b07c1c6a
+  json (3.0.0) sha256=1ff82a28c05c5cc7b646f3e3a3ac710e4ae2aa933690cba12f1f650b0ecdeb99
   kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
   kramdown-parser-gfm (1.1.0) sha256=fb39745516427d2988543bf01fc4cf0ab1149476382393e0e9c48592f6581729
   language_server-protocol (3.17.0.6) sha256=5ef2c0c138f8267e1bc631d3328347d354f96724b0af22f2c79516120443b7f0
