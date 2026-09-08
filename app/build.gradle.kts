@@ -162,6 +162,9 @@ dependencies {
     }
 
     constraints {
+        implementation(libs.core.ktx) {
+            because("Needed to resolve Dependency Analysis issues")
+        }
         implementation(libs.guava) {
             because("Version 32.0.0-android patches a moderate security vulnerability")
         }
