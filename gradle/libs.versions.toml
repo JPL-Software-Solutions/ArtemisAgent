@@ -105,7 +105,6 @@ annotation = { module = "androidx.annotation:annotation", version.ref = "android
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
 core = { module = "androidx.core:core", version.ref = "androidx-core" }
-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "androidx-datastore" }
@@ -221,7 +220,6 @@ app = [
     "appcompat",
     "constraintlayout",
     "core",
-    "core-ktx",
     "core-splashscreen",
     "datastore",
     "datastore-core",
