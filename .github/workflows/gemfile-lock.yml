@@ -40,8 +40,12 @@ jobs:
         bundle update --all
 
     - name: Create Pull Request
+      id: create
       uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
       with:
         add-paths: Gemfile.lock
         commit-message: "Update Gemfile.lock"
         title: "Update Gemfile.lock"
+
+    - name: Enable Auto Merge
+      run: gh pr merge ${{ steps.create.outputs.pull-request-number }} -m --auto
