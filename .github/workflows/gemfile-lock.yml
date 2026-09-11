@@ -48,6 +48,7 @@ jobs:
         title: "Update Gemfile.lock"
 
     - name: Enable Auto Merge
+      if: ${{ steps.create.outputs.pull-request-number }}
       run: gh pr merge ${{ steps.create.outputs.pull-request-number }} -m --auto
       env:
         GH_TOKEN: ${{ github.token }}
