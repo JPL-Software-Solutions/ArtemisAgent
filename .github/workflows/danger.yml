@@ -34,7 +34,6 @@ jobs:
     - name: Generate secret files
       if: github.event_name == 'pull_request'
       run: |
-        echo ${{ secrets.KEYSTORE_PROPERTIES }} | base64 -d > ${{ github.workspace }}/keystore.properties
         echo ${{ secrets.GOOGLE_SERVICES }} | base64 -d > ${{ github.workspace }}/app/google-services.json
 
     - name: Setup Detekt

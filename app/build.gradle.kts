@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.ApplicationExtension
-import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -23,10 +22,13 @@ val sdkVersion = rootProject.extra["sdkVersion"] as Int
 val minimumSdkVersion = rootProject.extra["minimumSdkVersion"] as Int
 val javaVersion = rootProject.extra["javaVersion"] as JavaVersion
 val stringRes = "string"
-
 val release = "release"
-val keystoreProperties =
-    Properties().apply { load(FileInputStream(rootProject.file("keystore.properties"))) }
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
 
 val changelog =
     rootProject.file("changelog/whatsnew-en-US").readLines().joinToString(" \\u0020\\n") {
@@ -69,12 +71,14 @@ extensions.configure<ApplicationExtension> {
     testOptions.execution = "ANDROIDX_TEST_ORCHESTRATOR"
     testOptions.unitTests.all { it.useJUnitPlatform() }
 
-    signingConfigs {
-        create(release) {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storePassword = keystoreProperties["storePassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
+    if (keystoreProperties.isNotEmpty()) {
+        signingConfigs {
+            create(release) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storePassword = keystoreProperties["storePassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+            }
         }
     }
 
@@ -85,7 +89,7 @@ extensions.configure<ApplicationExtension> {
             resValue(stringRes, "changelog", changelog)
         }
         release {
-            signingConfig = signingConfigs.getByName(release)
+            signingConfig = signingConfigs.findByName(release)
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
