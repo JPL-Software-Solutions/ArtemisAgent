@@ -15,7 +15,8 @@ import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
 
-class PacketVisitor(private val codeGenerator: CodeGenerator) : KSVisitorVoid() {
+class PacketVisitor(private val codeGenerator: CodeGenerator) :
+    KSVisitorVoid(enableNewFeatures = true) {
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         val containingFile = classDeclaration.containingFile ?: return
         val packageName = classDeclaration.packageName.asString()

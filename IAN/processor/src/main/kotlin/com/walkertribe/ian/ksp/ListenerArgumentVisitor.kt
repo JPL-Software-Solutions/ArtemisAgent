@@ -19,7 +19,8 @@ import com.walkertribe.ian.iface.ListenerArgument
 import com.walkertribe.ian.iface.ListenerFunction
 import com.walkertribe.ian.iface.ListenerModule
 
-class ListenerArgumentVisitor(private val codeGenerator: CodeGenerator) : KSVisitorVoid() {
+class ListenerArgumentVisitor(private val codeGenerator: CodeGenerator) :
+    KSVisitorVoid(enableNewFeatures = true) {
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         val containingFile = classDeclaration.containingFile ?: return
         val argClassName =
