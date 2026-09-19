@@ -10,6 +10,8 @@ plugins {
 
 configureTests()
 
+kover.useJacoco()
+
 pitest.configure(rootPackage = "com.walkertribe.ian.vesseldata", threads = 2)
 
 dependsOnKonsist()
