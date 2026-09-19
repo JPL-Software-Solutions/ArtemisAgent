@@ -12,10 +12,9 @@ import com.walkertribe.ian.protocol.core.PacketTestFixture.Companion.writePacket
 import com.walkertribe.ian.world.ArtemisObjectTestModule
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.Ignored
-import io.kotest.core.factory.TestFactory
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.core.spec.style.describeSpec
 import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
+import io.kotest.core.spec.style.scopes.DescribeSpecRootScope
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.equals.shouldBeEqual
@@ -37,7 +36,7 @@ sealed class PacketTestSpec<T : Packet>(
 ) : DescribeSpec() {
     init {
         if (autoIncludeTests) {
-            @Suppress("LeakingThis") include(tests())
+            createTests()
         }
 
         afterSpec {
@@ -54,7 +53,7 @@ sealed class PacketTestSpec<T : Packet>(
     ) : PacketTestSpec<T>(specName, fixtures, autoIncludeTests) {
         open fun DescribeSpecContainerScope.describeMore(): Job? = null
 
-        override fun tests(): TestFactory = describeSpec {
+        override fun DescribeSpecRootScope.createTests() {
             val sendChannel = ByteChannel()
             val writer = PacketWriter(sendChannel)
 
@@ -62,7 +61,7 @@ sealed class PacketTestSpec<T : Packet>(
 
             describe(specName) {
                 organizeTests(fixtures) { fixture ->
-                    it("Can write to PacketWriter") {
+                    this.it("Can write to PacketWriter") {
                         fixture.generator.checkAll { data ->
                             data.packet.writeTo(writer)
                             writer.flush()
@@ -74,7 +73,7 @@ sealed class PacketTestSpec<T : Packet>(
                         }
                     }
 
-                    it("Packet type matches") {
+                    this.it("Packet type matches") {
                         packets.forEach { it.type shouldBeEqual fixture.packetType }
                     }
 
@@ -111,7 +110,7 @@ sealed class PacketTestSpec<T : Packet>(
 
         open fun DescribeSpecContainerScope.describeMore(): Job? = null
 
-        override fun tests(): TestFactory = describeSpec {
+        override fun DescribeSpecRootScope.createTests() {
             describe(specName) {
                 organizeTests(fixtures) { fixture ->
                     PacketTestListenerModule.packets.clear()
@@ -140,7 +139,7 @@ sealed class PacketTestSpec<T : Packet>(
                         runTest(fixture, it.second, it.third)
                     }
 
-                    it("Can offer to listener modules") {
+                    this.it("Can offer to listener modules") {
                         packets.forEach(testListenerRegistry::offer)
                         PacketTestListenerModule.packets shouldContainExactly packets
                     }
@@ -210,5 +209,5 @@ sealed class PacketTestSpec<T : Packet>(
 
     protected val packets = mutableListOf<T>()
 
-    abstract fun tests(): TestFactory
+    abstract fun DescribeSpecRootScope.createTests()
 }

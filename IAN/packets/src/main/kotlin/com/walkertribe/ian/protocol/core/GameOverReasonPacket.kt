@@ -11,14 +11,11 @@ import com.walkertribe.ian.protocol.PacketSubtype
 @PacketSubtype(subtype = SimpleEventPacket.Subtype.GAME_OVER_REASON)
 class GameOverReasonPacket(reader: PacketReader) : SimpleEventPacket(reader) {
     /** The text describing why the game ended. Each element in this list is one line. */
-    val text =
-        mutableListOf<String>()
-            .apply {
-                while (reader.hasMore) {
-                    add(reader.readString())
-                }
-            }
-            .toList()
+    val text: List<String> = buildList {
+        while (reader.hasMore) {
+            add(reader.readString())
+        }
+    }
 
     init {
         reader.clearObjectIDs()

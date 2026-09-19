@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.ApplicationExtension
-import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -12,21 +11,25 @@ plugins {
     alias(libs.plugins.firebase.perf)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.detekt)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.dependency.analysis)
 }
 
 val appName = "Artemis Agent"
 val appId = "artemis.agent"
-val sdkVersion: Int by rootProject.extra
-val minimumSdkVersion: Int by rootProject.extra
-val javaVersion: JavaVersion by rootProject.extra
+val sdkVersion = rootProject.extra["sdkVersion"] as Int
+val minimumSdkVersion = rootProject.extra["minimumSdkVersion"] as Int
+val javaVersion = rootProject.extra["javaVersion"] as JavaVersion
 val stringRes = "string"
-
 val release = "release"
-val keystoreProperties =
-    Properties().apply { load(FileInputStream(rootProject.file("keystore.properties"))) }
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
 
 val changelog =
     rootProject.file("changelog/whatsnew-en-US").readLines().joinToString(" \\u0020\\n") {
@@ -57,14 +60,10 @@ extensions.configure<ApplicationExtension> {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    lint {
-        lintConfig = file("lint.xml")
-        sarifReport = true
-    }
+    lint.lintConfig = file("lint.xml")
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.add("-Xannotation-target-all")
             jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
             javaParameters = true
         }
@@ -73,12 +72,14 @@ extensions.configure<ApplicationExtension> {
     testOptions.execution = "ANDROIDX_TEST_ORCHESTRATOR"
     testOptions.unitTests.all { it.useJUnitPlatform() }
 
-    signingConfigs {
-        create(release) {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storePassword = keystoreProperties["storePassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
+    if (keystoreProperties.isNotEmpty()) {
+        signingConfigs {
+            create(release) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storePassword = keystoreProperties["storePassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+            }
         }
     }
 
@@ -89,7 +90,7 @@ extensions.configure<ApplicationExtension> {
             resValue(stringRes, "changelog", changelog)
         }
         release {
-            signingConfig = signingConfigs.getByName(release)
+            signingConfig = signingConfigs.findByName(release)
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -166,6 +167,9 @@ dependencies {
     }
 
     constraints {
+        implementation(libs.core.ktx) {
+            because("Needed to resolve Dependency Analysis issues with AndroidX Core 1.19.0")
+        }
         implementation(libs.guava) {
             because("Version 32.0.0-android patches a moderate security vulnerability")
         }

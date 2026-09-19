@@ -3,15 +3,10 @@ import artemis.agent.gradle.configureTests
 import artemis.agent.gradle.dependsOnKonsist
 
 plugins {
-    id("ian-library")
-    id("fixtures")
+    alias(conventions.plugins.ian.library)
+    alias(conventions.plugins.fixtures)
     alias(libs.plugins.ksp)
     id("info.solidsoft.pitest")
-}
-
-ksp {
-    arg("KOIN_CONFIG_CHECK", true.toString())
-    arg("KOIN_LOG_TIMES", true.toString())
 }
 
 configureTests(maxMemoryGb = 4)
@@ -36,10 +31,8 @@ dependencies {
     api(libs.bundles.ian.packets.api)
 
     ksp(projects.ian.processor)
-    ksp(libs.ksp.koin)
 
     implementation(libs.kotlin.reflect)
-    implementation(libs.kotlinx.io)
 
     testImplementation(testFixtures(projects.ian.listener))
     testImplementation(testFixtures(projects.ian.vesseldata))

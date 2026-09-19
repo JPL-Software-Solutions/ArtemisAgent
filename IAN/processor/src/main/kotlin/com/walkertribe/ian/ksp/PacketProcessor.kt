@@ -24,11 +24,6 @@ import com.walkertribe.ian.protocol.PacketType
 import com.walkertribe.ian.util.JamCrc
 import com.walkertribe.ian.util.Util.toHex
 import kotlin.reflect.KClass
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.KoinApplication
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
 class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
     private val visitor: PacketVisitor by lazy { PacketVisitor(codeGenerator) }
@@ -68,28 +63,25 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
 
         val getFactoryFunBuilder = makeFactoryFunBuilder(abstractSymbols)
 
-        val protocolCompanionBuilder = makeCompanionBuilder(symbols, subtypeMap)
-
-        val protocolClassBuilder =
-            TypeSpec.classBuilder(FILENAME)
+        val protocolObjectBuilder =
+            TypeSpec.objectBuilder(FILENAME)
                 .addSuperinterface(ClassName(MAIN_PACKAGE, "Protocol"))
-                .addAnnotation(Single::class)
                 .addFunction(getFactoryFunBuilder.build())
-                .addType(protocolCompanionBuilder.build())
+                .addSymbolProperties("", symbols, "%L") { it.toString() }
 
-        val protocolModuleBuilder =
-            TypeSpec.classBuilder("ProtocolModule")
-                .addAnnotation(Module::class)
-                .addAnnotation(ComponentScan::class)
-                .addAnnotation(Configuration::class)
+        subtypeMap.forEach { (parentName, subtypeClasses) ->
+            protocolObjectBuilder.addSymbolProperties(
+                makeConstantName(parentName) + "_",
+                subtypeClasses
+                    .associateBy { it.getAnnotationsByType(PacketSubtype::class).first().subtype }
+                    .toSortedMap(),
+                "0x%L",
+            ) {
+                it.toHex()
+            }
+        }
 
-        val protocolApplicationBuilder =
-            TypeSpec.objectBuilder("IAN").addAnnotation(KoinApplication::class)
-
-        fileSpecBuilder.addType(protocolClassBuilder.build())
-        fileSpecBuilder.addType(protocolModuleBuilder.build())
-        fileSpecBuilder.addType(protocolApplicationBuilder.build())
-
+        fileSpecBuilder.addType(protocolObjectBuilder.build())
         fileSpecBuilder.build().writeTo(codeGenerator = codeGenerator, aggregating = false)
 
         return emptyList()
@@ -97,7 +89,7 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
 
     internal companion object {
         const val MAIN_PACKAGE = "com.walkertribe.ian.protocol"
-        const val FILENAME = "KoinProtocol"
+        const val FILENAME = "ArtemisProtocol"
         private const val PACKET_LENGTH = 6
         private const val FACTORY_LENGTH = 7
 
@@ -155,33 +147,6 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
             }
 
             return factoryFunBuilder.addStatement("else -> FACTORY_MAP[type]").endControlFlow()
-        }
-
-        @OptIn(KspExperimental::class)
-        private fun makeCompanionBuilder(
-            mainPacketClasses: Map<Int, KSClassDeclaration>,
-            subtypePacketClasses: Map<String, List<KSClassDeclaration>>,
-        ): TypeSpec.Builder {
-            val protocolCompanionBuilder =
-                TypeSpec.companionObjectBuilder()
-                    .addModifiers(KModifier.PRIVATE)
-                    .addSymbolProperties("", mainPacketClasses, "%L") { it.toString() }
-
-            subtypePacketClasses.forEach { (parentName, subtypeClasses) ->
-                protocolCompanionBuilder.addSymbolProperties(
-                    makeConstantName(parentName) + "_",
-                    subtypeClasses
-                        .associateBy {
-                            it.getAnnotationsByType(PacketSubtype::class).first().subtype
-                        }
-                        .toSortedMap(),
-                    "0x%L",
-                ) {
-                    it.toHex()
-                }
-            }
-
-            return protocolCompanionBuilder
         }
 
         private inline fun <reified N : Number> TypeSpec.Builder.addSymbolProperties(

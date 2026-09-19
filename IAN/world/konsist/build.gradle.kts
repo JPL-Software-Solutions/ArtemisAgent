@@ -1,6 +1,7 @@
-plugins { id("konsist-tests") }
+plugins { alias(conventions.plugins.konsist.tests) }
 
 dependencies {
+    testImplementation(projects.ian.enums)
     testImplementation(projects.ian.world)
     testCompileOnly(projects.ian.annotations)
 

@@ -1,6 +1,5 @@
 package artemis.agent
 
-import android.Manifest.permission.POST_NOTIFICATIONS
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
@@ -69,6 +68,7 @@ import com.walkertribe.ian.iface.DisconnectCause
 import com.walkertribe.ian.protocol.core.comm.CommsIncomingPacket
 import com.walkertribe.ian.util.Version
 import java.io.FileNotFoundException
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -202,22 +202,34 @@ class MainActivity : AppCompatActivity() {
     private val notificationManager: NotificationManager by lazy {
         NotificationManager(applicationContext)
     }
-    private val requestPermissionLauncher: ActivityResultLauncher<String>? =
+
+    private val resentPermissionRequests: MutableList<RuntimePermissionInfo> = mutableListOf()
+
+    private val requestPermissionLauncher: ActivityResultLauncher<Array<String>>? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-                if (!granted && shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)) {
-                    AlertDialog.Builder(this@MainActivity)
-                        .setMessage(R.string.permission_rationale)
-                        .setCancelable(false)
-                        .setNegativeButton(R.string.no) { _, _ ->
-                            viewModel.playSound(SoundEffect.BEEP_1)
-                            requestPermissionLauncher?.launch(POST_NOTIFICATIONS)
-                        }
-                        .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.playSound(SoundEffect.BEEP_1)
-                        }
-                        .show()
-                }
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                permissions ->
+                val redo =
+                    permissions.entries.mapNotNull { (permission, isGranted) ->
+                        if (isGranted || !shouldShowRequestPermissionRationale(permission)) null
+                        else RuntimePermissionInfo.entries.find { it.permission == permission }
+                    }
+                resentPermissionRequests.addAll(0, redo)
+
+                val nextRequest =
+                    resentPermissionRequests.removeFirstOrNull() ?: return@registerForActivityResult
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(nextRequest.rationaleMessage)
+                    .setCancelable(false)
+                    .setNegativeButton(R.string.no) { _, _ ->
+                        viewModel.playSound(SoundEffect.BEEP_1)
+                        requestPermissionLauncher?.launch(arrayOf(nextRequest.permission))
+                    }
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.playSound(SoundEffect.BEEP_1)
+                        requestPermissionLauncher?.launch(emptyArray())
+                    }
+                    .show()
             }
         } else {
             null
@@ -592,14 +604,14 @@ class MainActivity : AppCompatActivity() {
         setupWindowInsets()
 
         lifecycleScope.launch(Dispatchers.Default) {
-            delay(SETUP_DELAY)
-            setupTiramisu()
+            delay(SETUP_DELAY.milliseconds)
 
             setupConnectionObservers()
             setupUserSettingsObserver()
             setupViewAutomationBindings()
 
             withContext(Dispatchers.Main) {
+                requestRuntimePermissions()
                 setupBackPressedCallbacks()
 
                 binding.mainPageSelector.children.forEach { view ->
@@ -722,7 +734,7 @@ class MainActivity : AppCompatActivity() {
         if (isPreBaklava && isLongBackPressOverridden && keyCode == KeyEvent.KEYCODE_BACK) {
             viewModel.backPreview?.also { backPreview ->
                 longBackPress = lifecycleScope.launch {
-                    delay(ViewConfiguration.getLongPressTimeout().toLong())
+                    delay(ViewConfiguration.getLongPressTimeout().milliseconds)
                     if (isActive) backPreview.onBackStarted()
                 }
             }
@@ -757,14 +769,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupTiramisu() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    private fun requestRuntimePermissions() {
+        val permissions = buildList {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return@buildList
+            add(RuntimePermissionInfo.POST_NOTIFICATIONS)
 
-        if (
-            ActivityCompat.checkSelfPermission(this, POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncher?.launch(POST_NOTIFICATIONS)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return@buildList
+            add(RuntimePermissionInfo.ACCESS_LOCAL_NETWORK)
+        }
+
+        val requests = permissions.mapNotNull { info ->
+            info.permission.takeUnless {
+                ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+            }
+        }
+
+        if (requests.isNotEmpty()) {
+            requestPermissionLauncher?.launch(requests.toTypedArray())
         }
     }
 
@@ -951,7 +972,7 @@ class MainActivity : AppCompatActivity() {
             CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() }
         ) {
             if (checkType == UpdateCheck.STARTUP) {
-                delay(INITIAL_UPDATE_DELAY)
+                delay(INITIAL_UPDATE_DELAY.milliseconds)
             }
 
             val maxVersionFetch = async {
@@ -1099,8 +1120,8 @@ class MainActivity : AppCompatActivity() {
         const val GAME_PAGE_UNSPECIFIED = 6
 
         const val SPLASH_WIPE_DURATION = 250L
-        const val SETUP_DELAY = 250L
-        const val INITIAL_UPDATE_DELAY = 500L
+        const val SETUP_DELAY = 250
+        const val INITIAL_UPDATE_DELAY = 500
 
         const val MAX_VERSION_FILE_NAME = "max_version.dat"
 

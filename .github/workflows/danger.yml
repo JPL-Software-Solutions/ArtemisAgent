@@ -27,16 +27,17 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Generate secret files
       if: github.event_name == 'pull_request'
       run: |
-        echo ${{ secrets.KEYSTORE_PROPERTIES }} | base64 -d > ${{ github.workspace }}/keystore.properties
         echo ${{ secrets.GOOGLE_SERVICES }} | base64 -d > ${{ github.workspace }}/app/google-services.json
 
     - name: Setup Detekt
-      uses: peter-murray/setup-detekt@26449609a63e843a5b9bad8a4b63ef0ee717f7a5 # v3.0.0
+      uses: peter-murray/setup-detekt@4c0b45d6dac2620e84abd4ea7008a8a140b9f20a # v4.0.0
 
     - name: Run Detekt
       continue-on-error: true
@@ -46,13 +47,13 @@ jobs:
         -r sarif:${{ github.workspace }}/detekt.sarif.json
 
     - name: Upload Detekt SARIF report
-      uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+      uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
       with:
         sarif_file: ${{ github.workspace }}/detekt.sarif.json
         checkout_path: ${{ github.workspace }}
 
     - name: Setup Ruby
-      uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+      uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1.324.0
       with:
         bundler-cache: true
 
@@ -64,7 +65,7 @@ jobs:
         "
 
     - name: Upload Rubocop SARIF report
-      uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+      uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
       with:
         sarif_file: ${{ github.workspace }}/rubocop.sarif
         checkout_path: ${{ github.workspace }}

@@ -17,6 +17,7 @@ import com.walkertribe.ian.protocol.core.comm.CommsOutgoingPacket
 import com.walkertribe.ian.protocol.core.world.IntelPacket
 import com.walkertribe.ian.vesseldata.Taunt
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -96,7 +97,7 @@ class EnemiesManager {
                     sendToServer(surrenderPacket)
                     enemy.pendingSurrenders = i
                     if (i > 0) {
-                        delay(surrenderBurstInterval.toLong())
+                        delay(surrenderBurstInterval.milliseconds)
                     }
                 }
             }

@@ -285,7 +285,11 @@ class FactionTest :
                             shouldThrow<IllegalArgumentException> {
                                 Faction(
                                     Xml(
-                                        """<hullRace ${included.first}="${included.second}"></hullRace>"""
+                                        """<hullRace ${
+                                            included.first
+                                        }="${
+                                            included.second
+                                        }"></hullRace>"""
                                     )
                                 )
                             }

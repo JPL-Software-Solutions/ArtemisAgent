@@ -29,6 +29,7 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.writeFully
 import io.ktor.utils.io.core.writeText
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -71,12 +72,13 @@ class ServerDiscoveryRequesterTest :
             it("Throws when initialized with invalid timeout") {
                 Arb.long(max = 0L).checkAll {
                     shouldThrow<IllegalArgumentException> {
-                        ServerDiscoveryRequester(listener = listener, timeoutMs = it)
+                        ServerDiscoveryRequester(listener = listener, timeout = it.milliseconds)
                     }
                 }
             }
 
-            val requester = ServerDiscoveryRequester(listener = listener, timeoutMs = 500L)
+            val requester =
+                ServerDiscoveryRequester(listener = listener, timeout = 500.milliseconds)
 
             val localAddress = InetSocketAddress(loopbackAddress, ServerDiscoveryRequester.PORT)
 

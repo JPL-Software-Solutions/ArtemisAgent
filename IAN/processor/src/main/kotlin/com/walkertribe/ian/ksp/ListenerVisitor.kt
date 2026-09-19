@@ -20,7 +20,7 @@ import com.walkertribe.ian.iface.ListenerArgument
 class ListenerVisitor(
     private val codeGenerator: CodeGenerator,
     private val functions: List<KSFunctionDeclaration>,
-) : KSVisitorVoid() {
+) : KSVisitorVoid(enableNewFeatures = true) {
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         val containingFile = classDeclaration.containingFile ?: return
         val packageName = classDeclaration.packageName.asString()

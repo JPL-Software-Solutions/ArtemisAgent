@@ -8,9 +8,9 @@ plugins {
     alias(libs.plugins.dependency.analysis)
 }
 
-val sdkVersion: Int by rootProject.extra
-val minimumSdkVersion: Int by rootProject.extra
-val javaVersion: JavaVersion by rootProject.extra
+val sdkVersion = rootProject.extra["sdkVersion"] as Int
+val minimumSdkVersion = rootProject.extra["minimumSdkVersion"] as Int
+val javaVersion = rootProject.extra["javaVersion"] as JavaVersion
 
 extensions.configure<LibraryExtension> {
     namespace = "artemis.agent.konsist"
@@ -29,8 +29,6 @@ extensions.configure<LibraryExtension> {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-
-    lint.sarifReport = true
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {

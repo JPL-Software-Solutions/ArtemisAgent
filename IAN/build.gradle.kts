@@ -3,7 +3,7 @@ import artemis.agent.gradle.configureTests
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 plugins {
-    id("ian-library")
+    alias(conventions.plugins.ian.library)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
     id("info.solidsoft.pitest")
@@ -13,10 +13,11 @@ configureTests(maxMemoryGb = 8)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
 
-val konsistCollect by tasks.registering {
-    group = "build"
-    description = "Runs all Konsist unit tests of all subprojects."
-}
+val konsistCollect =
+    tasks.register("konsistCollect") {
+        group = "build"
+        description = "Runs all Konsist unit tests of all subprojects."
+    }
 
 allprojects
     .filter { it.path.contains("konsist") }
@@ -33,13 +34,13 @@ tasks.assemble.dependsOn(konsistCollect)
 dependencies {
     compileOnly(projects.ian.annotations)
 
-    api(projects.ian.enums)
     api(projects.ian.listener)
     api(projects.ian.packets)
     api(projects.ian.util)
     api(projects.ian.world)
 
     api(libs.kotlin.stdlib)
+    api(libs.kotlinx.coroutines)
 
     ksp(projects.ian.processor)
 
@@ -52,6 +53,7 @@ dependencies {
     testImplementation(testFixtures(projects.ian.util))
 
     testImplementation(platform(libs.kotest.bom))
+    testImplementation(projects.ian.enums)
     testImplementation(libs.bundles.ian.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
 

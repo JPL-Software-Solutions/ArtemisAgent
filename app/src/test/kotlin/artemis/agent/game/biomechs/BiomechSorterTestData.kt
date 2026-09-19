@@ -36,13 +36,12 @@ data class BiomechSorterTestCase(
             sortByName = sortByName,
         )
 
-    override fun dataTestName(): String =
-        buildList {
-                if (sortByClassFirst) add("Class (first)")
-                if (sortByClassSecond) add("Class (second)")
-                if (sortByName) add("Name")
-            }
-            .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
-            .joinToString()
-            .ifEmpty { "Unsorted" }
+    override fun dataTestName(): String = buildList {
+        if (sortByClassFirst) add("Class (first)")
+        if (sortByClassSecond) add("Class (second)")
+        if (sortByName) add("Name")
+    }
+        .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
+        .joinToString()
+        .ifEmpty { "Unsorted" }
 }

@@ -1,5 +1,6 @@
 import com.ncorti.ktfmt.gradle.KtfmtExtension
 import com.ncorti.ktfmt.gradle.KtfmtPlugin
+import com.ncorti.ktfmt.gradle.TrailingCommaManagementStrategy
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
@@ -29,7 +30,7 @@ buildscript {
 val javaVersion = JavaVersion.VERSION_21
 
 extra.apply {
-    set("sdkVersion", 36)
+    set("sdkVersion", 37)
     set("minimumSdkVersion", 23)
     set("javaVersion", javaVersion)
 }
@@ -49,7 +50,11 @@ plugins {
 allprojects {
     apply<KtfmtPlugin>()
 
-    configure<KtfmtExtension> { kotlinLangStyle() }
+    configure<KtfmtExtension> {
+        kotlinLangStyle()
+        maxWidth.set(100)
+        trailingCommaManagementStrategy.set(TrailingCommaManagementStrategy.ONLY_ADD)
+    }
 }
 
 tasks.detekt { jvmTarget = javaVersion.toString() }

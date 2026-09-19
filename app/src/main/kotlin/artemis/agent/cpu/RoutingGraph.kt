@@ -575,7 +575,7 @@ internal class RoutingGraph(
             val destX = dest.x.value
             val destZ = dest.z.value
 
-            return if (allDefined(sourceX, sourceX, destX, destZ)) {
+            return if (allDefined(sourceX, sourceZ, destX, destZ)) {
                 val dx = destX - sourceX
                 val dz = destZ - sourceZ
                 if (this == null || viewModel.playerShip?.driveType?.value != DriveType.WARP) {

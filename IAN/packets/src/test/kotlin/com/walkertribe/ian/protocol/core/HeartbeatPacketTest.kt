@@ -18,7 +18,7 @@ class HeartbeatPacketTest : DescribeSpec() {
         )
 
     init {
-        include(Client.tests())
-        include(Server.tests())
+        with(Client) { this@HeartbeatPacketTest.createTests() }
+        with(Server) { this@HeartbeatPacketTest.createTests() }
     }
 }

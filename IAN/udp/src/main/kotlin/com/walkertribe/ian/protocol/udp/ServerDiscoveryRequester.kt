@@ -7,6 +7,7 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.utils.io.core.buildPacket
 import io.ktor.utils.io.core.readShortLittleEndian
 import io.ktor.utils.io.core.readTextExactCharacters
+import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -18,9 +19,9 @@ import kotlinx.coroutines.withTimeoutOrNull
  *
  * @author rjwut
  */
-class ServerDiscoveryRequester(private val listener: Listener, private val timeoutMs: Long) {
+class ServerDiscoveryRequester(private val listener: Listener, private val timeout: Duration) {
     init {
-        require(timeoutMs >= 1) { "Invalid timeout: $timeoutMs" }
+        require(timeout.isPositive()) { "Invalid timeout: ${timeout.inWholeMilliseconds}" }
     }
 
     suspend fun run(broadcastAddress: String) {
@@ -36,7 +37,7 @@ class ServerDiscoveryRequester(private val listener: Listener, private val timeo
                         )
                     )
 
-                    withTimeoutOrNull(timeoutMs) {
+                    withTimeoutOrNull(timeout) {
                         do {
                             val datagram = socket.receive()
                             val packet = datagram.packet

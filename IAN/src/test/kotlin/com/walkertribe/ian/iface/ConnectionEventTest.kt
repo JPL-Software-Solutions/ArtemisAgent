@@ -15,10 +15,8 @@ import io.mockk.clearMocks
 import io.mockk.mockk
 import kotlin.reflect.KClass
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlinx.io.IOException
 
-@OptIn(ExperimentalTime::class)
 class ConnectionEventTest :
     DescribeSpec({
         val connectionEvents = mutableListOf<ConnectionEvent>()

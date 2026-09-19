@@ -394,8 +394,8 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                 .toInt()
 
         override fun onLayoutChildren(
-            recycler: RecyclerView.Recycler?,
-            state: RecyclerView.State?,
+            recycler: RecyclerView.Recycler,
+            state: RecyclerView.State,
         ) {
             spanCount =
                 1.coerceAtLeast(
@@ -403,21 +403,19 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                         height / spanDimension
                     } else {
                         val crossDimension =
-                            recycler?.let { rec ->
-                                List(state?.itemCount ?: 0) { index ->
-                                        val view = rec.getViewForPosition(index)
-                                        view.measure(
-                                            View.MeasureSpec.makeMeasureSpec(
-                                                width,
-                                                View.MeasureSpec.AT_MOST,
-                                            ),
-                                            View.MeasureSpec.UNSPECIFIED,
-                                        )
-                                        view.measuredWidth
-                                    }
-                                    .filter { it > 0 }
-                                    .maxOrNull()
-                            } ?: spanDimension
+                            0.until(state.itemCount)
+                                .maxOfOrNull { index ->
+                                    val view = recycler.getViewForPosition(index)
+                                    view.measure(
+                                        View.MeasureSpec.makeMeasureSpec(
+                                            width,
+                                            View.MeasureSpec.AT_MOST,
+                                        ),
+                                        View.MeasureSpec.UNSPECIFIED,
+                                    )
+                                    view.measuredWidth
+                                }
+                                ?.takeIf { it > 0 } ?: spanDimension
                         width / crossDimension
                     }
                 )

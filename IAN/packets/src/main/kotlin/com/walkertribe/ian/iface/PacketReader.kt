@@ -2,7 +2,7 @@ package com.walkertribe.ian.iface
 
 import com.walkertribe.ian.enums.ObjectType
 import com.walkertribe.ian.enums.Origin
-import com.walkertribe.ian.protocol.IAN
+import com.walkertribe.ian.protocol.ArtemisProtocol
 import com.walkertribe.ian.protocol.Packet
 import com.walkertribe.ian.protocol.PacketException
 import com.walkertribe.ian.protocol.Protocol
@@ -26,16 +26,11 @@ import korlibs.io.lang.toString
 import kotlin.enums.enumEntries
 import kotlin.reflect.full.isSubclassOf
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlinx.io.Source
 import kotlinx.io.readByteArray
 import kotlinx.io.readFloatLe
 import kotlinx.io.readIntLe
 import kotlinx.io.readShortLe
-import org.koin.core.Koin
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.ksp.generated.koinApplication
 
 /**
  * Facilitates reading packets from an [ByteReadChannel]. This object may be reused to read as many
@@ -47,10 +42,8 @@ import org.koin.ksp.generated.koinApplication
 class PacketReader(
     private val channel: ByteReadChannel,
     private val listenerRegistry: ListenerRegistry,
-) : KoinComponent {
-    private val koinApp = IAN.koinApplication()
-
-    private val protocol: Protocol by inject()
+) {
+    private val protocol: Protocol = ArtemisProtocol
 
     private val rejectedObjectIDs = mutableSetOf<Int>()
 
@@ -84,7 +77,6 @@ class PacketReader(
         private set
 
     /** Reads a single packet and returns it. */
-    @OptIn(ExperimentalTime::class)
     @Throws(PacketException::class)
     suspend fun readPacket(): ParseResult {
         objectId = 0
@@ -278,7 +270,6 @@ class PacketReader(
 
     fun close(cause: Throwable? = null) {
         channel.cancel(cause)
-        koinApp.close()
     }
 
     /** Removes the given object ID from the set of IDs for which to reject updates. */
@@ -340,6 +331,4 @@ class PacketReader(
 
         return packetType to payloadPacket
     }
-
-    override fun getKoin(): Koin = koinApp.koin
 }

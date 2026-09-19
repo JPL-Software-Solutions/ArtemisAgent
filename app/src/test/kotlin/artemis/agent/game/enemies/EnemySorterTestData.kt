@@ -65,22 +65,21 @@ data class EnemySorterTestCase(
             sortByDistance = sortByDistance,
         )
 
-    override fun dataTestName(): String =
-        buildList {
-                if (sortBySurrendered) add("Surrender status")
+    override fun dataTestName(): String = buildList {
+        if (sortBySurrendered) add("Surrender status")
 
-                when (sortByFaction) {
-                    FactionSort.NONE -> {}
-                    FactionSort.FORWARD -> add("Faction")
-                    FactionSort.REVERSE -> add("Faction reversed")
-                }
+        when (sortByFaction) {
+            FactionSort.NONE -> {}
+            FactionSort.FORWARD -> add("Faction")
+            FactionSort.REVERSE -> add("Faction reversed")
+        }
 
-                if (sortByName) add("Name")
-                if (sortByDistance) add("Distance")
-            }
-            .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
-            .joinToString()
-            .ifEmpty { "Unsorted" }
+        if (sortByName) add("Name")
+        if (sortByDistance) add("Distance")
+    }
+        .mapIndexed { index, s -> if (index == 0) s else s.lowercase() }
+        .joinToString()
+        .ifEmpty { "Unsorted" }
 }
 
 @Serializable

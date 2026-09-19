@@ -37,6 +37,7 @@ include(
     ":IAN:udp",
     ":IAN:udp:konsist",
     ":IAN:util",
+    ":IAN:util:konsist",
     ":IAN:vesseldata",
     ":IAN:vesseldata:konsist",
     ":IAN:world",

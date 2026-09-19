@@ -25,30 +25,31 @@ data class RouteEntry(val objEntry: ObjectEntry<*>) {
 
     private fun getReasonTextForTasks(viewModel: AgentViewModel, context: Context): String =
         buildList {
-                if (objEntry is ObjectEntry.Ally) {
-                    addAll(
-                        viewModel.routeIncentives
-                            .filter { it.matches(objEntry) }
-                            .map { context.getString(it.getTextFor(objEntry)) }
-                    )
-                }
-
-                if (viewModel.routeIncludesMissions) {
-                    objEntry.missions
-                        .takeIf { it > 0 }
-                        ?.also { missions ->
-                            add(
-                                context.resources.getQuantityString(
-                                    R.plurals.side_missions,
-                                    missions,
-                                    missions,
-                                )
-                            )
-                        }
-                }
+            if (objEntry is ObjectEntry.Ally) {
+                addAll(
+                    viewModel.routeIncentives.mapNotNull {
+                        if (it.matches(objEntry)) context.getString(it.getTextFor(objEntry))
+                        else null
+                    }
+                )
             }
-            .joinToString()
-            .replaceFirstChar { it.uppercase() }
+
+            if (viewModel.routeIncludesMissions) {
+                objEntry.missions
+                    .takeIf { it > 0 }
+                    ?.also { missions ->
+                        add(
+                            context.resources.getQuantityString(
+                                R.plurals.side_missions,
+                                missions,
+                                missions,
+                            )
+                        )
+                    }
+            }
+        }
+        .joinToString()
+        .replaceFirstChar { it.uppercase() }
 
     fun getBuildTimeText(objective: RouteObjective, context: Context): String =
         when {

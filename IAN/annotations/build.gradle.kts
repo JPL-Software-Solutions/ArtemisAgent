@@ -1,6 +1,6 @@
 import artemis.agent.gradle.dependsOnKonsist
 
-plugins { id("ian-library") }
+plugins { alias(conventions.plugins.ian.library) }
 
 dependsOnKonsist()
 

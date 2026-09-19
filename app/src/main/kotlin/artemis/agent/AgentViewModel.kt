@@ -77,10 +77,13 @@ import com.walkertribe.ian.world.ArtemisMine
 import com.walkertribe.ian.world.ArtemisObject
 import com.walkertribe.ian.world.ArtemisPlayer
 import com.walkertribe.ian.world.ArtemisShielded
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -146,11 +149,11 @@ class AgentViewModel(application: Application) :
 
     private var damageVisJob: Job? = null
 
-    private var privateBackPreview: BackPreview? = null
+    private var privateBackPreview: WeakReference<BackPreview>? = null
     var backPreview: BackPreview?
-        get() = privateBackPreview?.takeIf { it.isEnabled }
+        get() = privateBackPreview?.get()?.takeIf { it.isEnabled }
         set(preview) {
-            privateBackPreview = preview
+            privateBackPreview = preview?.let { WeakReference(it) }
         }
 
     // Ship settings from packet
@@ -158,6 +161,9 @@ class AgentViewModel(application: Application) :
 
     // Game status
     val gameIsRunning: MutableStateFlow<Boolean> by lazy { MutableStateFlow(false) }
+    var gameStartTime: Long = 0L
+        private set
+
     var isDeepStrikePossible: Boolean = false
     var isBorderWarPossible: Boolean = false
     val isBorderWar: StateFlow<Boolean> by lazy {
@@ -394,7 +400,7 @@ class AgentViewModel(application: Application) :
         set(value) {
             field = value
             if (isConnected) {
-                networkInterface.setTimeout(field.seconds.inWholeMilliseconds)
+                networkInterface.setTimeout(field.seconds)
             }
         }
 
@@ -402,11 +408,7 @@ class AgentViewModel(application: Application) :
 
     // UDP server discovery requester
     private val serverDiscoveryRequester: ServerDiscoveryRequester
-        get() =
-            ServerDiscoveryRequester(
-                listener = this@AgentViewModel,
-                timeoutMs = scanTimeout.seconds.inWholeMilliseconds,
-            )
+        get() = ServerDiscoveryRequester(listener = this, timeout = scanTimeout.seconds)
 
     // Artemis version
     var version: Version = Version.DEFAULT
@@ -549,7 +551,7 @@ class AgentViewModel(application: Application) :
                 networkInterface.connect(
                     host = url,
                     port = port,
-                    timeoutMs = connectTimeout.seconds.inWholeMilliseconds,
+                    timeout = connectTimeout.seconds,
                 )
             lastAttemptedHost = url
             attemptingConnection = false
@@ -936,7 +938,12 @@ class AgentViewModel(application: Application) :
             routeMap[objective]?.also(routeList::tryEmit)
         }
 
-        delay(0L.coerceAtLeast(updateObjectsInterval + startTime - System.currentTimeMillis()))
+        delay(
+            maxOf(
+                Duration.ZERO,
+                (updateObjectsInterval + startTime - System.currentTimeMillis()).milliseconds,
+            )
+        )
     }
 
     internal fun checkGameStart() {
@@ -1032,7 +1039,7 @@ class AgentViewModel(application: Application) :
             damageVisJob?.cancel()
             damageVisJob = viewModelScope.launch {
                 rootOpacity.value = DAMAGED_ALPHA
-                delay(durationInMillis)
+                delay(durationInMillis.milliseconds)
                 rootOpacity.value = 1f
             }
         }
@@ -1045,6 +1052,7 @@ class AgentViewModel(application: Application) :
 
     @Listener
     fun onPacket(packet: GameStartPacket) {
+        gameStartTime = packet.timestamp
         playerChange = false
         when (packet.gameType) {
             GameType.BORDER_WAR -> {
@@ -1083,7 +1091,7 @@ class AgentViewModel(application: Application) :
     fun onPacket(@Suppress("UNUSED_PARAMETER") packet: JumpEndPacket) {
         viewModelScope.launch {
             jumping.value = true
-            delay(JUMP_DURATION)
+            delay(JUMP_DURATION.milliseconds)
             jumping.value = false
         }
     }
@@ -1102,8 +1110,6 @@ class AgentViewModel(application: Application) :
         volume = 0f
         sounds.forEach { it?.release() }
         sounds.clear()
-
-        super.onCleared()
     }
 
     @OptIn(ExperimentalAtomicApi::class)
@@ -1246,7 +1252,7 @@ class AgentViewModel(application: Application) :
         const val SECONDS_TO_MILLIS = 1000
         private const val PIRATE_SIDE = 8
         private const val DAMAGED_ALPHA = 0.5f
-        private const val JUMP_DURATION = 3000L
+        private const val JUMP_DURATION = 3000
         const val FULL_HEADING_RANGE = 360
         const val VOLUME_SCALE = 100f
         private const val PADDED_ZEROES = 3

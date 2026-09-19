@@ -13,7 +13,7 @@ import com.walkertribe.ian.world.Artemis
  */
 @PacketSubtype(subtype = SimpleEventPacket.Subtype.SHIP_SETTINGS)
 class AllShipSettingsPacket(reader: PacketReader) : SimpleEventPacket(reader) {
-    val ships: List<Ship> = Array(Artemis.SHIP_COUNT) { reader.readShip() }.toList()
+    val ships: List<Ship> = List(Artemis.SHIP_COUNT) { reader.readShip() }
 
     /** Returns the ship with the given index (0-based). */
     operator fun get(shipIndex: Int): Ship = ships[shipIndex]

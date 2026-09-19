@@ -719,6 +719,7 @@
     <string name="theme">Theme</string>
     <string name="then_to">Then: %1$s %2$s %3$s</string>
     <string name="three_digit_directions">Three-digit directions</string>
+    <string name="time">Time: %1$s</string>
     <string name="turn_to_heading">Turn to:</string>
     <string name="unknown">Unknown</string>
     <string name="unknown_error">Unknown error</string>
