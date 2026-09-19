@@ -41,6 +41,8 @@ class ConnectFragmentTest : TestCase() {
     fun scanTest() {
         run {
             mainScreenTest {
+                step("Enable network connections") { device.network.enable() }
+
                 val scanTimeout = AtomicInteger()
                 step("Fetch scan timeout") {
                     activityScenarioRule.scenario.onActivity { activity ->
@@ -170,6 +172,8 @@ class ConnectFragmentTest : TestCase() {
     fun showNetworkInfoTest() {
         run {
             mainScreenTest {
+                step("Enable network connections") { device.network.enable() }
+
                 val showingInfo = AtomicBoolean()
                 step("Fetch showing network info setting") {
                     activityScenarioRule.scenario.onActivity { activity ->
@@ -185,12 +189,58 @@ class ConnectFragmentTest : TestCase() {
         }
     }
 
+    @Test
+    fun noNetworkTest() {
+        run {
+            mainScreenTest {
+                step("Disable network connections") { device.network.disable() }
+
+                val showingInfo = AtomicBoolean()
+                step("Fetch showing network info setting") {
+                    activityScenarioRule.scenario.onActivity { activity ->
+                        showingInfo.lazySet(
+                            activity.viewModels<AgentViewModel>().value.showingNetworkInfo
+                        )
+                    }
+                }
+                val settingValue = showingInfo.get()
+
+                if (!settingValue) {
+                    toggleShowingInfo()
+                }
+
+                ConnectPageScreen {
+                    step("Check \"Network not found\" text") {
+                        networkTypeLabel.isDisplayedWithText(R.string.network_not_found)
+                    }
+
+                    step("Check for no address") { addressLabel.isNotDisplayed() }
+                }
+
+                if (!settingValue) {
+                    toggleShowingInfo()
+                }
+            }
+        }
+    }
+
     companion object {
         const val FAKE_SERVER_IP = "noseynick.net"
 
         private val EMULATOR_DEVICES = setOf("emu64x", "emulator64_x86_64", "generic_x86_64")
 
         private val isEmulator by lazy { Build.DEVICE in EMULATOR_DEVICES }
+
+        private fun TestContext<Unit>.toggleShowingInfo() {
+            scenario(SettingsMenuScenario)
+            scenario(SettingsSubmenuOpenScenario.Client)
+
+            step("Toggle network info setting") {
+                SettingsPageScreen.Client.showNetworkInfoButton.click()
+            }
+
+            step("Return to Connect page") { SetupPageScreen.connectPageButton.click() }
+        }
 
         private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
             runTest {
@@ -200,14 +250,7 @@ class ConnectFragmentTest : TestCase() {
                     index,
                     isShowing ->
                     if (index > 0) {
-                        scenario(SettingsMenuScenario)
-                        scenario(SettingsSubmenuOpenScenario.Client)
-
-                        step("Toggle network info setting") {
-                            SettingsPageScreen.Client.showNetworkInfoButton.click()
-                        }
-
-                        step("Return to Connect page") { SetupPageScreen.connectPageButton.click() }
+                        toggleShowingInfo()
                     }
 
                     val ip = deferredIp.await().orEmpty()
