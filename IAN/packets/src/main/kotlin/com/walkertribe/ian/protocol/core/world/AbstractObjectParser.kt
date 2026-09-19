@@ -5,8 +5,8 @@ import com.walkertribe.ian.iface.PacketReader
 import com.walkertribe.ian.world.BaseArtemisObject
 
 /**
- * Abstract implementation of ObjectParser interface. Provides the common object parsing behavior
- * and delegates to the subclass's parseImpl() method to read individual properties.
+ * Abstract implementation of [ObjectParser] interface. Provides the common object parsing behavior
+ * and delegates to the subclass's [parseDsl] method to read individual properties.
  *
  * @author rjwut
  */
