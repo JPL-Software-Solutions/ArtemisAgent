@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 class ConnectScenario(
     ip: String,
     activityScenario: ActivityScenario<MainActivity>,
-    shouldConnect: Boolean = true,
+    shouldCheckConnection: Boolean = true,
     check: (TestContext<*>.(StepInfo) -> Unit)? = { SetupPageScreen.shipsPageButton.isChecked() },
 ) : Scenario() {
     override val steps: TestContext<Unit>.() -> Unit = {
@@ -40,7 +40,7 @@ class ConnectScenario(
 
             // Skip this check on CI since it always fails
             if (!isEmulator) {
-                if (shouldConnect) {
+                if (shouldCheckConnection) {
                     // We make this check conditional because it's possible that the connection will
                     // fail too quickly
                     step("Connecting state") {

@@ -158,7 +158,7 @@ class ConnectFragmentTest : TestCase() {
                     ConnectScenario(
                         "127.0.0.1",
                         activityScenarioRule.scenario,
-                        shouldConnect = false,
+                        shouldCheckConnection = false,
                         check = null,
                     )
                 )
