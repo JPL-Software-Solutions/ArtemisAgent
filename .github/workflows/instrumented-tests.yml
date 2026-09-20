@@ -144,6 +144,7 @@ jobs:
           clear-package-data: true
           num-balance-shards: 5
           num-flaky-test-attempts: 1
+          outputs-dir: ${{ github.workspace }}/app/build/outputs/androidTest-results/connected
           test: ${{ github.workspace }}/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           timeout: 15m
           use-orchestrator: true
