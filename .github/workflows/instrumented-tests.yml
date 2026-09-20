@@ -142,7 +142,7 @@ jobs:
           api-token: ${{ secrets.EMULATOR_WTF_TOKEN }}
           app: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
           clear-package-data: true
-          num-balance-shards: 5
+          num-balanced-shards: 5
           num-flaky-test-attempts: 1
           outputs-dir: ${{ github.workspace }}/app/build/outputs/androidTest-results/connected
           test: ${{ github.workspace }}/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
