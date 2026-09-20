@@ -144,9 +144,11 @@ jobs:
         with:
           api-token: ${{ secrets.EMULATOR_WTF_TOKEN }}
           app: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
+          clear-package-data: true
           num-flaky-test-attempts: 1
           test: ${{ github.workspace }}/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           timeout: 45m
+          use-orchestrator: true
           with-coverage: true
           devices: |
             model=Pixel7,version=${{ matrix.api-level }}
