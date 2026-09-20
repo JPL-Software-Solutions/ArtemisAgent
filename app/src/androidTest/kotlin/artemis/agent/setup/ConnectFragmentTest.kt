@@ -154,7 +154,14 @@ class ConnectFragmentTest : TestCase() {
     fun connectionFailedTest() {
         run {
             mainScreenTest {
-                scenario(ConnectScenario("127.0.0.1", activityScenarioRule.scenario, check = null))
+                scenario(
+                    ConnectScenario(
+                        "127.0.0.1",
+                        activityScenarioRule.scenario,
+                        shouldConnect = false,
+                        check = null,
+                    )
+                )
 
                 ConnectPageScreen {
                     step("Failure state") {
