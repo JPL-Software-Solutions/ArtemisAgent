@@ -37,8 +37,8 @@ class ConnectScenario(
                 connectButton.click()
             }
 
-            if (!isEmulator) {
-                // Skip this check on CI since it always fails
+            if (!isEmulator || Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                // Skip this check on CI since it always fails, unless it's emulator.wtf
                 step("Connecting state") {
                     connectLabel.isDisplayedWithText(R.string.connecting)
                     connectSpinner.isCompletelyDisplayed()
