@@ -146,6 +146,7 @@ jobs:
           app: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
           num-flaky-test-attempts: 1
           test: ${{ github.workspace }}/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          timeout: 45m
           with-coverage: true
           devices: |
             model=Pixel7,version=${{ matrix.api-level }}
