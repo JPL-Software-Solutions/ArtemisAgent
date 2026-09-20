@@ -137,12 +137,13 @@ jobs:
       - name: Build test APK
         uses: burrunan/gradle-cache-action@404534c34a2faa40430357a3183522a845b04f3b # v3.0.3
         with:
-          arguments: assembleAndroidTest
+          arguments: assembleDebug assembleAndroidTest
 
       - name: Run tests on API ${{ matrix.api-level }}
         uses: emulator-wtf/run-tests@e1e28e50c684ccac84db29dc73ec8a7f063cc8c9 # v1.1.2
         with:
           api-token: ${{ secrets.EMULATOR_WTF_TOKEN }}
+          app: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
           num-flaky-test-attempts: 1
           test: ${{ github.workspace }}/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           with-coverage: true
