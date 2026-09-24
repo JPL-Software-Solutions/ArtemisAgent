@@ -139,6 +139,7 @@ class ClientSettingsFragmentTest : TestCase() {
                             ConnectScenario(
                                 ConnectFragmentTest.FAKE_SERVER_IP,
                                 activityScenarioRule.scenario,
+                                shouldCheckConnection = index == 1,
                             )
                         )
                     }
