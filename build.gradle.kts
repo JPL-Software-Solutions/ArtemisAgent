@@ -34,7 +34,7 @@ val javaVersion = JavaVersion.VERSION_21
 
 extra.apply {
     set("sdkVersion", 37)
-    set("minimumSdkVersion", 23)
+    set("minimumSdkVersion", 24)
     set("javaVersion", javaVersion)
 }
 
