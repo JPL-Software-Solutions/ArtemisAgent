@@ -11,6 +11,9 @@ buildscript {
             classpath(libs.commons.lang3) {
                 because("Version 3.18 fixes an uncontrolled recursion error")
             }
+            classpath(libs.freemarker) {
+                because("Version 2.3.35 patches a critical security vulnerability")
+            }
             classpath(libs.jdom2) {
                 because("Version 2.0.6.1 patches a high-level security vulnerability")
             }
@@ -39,6 +42,7 @@ plugins {
     base
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.kover) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.crashlytics) apply false
