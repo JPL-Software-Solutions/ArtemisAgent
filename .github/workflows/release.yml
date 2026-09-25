@@ -10,6 +10,9 @@ on:
           - patch
           - minor
           - major
+      noChangelogUpdate:
+        description: Don't update changelog in app
+        type: boolean
       artemisSoftUpdate:
         description: Artemis SBS latest version
       artemisRequiredUpdate:
@@ -110,6 +113,7 @@ jobs:
           key-value-pairs: '{"versionCode": "${{ steps.nextVersionCode.outputs.versionCode }}", "versionName": "${{ steps.nextVersionName.outputs.new_version }}"}'
 
       - name: Update changelog
+        if: ${{ !inputs.noChangelogUpdate }}
         run: |
           rm changelog/*
           echo "${{ vars.CHANGELOG }}" > changelog/whatsnew-en-US
