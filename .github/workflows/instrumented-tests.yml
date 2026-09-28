@@ -137,7 +137,7 @@ jobs:
           arguments: assembleDebug assembleAndroidTest
 
       - name: Run tests on API 37
-        uses: emulator-wtf/actions/run-tests@b120dac7975f2128bb7c95e4014bf0f1de936655 # v1.2.0
+        uses: emulator-wtf/actions/run-tests@8ebd78518fdcffab32d868226ec882f1be6dcb50 # v1.2.1
         with:
           api-token: ${{ secrets.EMULATOR_WTF_TOKEN }}
           app: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
