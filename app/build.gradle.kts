@@ -162,9 +162,7 @@ dependencies {
     androidTestUtil(libs.test.orchestrator)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase) {
-        exclude(group = "com.google.firebase", module = "protolite-well-known-types")
-    }
+    implementation(libs.bundles.firebase)
 
     constraints {
         implementation(libs.core.ktx) {
