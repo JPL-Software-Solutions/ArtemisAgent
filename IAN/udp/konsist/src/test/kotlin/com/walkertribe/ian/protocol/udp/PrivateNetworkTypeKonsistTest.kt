@@ -51,7 +51,7 @@ private enum class NamingConventionTest(val testName: String) {
         override fun test(type: KoEnumConstantDeclaration) {
             val prefix = type.name.substringBeforeLast("BLOCK")
             type.assertTrue {
-                it.hasVariable { prop ->
+                it.hasProperty { prop ->
                     prop.name == "constraints" && prop.text.contains("${prefix}CONSTRAINTS")
                 }
             }
