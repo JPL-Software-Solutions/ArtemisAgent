@@ -62,7 +62,7 @@ class PacketKonsistTest :
                     },
                     classes.withAnnotationOf(PacketType::class),
                 ) { packetClass ->
-                    packetClass.assertTrue { it.hasExternalParentWithName("Packet.Server") }
+                    packetClass.assertTrue { it.hasParentOf(Packet.Server::class) }
                 }
             }
 
