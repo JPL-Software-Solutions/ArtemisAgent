@@ -22,20 +22,17 @@ class PrivateNetworkTypeKonsistTest :
             val types = matchingClasses.enumConstants
             val companionObjects = matchingClasses.objects().withCompanionModifier()
 
-            types.forEachIndexed { index, type ->
-                describe(type.name) {
-                    withData(nameFn = { it.testName }, NamingConventionTest.entries) { convention ->
-                        convention.test(type)
-                    }
+            withData(nameFn = { it.name }, types) { type ->
+                withData(nameFn = { it.testName }, NamingConventionTest.entries) { convention ->
+                    convention.test(type)
+                }
 
-                    it("Has comment explaining accepted addresses") {
-                        type.assertTrue { it.text.contains(Regex("// \\d+\\.(x|\\d+)\\.x\\.x")) }
-                    }
+                it("Has comment explaining accepted addresses") {
+                    type.assertTrue { it.text.contains(Regex("// \\d+\\.(x|\\d+)\\.x\\.x")) }
+                }
 
-                    withData(nameFn = { it.testName(type) }, CompanionTest.entries) { companionTest
-                        ->
-                        companionTest.test(companionObjects, type, index)
-                    }
+                withData(nameFn = { it.testName(type) }, CompanionTest.entries) { companionTest ->
+                    companionTest.test(companionObjects, type)
                 }
             }
         }
@@ -51,7 +48,7 @@ private enum class NamingConventionTest(val testName: String) {
         override fun test(type: KoEnumConstantDeclaration) {
             val prefix = type.name.substringBeforeLast("BLOCK")
             type.assertTrue {
-                it.hasVariable { prop ->
+                it.hasProperty { prop ->
                     prop.name == "constraints" && prop.text.contains("${prefix}CONSTRAINTS")
                 }
             }
@@ -63,19 +60,17 @@ private enum class NamingConventionTest(val testName: String) {
 
 private enum class CompanionTest {
     CONSTRAINTS {
-        override fun testProperty(property: KoPropertyDeclaration, index: Int): Boolean = true
+        override fun testProperty(property: KoPropertyDeclaration): Boolean = true
     };
 
-    fun test(objects: List<KoObjectDeclaration>, type: KoEnumConstantDeclaration, index: Int) {
+    fun test(objects: List<KoObjectDeclaration>, type: KoEnumConstantDeclaration) {
         objects.assertTrue { companion ->
-            companion.hasProperty { prop ->
-                prop.name == testName(type) && testProperty(prop, index)
-            }
+            companion.hasProperty { prop -> prop.name == testName(type) && testProperty(prop) }
         }
     }
 
     fun testName(type: KoEnumConstantDeclaration): String =
         "${type.name.substringBeforeLast("BLOCK")}$name"
 
-    abstract fun testProperty(property: KoPropertyDeclaration, index: Int): Boolean
+    abstract fun testProperty(property: KoPropertyDeclaration): Boolean
 }
