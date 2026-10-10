@@ -21,7 +21,7 @@ class PacketKonsistTest :
     DescribeSpec({
         describe("Packet") {
             val module = Konsist.scopeFromProject("IAN/packets", "main")
-            val classes = module.classes() + module.objects()
+            val classes = module.classesAndObjects()
             val protocol = "com.walkertribe.ian.protocol.."
             val classNameRegex = Regex("\\.[A-Z].+")
 
