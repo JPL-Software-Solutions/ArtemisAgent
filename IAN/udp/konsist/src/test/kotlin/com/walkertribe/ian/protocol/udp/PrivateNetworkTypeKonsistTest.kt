@@ -65,9 +65,7 @@ private enum class CompanionTest {
 
     fun test(objects: List<KoObjectDeclaration>, type: KoEnumConstantDeclaration) {
         objects.assertTrue { companion ->
-            companion.hasProperty { prop ->
-                prop.name == testName(type) && testProperty(prop)
-            }
+            companion.hasProperty { prop -> prop.name == testName(type) && testProperty(prop) }
         }
     }
 
