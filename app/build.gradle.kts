@@ -162,9 +162,7 @@ dependencies {
     androidTestUtil(libs.test.orchestrator)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase) {
-        exclude(group = "com.google.firebase", module = "protolite-well-known-types")
-    }
+    implementation(libs.bundles.firebase)
 
     constraints {
         implementation(libs.core.ktx) {
@@ -174,7 +172,7 @@ dependencies {
             because("Version 32.0.0-android patches a moderate security vulnerability")
         }
         androidTestImplementation(libs.jsoup) {
-            because("Version 1.14.2 patches a high-level security vulnerability")
+            because("Version 1.23.2 patches a high-level security vulnerability")
         }
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")

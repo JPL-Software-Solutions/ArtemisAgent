@@ -1,6 +1,5 @@
 package artemis.agent.setup
 
-import android.os.Build
 import androidx.activity.viewModels
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,17 +60,14 @@ class ConnectFragmentTest : TestCase() {
 
                     step("Scan for servers") { scanButton.click() }
 
-                    if (!isEmulator || Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        // These steps fail on CI with pre-Android 24 emulators for some reason
-                        step("Check UI state") {
-                            scanButton.isDisabled()
-                            scanSpinner.isCompletelyDisplayed()
-                            noServersLabel.isRemoved()
-                        }
+                    step("Check UI state") {
+                        scanButton.isDisabled()
+                        scanSpinner.isCompletelyDisplayed()
+                        noServersLabel.isRemoved()
+                    }
 
-                        step("Wait for scan to finish") {
-                            Screen.idle(scanTimeout.get().seconds.inWholeMilliseconds)
-                        }
+                    step("Wait for scan to finish") {
+                        Screen.idle(scanTimeout.get().seconds.inWholeMilliseconds)
                     }
 
                     step("No servers found") {
@@ -194,10 +190,6 @@ class ConnectFragmentTest : TestCase() {
 
     companion object {
         const val FAKE_SERVER_IP = "noseynick.net"
-
-        private val EMULATOR_DEVICES = setOf("emu64x", "emulator64_x86_64", "generic_x86_64")
-
-        private val isEmulator by lazy { Build.DEVICE in EMULATOR_DEVICES }
 
         private fun TestContext<Unit>.testShowingInfo(settingValue: Boolean) {
             runTest {
