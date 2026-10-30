@@ -46,5 +46,8 @@ dependencies {
         runtimeOnly(libs.bouncycastle) {
             because("Version 1.84 patches five moderate security vulnerabilities")
         }
+        ktfmt(libs.guava) {
+            because("Version 33.7.2-android patches a high-level security vulnerability")
+        }
     }
 }

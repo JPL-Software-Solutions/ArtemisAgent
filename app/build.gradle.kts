@@ -169,13 +169,16 @@ dependencies {
             because("Needed to resolve Dependency Analysis issues with AndroidX Core 1.19.0")
         }
         implementation(libs.guava) {
-            because("Version 32.0.0-android patches a moderate security vulnerability")
+            because("Version 33.7.2-android patches a high-level security vulnerability")
         }
         androidTestImplementation(libs.jsoup) {
             because("Version 1.23.2 patches a high-level security vulnerability")
         }
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")
+        }
+        androidLintTool(libs.guava) {
+            because("Version 33.7.2-android patches a high-level security vulnerability")
         }
         androidLintTool(libs.bouncycastle) {
             because("Version 1.84 patches five moderate security vulnerabilities")
