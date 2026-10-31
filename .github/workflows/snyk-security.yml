@@ -45,8 +45,15 @@ jobs:
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # To make sure that SARIF upload gets called
         with:
-          command: monitor
           args: --sarif-file-output=snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor
+        uses: snyk/actions/gradle@master
+        continue-on-error: true # To make sure that SARIF upload gets called
+        with:
+          command: monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
