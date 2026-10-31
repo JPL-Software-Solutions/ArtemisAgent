@@ -50,7 +50,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Monitor
-        uses: snyk/actions/gradle@master
+        uses: snyk/actions/gradle@11b673cfb4b0dc0d860a1323caa199d54950dcce # master
         continue-on-error: true # To make sure that SARIF upload gets called
         with:
           command: monitor
