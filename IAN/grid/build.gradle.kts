@@ -30,4 +30,10 @@ dependencies {
 
     pitest(projects.ian.enums)
     pitest(projects.ian.util)
+
+    constraints {
+        pitest(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
+    }
 }

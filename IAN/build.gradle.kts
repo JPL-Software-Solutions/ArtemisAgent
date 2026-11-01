@@ -62,4 +62,10 @@ dependencies {
     pitest(testFixtures(projects.ian.listener))
     pitest(testFixtures(projects.ian.packets))
     pitest(testFixtures(projects.ian.util))
+
+    constraints {
+        pitest(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
+    }
 }

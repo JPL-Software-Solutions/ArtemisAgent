@@ -185,6 +185,7 @@ arcmutate-kotlin = { module = "com.arcmutate:pitest-kotlin-plugin", version.ref 
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 
 accessibility-test-framework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = "latest.release" }
+asm = { module = "org.ow2.asm:asm", version = "latest.release" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk18on", version = "latest.release" }
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version = "latest.release" }
 freemarker = { module = "org.freemarker:freemarker", version = "latest.release" }
