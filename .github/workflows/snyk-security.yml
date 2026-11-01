@@ -38,7 +38,6 @@ jobs:
       fail-fast: false
       matrix:
         path:
-          - .
           - build-logic
           - app
           - app/konsist
@@ -83,7 +82,7 @@ jobs:
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # Tolerate issues being found
         with:
-          args: --file=${{ matrix.path }}/build.gradle.kts --sarif-file-output=snyk.sarif
+          args: --source-dir=${{ matrix.path }} --sarif-file-output=snyk.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -91,7 +90,7 @@ jobs:
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         with:
           command: monitor
-          args: --file=${{ matrix.path }}/build.gradle.kts
+          args: --source-dir=${{ matrix.path }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -101,8 +100,43 @@ jobs:
         if: always() # Ensure SARIF file upload
         with:
           sarif_file: snyk.sarif
-          category: snyk-${{ steps.get-category.outputs.value || 'root' }}
+          category: snyk-${{ steps.get-category.outputs.value }}
 
+  snyk-gradle-root:
+    name: Gradle (root)
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        continue-on-error: true # Tolerate issues being found
+        with:
+          args: --file=build.gradle.kts --sarif-file-output=snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor
+        uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        with:
+          command: monitor
+          args: --file=build.gradle.kts
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # Push the Snyk Code results into GitHub Code Scanning tab
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        if: always() # Ensure SARIF file upload
+        with:
+          sarif_file: snyk.sarif
+          category: snyk-root
 
   snyk-gemfile:
     name: Gemfile
