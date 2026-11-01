@@ -27,25 +27,61 @@ on:
     - cron: '0 19 * * *'
 
 permissions:
-  contents: read
+  contents: read # for actions/checkout to fetch code
+  security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
 
 jobs:
-  snyk:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+  snyk-gradle:
+    name: Gradle (${{ matrix.path }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path:
+          - .
+          - build-logic
+          - app
+          - app/konsist
+          - IAN
+          - IAN/annotations
+          - IAN/annotations/konsist
+          - IAN/enums
+          - IAN/enums/konsist
+          - IAN/grid
+          - IAN/listener
+          - IAN/listener/konsist
+          - IAN/packets
+          - IAN/packets/konsist
+          - IAN/processor
+          - IAN/udp
+          - IAN/udp/konsist
+          - IAN/util
+          - IAN/util/konsist
+          - IAN/vesseldata
+          - IAN/vesseldata/konsist
+          - IAN/world
+          - IAN/world/konsist
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.path }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      - name: Generate Snyk category
+        id: get-category
+        if: ${{ matrix.path != '.' }}
+        uses: mad9000/actions-find-and-replace-string@789e104bfa5a1e90579e74de187e696450611aa2 # 6
+        with:
+          source: ${{ matrix.path }}
+          find: '/'
+          replace: '-'
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
-        continue-on-error: true # To make sure that SARIF upload gets called
         with:
-          args: --all-projects --sarif-file-output=snyk.sarif
+          args: --file=${{ matrix.path }}/build.gradle.kts --sarif-file-output=snyk.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -53,12 +89,50 @@ jobs:
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         with:
           command: monitor
-          args: --all-projects
+          args: --file=${{ matrix.path }}/build.gradle.kts
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-        # Push the Snyk Code results into GitHub Code Scanning tab
+      # Push the Snyk Code results into GitHub Code Scanning tab
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        if: always() # Ensure SARIF file upload
         with:
           sarif_file: snyk.sarif
+          category: snyk-${{ steps.get-category.outputs.value || 'root' }}
+
+
+  snyk-gemfile:
+    name: Gemfile
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/ruby@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        with:
+          args: --file=Gemfile --sarif-file-output=snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor
+        uses: snyk/actions/ruby@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        with:
+          command: monitor
+          args: --file=Gemfile
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # Push the Snyk Code results into GitHub Code Scanning tab
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        if: always() # Ensure SARIF file upload
+        with:
+          sarif_file: snyk.sarif
+          category: snyk-gemfile
