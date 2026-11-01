@@ -106,7 +106,7 @@ jobs:
     name: Gradle (root)
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-root-gradle
       cancel-in-progress: true
     steps:
       - name: Checkout repository
@@ -142,7 +142,7 @@ jobs:
     name: Gemfile
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-gemfile
       cancel-in-progress: true
     steps:
       - name: Checkout repository
