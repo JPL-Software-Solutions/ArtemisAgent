@@ -21,3 +21,11 @@ tasks.withType<KotlinCompile>().configureEach {
         javaParameters = true
     }
 }
+
+dependencies {
+    constraints {
+        detekt(libs.kotlin.stdlib) {
+            because("Detekt CLI uses outdated, deprecated Kotlin version")
+        }
+    }
+}

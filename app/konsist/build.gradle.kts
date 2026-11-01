@@ -56,6 +56,9 @@ dependencies {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }
         androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
+        detekt(libs.kotlin.stdlib) {
+            because("Detekt CLI uses outdated, deprecated Kotlin version")
+        }
     }
 }
 
