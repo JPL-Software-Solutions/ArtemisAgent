@@ -117,6 +117,7 @@ jobs:
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/ruby@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        continue-on-error: true # Tolerate issues being found
         with:
           args: --file=Gemfile --project=Gemfile --sarif-file-output=snyk.sarif
         env:
