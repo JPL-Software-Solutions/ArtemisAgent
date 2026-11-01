@@ -59,6 +59,14 @@ allprojects {
         maxWidth.set(100)
         trailingCommaManagementStrategy.set(TrailingCommaManagementStrategy.ONLY_ADD)
     }
+
+    dependencies {
+        constraints {
+            add("ktfmt", rootProject.libs.guava) {
+                because("Version 33.7.2-android patches a high-level security vulnerability")
+            }
+        }
+    }
 }
 
 tasks.detekt { jvmTarget = javaVersion.toString() }
