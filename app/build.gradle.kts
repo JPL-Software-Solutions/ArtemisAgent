@@ -168,28 +168,39 @@ dependencies {
         implementation(libs.core.ktx) {
             because("Needed to resolve Dependency Analysis issues with AndroidX Core 1.19.0")
         }
-        implementation(libs.guava) {
-            because("Version 33.7.2-android patches a high-level security vulnerability")
-        }
-        androidTestImplementation(libs.jsoup) {
-            because("Version 1.23.2 patches a high-level security vulnerability")
-        }
+
         androidTestImplementation(libs.accessibility.test.framework) {
             because("Needed to resolve static method registerDefaultInstance")
+        }
+
+        androidTestImplementation(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
+        androidLintTool(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
+
+        androidLintTool(libs.bouncycastle) {
+            because("Version 1.84 patches five moderate security vulnerabilities")
+        }
+
+        androidLintTool(libs.commons.lang3) {
+            because("Version 3.18 fixes an uncontrolled recursion error")
+        }
+
+        implementation(libs.guava) {
+            because("Version 33.7.2-android patches a high-level security vulnerability")
         }
         androidLintTool(libs.guava) {
             because("Version 33.7.2-android patches a high-level security vulnerability")
         }
-        androidLintTool(libs.bouncycastle) {
-            because("Version 1.84 patches five moderate security vulnerabilities")
-        }
-        androidLintTool(libs.commons.lang3) {
-            because("Version 3.18 fixes an uncontrolled recursion error")
-        }
+
         androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
-        androidLintTool(libs.asm) {
-            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+
+        androidTestImplementation(libs.jsoup) {
+            because("Version 1.23.2 patches a high-level security vulnerability")
         }
+
         detekt(libs.kotlin.stdlib) {
             because("Detekt CLI uses outdated, deprecated Kotlin version")
         }

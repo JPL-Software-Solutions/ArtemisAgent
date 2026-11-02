@@ -46,6 +46,9 @@ dependencies {
         runtimeOnly(libs.bouncycastle) {
             because("Version 1.84 patches five moderate security vulnerabilities")
         }
+        runtimeOnly(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
         detekt(libs.kotlin.stdlib) {
             because("Detekt CLI uses outdated, deprecated Kotlin version")
         }

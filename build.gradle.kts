@@ -23,6 +23,9 @@ buildscript {
             classpath(libs.bouncycastle) {
                 because("Version 1.84 patches five moderate security vulnerabilities")
             }
+            classpath(libs.asm) {
+                because("Version 9.11.1 patches four medium-level security vulnerabilities")
+            }
         }
 
         // NOTE: Do not place your application dependencies here; they belong
