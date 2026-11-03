@@ -94,3 +94,5 @@ This app uses [IAN](http://github.com/rjwut/ian) (Interface for Artemis Networki
 Walker. It has been adapted for various purposes, including backwards compatibility with Artemis
 2.3.0 and later. The 3D modeling features have been removed as they are not needed and are not
 compatible with Android.
+
+Protected by [Snyk](https://snyk.io).
