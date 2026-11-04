@@ -219,6 +219,8 @@ detekt {
     ignoredVariants = listOf(release)
 }
 
+kover.currentProject.instrumentation.includedClasses.add("artemis.agent.*")
+
 protobuf {
     protoc { artifact = libs.protoc.get().toString() }
 
