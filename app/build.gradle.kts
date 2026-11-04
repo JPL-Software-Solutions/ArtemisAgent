@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("com.android.application")
     kotlin("plugin.serialization")
+    alias(libs.plugins.javaagent)
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.firebase.perf)
@@ -154,6 +155,7 @@ dependencies {
     testImplementation(libs.bundles.app.test)
     testDebugImplementation(libs.bundles.app.test.debug)
     testRuntimeOnly(libs.bundles.app.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 
     androidTestImplementation(libs.bundles.app.androidTest) {
         exclude(group = "org.hamcrest", module = "hamcrest-core")
