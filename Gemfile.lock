@@ -68,9 +68,10 @@ GEM
       faraday (>= 0.8)
     faraday-net_http (3.5.0)
       net-http (~> 0.5)
-    git (5.7.1)
-      activesupport (>= 5.0)
-      addressable (~> 2.8)
+    git (6.0.0)
+      activesupport (>= 7.0.9)
+      addressable (~> 2.9)
+      logger (~> 1.6)
       process_executer (~> 4.1)
       rchardet (~> 1.9)
     i18n (1.15.2)
@@ -157,7 +158,7 @@ DEPENDENCIES
   danger-detekt-instacart
   danger-lgtm
   danger-rubocop
-  git (< 6.0.0)
+  git (< 6.0.1)
   rubocop
 
 CHECKSUMS
@@ -185,7 +186,7 @@ CHECKSUMS
   faraday (2.15.1) sha256=8708154deda739c5e86cc42b74960e23e8491fce0eba9e11639a6a34b1ac288f
   faraday-http-cache (2.8.0) sha256=310bfdbc79488aaab4578e91bd04badfe154ca3d88fc06bfc98e36d42c2dd969
   faraday-net_http (3.5.0) sha256=2e7094c34e38754ee048cc3df47376f8657005d9375f8473bce1c3b526a22e36
-  git (5.7.1) sha256=fd122920cd611325e8309dd939f2ebb89f5c9d4d83ab423ace04545db136e7f1
+  git (6.0.0) sha256=f5e8d15b4af7fcf28f9f8aeeeb858f9681eba90c1f2dc68d9f01f3192fb3d514
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   json (3.1.0) sha256=3ce7ccf8fde58960177a3a756c31f292a4c1e1dedee884547096a5b0604e3bd8
   kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
