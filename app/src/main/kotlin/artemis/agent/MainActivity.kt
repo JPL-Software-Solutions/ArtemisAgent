@@ -861,7 +861,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun getDisconnectDialogContents(cause: DisconnectCause): Pair<String, Boolean>? {
         val crashlytics = Firebase.crashlytics
         return when (cause) {
