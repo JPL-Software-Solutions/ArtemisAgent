@@ -291,7 +291,6 @@ class PacketReader(
     /** Returns true if the current [BitField] has the indicated bit turned on. */
     fun has(bitIndex: Int): Boolean = bitField?.get(bitIndex) ?: false
 
-    @OptIn(ExperimentalStdlibApi::class)
     private suspend fun readHeaderAndLength(): Int {
         val header = channel.readInt().reverseByteOrder()
         if (header != Packet.HEADER) {

@@ -1,7 +1,6 @@
 package com.walkertribe.ian.util
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -19,7 +18,6 @@ import io.kotest.property.checkAll
 import io.ktor.utils.io.core.buildPacket
 import kotlin.time.Duration.Companion.minutes
 
-@OptIn(ExperimentalKotest::class)
 class BitFieldTest :
     DescribeSpec({
         describe("BitField").config(timeout = 12.minutes) {
