@@ -222,7 +222,7 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
                         }
                     }
                 }
-            }
+            },
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

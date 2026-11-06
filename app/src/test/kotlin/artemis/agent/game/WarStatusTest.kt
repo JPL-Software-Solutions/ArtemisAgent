@@ -6,17 +6,20 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.equals.shouldBeEqual
 
 class WarStatusTest :
-    DescribeSpec({
-        describe("WarStatus") {
-            val colors = listOf(R.color.connected, R.color.heartbeatLost, R.color.failedToConnect)
+    DescribeSpec(
+        {
+            describe("WarStatus") {
+                val colors =
+                    listOf(R.color.connected, R.color.heartbeatLost, R.color.failedToConnect)
 
-            withData(
-                nameFn = { (status) ->
-                    status.name.lowercase().replaceFirstChar { it.uppercase() }
-                },
-                WarStatus.entries.zip(colors),
-            ) { (status, color) ->
-                status.backgroundColor shouldBeEqual color
+                withData(
+                    nameFn = { (status) ->
+                        status.name.lowercase().replaceFirstChar { it.uppercase() }
+                    },
+                    WarStatus.entries.zip(colors),
+                ) { (status, color) ->
+                    status.backgroundColor shouldBeEqual color
+                }
             }
-        }
-    })
+        },
+    )

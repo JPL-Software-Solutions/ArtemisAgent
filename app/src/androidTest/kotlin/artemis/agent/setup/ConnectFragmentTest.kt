@@ -114,7 +114,7 @@ class ConnectFragmentTest : TestCase() {
         run {
             mainScreenTest(false) {
                 scenario(
-                    ConnectScenario(FAKE_SERVER_IP, activityScenarioRule.scenario, check = null)
+                    ConnectScenario(FAKE_SERVER_IP, activityScenarioRule.scenario, check = null),
                 )
 
                 step("Advance to Ships page") {
@@ -156,7 +156,7 @@ class ConnectFragmentTest : TestCase() {
                         activityScenarioRule.scenario,
                         shouldCheckConnection = false,
                         check = null,
-                    )
+                    ),
                 )
 
                 ConnectPageScreen {
@@ -177,7 +177,7 @@ class ConnectFragmentTest : TestCase() {
                 step("Fetch showing network info setting") {
                     activityScenarioRule.scenario.onActivity { activity ->
                         showingInfo.lazySet(
-                            activity.viewModels<AgentViewModel>().value.showingNetworkInfo
+                            activity.viewModels<AgentViewModel>().value.showingNetworkInfo,
                         )
                     }
                 }

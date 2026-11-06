@@ -18,7 +18,7 @@ data class CompositeListenerModule(
     }
 
     constructor(
-        allListeners: List<ListenerFunction<out ListenerArgument>>
+        allListeners: List<ListenerFunction<out ListenerArgument>>,
     ) : this(
         connectionEventListeners =
             allListeners.mapNotNull { it.checkIfAccepting(ConnectionEvent::class) },

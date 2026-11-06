@@ -17,44 +17,46 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 
 class KonnectionInitializerTest :
-    DescribeSpec({
-        describe("KonnectionInitializer") {
-            val initializer = KonnectionInitializer()
+    DescribeSpec(
+        {
+            describe("KonnectionInitializer") {
+                val initializer = KonnectionInitializer()
 
-            val mockContext = mockk<Context>()
-            val contextSlot = slot<Context>()
-            val debugLogSlot = slot<Boolean>()
-            val ipResolversSlot = slot<List<IpResolver>>()
+                val mockContext = mockk<Context>()
+                val contextSlot = slot<Context>()
+                val debugLogSlot = slot<Boolean>()
+                val ipResolversSlot = slot<List<IpResolver>>()
 
-            mockkObject(Konnection.Companion)
-            every {
-                Konnection.createInstance(
-                    capture(contextSlot),
-                    capture(debugLogSlot),
-                    capture(ipResolversSlot),
-                )
-            } returns mockk()
+                mockkObject(Konnection.Companion)
+                every {
+                    Konnection.createInstance(
+                        capture(contextSlot),
+                        capture(debugLogSlot),
+                        capture(ipResolversSlot),
+                    )
+                } returns mockk()
 
-            afterSpec {
-                clearAllMocks()
-                unmockkAll()
-            }
-
-            describe("Create") {
-                val konnection by lazy { initializer.create(mockContext) }
-
-                it("Returns Konnection instance") {
-                    konnection.shouldBeInstanceOf<Konnection>()
-                    verify(exactly = 1) { Konnection.createInstance(any(), any(), any()) }
+                afterSpec {
+                    clearAllMocks()
+                    unmockkAll()
                 }
 
-                it("Uses context argument") { contextSlot.captured shouldBe mockContext }
+                describe("Create") {
+                    val konnection by lazy { initializer.create(mockContext) }
 
-                it("Debug logging enabled") { debugLogSlot.captured.shouldBeTrue() }
+                    it("Returns Konnection instance") {
+                        konnection.shouldBeInstanceOf<Konnection>()
+                        verify(exactly = 1) { Konnection.createInstance(any(), any(), any()) }
+                    }
 
-                it("No IP resolvers") { ipResolversSlot.captured.shouldBeEmpty() }
+                    it("Uses context argument") { contextSlot.captured shouldBe mockContext }
+
+                    it("Debug logging enabled") { debugLogSlot.captured.shouldBeTrue() }
+
+                    it("No IP resolvers") { ipResolversSlot.captured.shouldBeEmpty() }
+                }
+
+                it("No dependencies") { initializer.dependencies().shouldBeEmpty() }
             }
-
-            it("No dependencies") { initializer.dependencies().shouldBeEmpty() }
-        }
-    })
+        },
+    )

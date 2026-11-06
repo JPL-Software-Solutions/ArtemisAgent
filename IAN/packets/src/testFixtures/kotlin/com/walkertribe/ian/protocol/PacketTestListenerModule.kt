@@ -24,7 +24,7 @@ object PacketTestListenerModule : PacketListenerModule {
         objects.add(
             withClue({ "onArtemisObject cannot accept a ${arg::class}" }) {
                 arg.shouldBeInstanceOf<ArtemisObject<*>>()
-            }
+            },
         )
     }
 }

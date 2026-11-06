@@ -65,7 +65,7 @@ private constructor(
                     genE = Arb.int(),
                 ) { id, bayNumber, name, className, refitTime ->
                     Bay(id, bayNumber, name, className, refitTime)
-                }
+                },
             ),
         ) { version, bays ->
             Data(version, shouldWriteBayNumber, bays)

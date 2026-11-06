@@ -30,7 +30,7 @@ data class RouteEntry(val objEntry: ObjectEntry<*>) {
                     viewModel.routeIncentives.mapNotNull {
                         if (it.matches(objEntry)) context.getString(it.getTextFor(objEntry))
                         else null
-                    }
+                    },
                 )
             }
 
@@ -43,7 +43,7 @@ data class RouteEntry(val objEntry: ObjectEntry<*>) {
                                 R.plurals.side_missions,
                                 missions,
                                 missions,
-                            )
+                            ),
                         )
                     }
             }

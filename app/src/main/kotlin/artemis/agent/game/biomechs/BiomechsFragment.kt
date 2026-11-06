@@ -96,7 +96,7 @@ class BiomechsFragment : Fragment(R.layout.biomechs_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BiomechViewHolder =
             BiomechViewHolder(
-                BiomechEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                BiomechEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: BiomechViewHolder, position: Int) {

@@ -115,593 +115,534 @@ import kotlinx.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ArtemisNetworkInterfaceTest :
-    DescribeSpec({
-        failfast = true
+    DescribeSpec(
+        {
+            failfast = true
 
-        beforeTest { TestListener.clear() }
+            beforeTest { TestListener.clear() }
 
-        afterSpec {
-            TestListener.clear()
-            clearAllMocks()
-            unmockkAll()
-        }
+            afterSpec {
+                TestListener.clear()
+                clearAllMocks()
+                unmockkAll()
+            }
 
-        describe("ArtemisNetworkInterface") {
-            val loopbackAddress = "127.0.0.1"
-            val port = 2010
-            val testTimeout = 1.minutes
-            val connectionTimeout = 2.seconds
-            val client =
-                KtorArtemisNetworkInterface(maxVersion = Version.DEFAULT).apply {
-                    addListenerModule(TestListener.module)
-                    setAutoSendHeartbeat(false)
-                }
-            val debugClient =
-                KtorArtemisNetworkInterface(maxVersion = null).apply {
-                    addListenerModule(TestListener.module)
-                    setAutoSendHeartbeat(false)
-                }
-            val testDispatcher = UnconfinedTestDispatcher()
-
-            SelectorManager(testDispatcher).use { selector ->
-                aSocket(selector).tcp().bind(loopbackAddress, port).use { server ->
-                    lateinit var socket: Socket
-
-                    it("Can connect") {
-                        eventually(5.seconds) {
-                            val connectDeferred =
-                                async(testDispatcher) {
-                                    client.connect(
-                                        host = loopbackAddress,
-                                        port = port,
-                                        timeout = connectionTimeout,
-                                    )
-                                }
-
-                            socket = server.accept()
-                            connectDeferred.await().shouldBeTrue()
-                            client.startTime.shouldBeNull()
-                        }
+            describe("ArtemisNetworkInterface") {
+                val loopbackAddress = "127.0.0.1"
+                val port = 2010
+                val testTimeout = 1.minutes
+                val connectionTimeout = 2.seconds
+                val client =
+                    KtorArtemisNetworkInterface(maxVersion = Version.DEFAULT).apply {
+                        addListenerModule(TestListener.module)
+                        setAutoSendHeartbeat(false)
                     }
-
-                    it("Cannot stop before starting") { shouldNotThrowAnyUnit { client.stop() } }
-
-                    it("Can start") {
-                        client.start()
-                        client.startTime.shouldNotBeNull()
+                val debugClient =
+                    KtorArtemisNetworkInterface(maxVersion = null).apply {
+                        addListenerModule(TestListener.module)
+                        setAutoSendHeartbeat(false)
                     }
+                val testDispatcher = UnconfinedTestDispatcher()
 
-                    it("Cannot start a second time") {
-                        val startTime = client.startTime.shouldNotBeNull()
-                        client.start()
-                        client.startTime.shouldNotBeNull() shouldBeEqual startTime
-                    }
+                SelectorManager(testDispatcher).use { selector ->
+                    aSocket(selector).tcp().bind(loopbackAddress, port).use { server ->
+                        lateinit var socket: Socket
 
-                    it("Can reconnect") {
-                        eventually(5.seconds) {
-                            val connectDeferred =
-                                async(testDispatcher) {
-                                    client.connect(
-                                        host = loopbackAddress,
-                                        port = port,
-                                        timeout = connectionTimeout,
-                                    )
-                                }
-
-                            socket = server.accept()
-                            connectDeferred.await().shouldBeTrue()
-                            client.startTime.shouldBeNull()
-                            client.start()
-                        }
-                    }
-
-                    val sendChannel = socket.openWriteChannel()
-                    val readChannel = socket.openReadChannel()
-
-                    suspend fun PacketTestFixture.Server<*>.testClient(
-                        packetClass: KClass<out Packet.Server>,
-                        shouldSendVersionPacket: Boolean,
-                    ) {
-                        TestListener.clear()
-                        var packetCount = 0
-
-                        generator.checkAll { data ->
-                            if (shouldSendVersionPacket) {
-                                val version = minOf(Version.DEFAULT, data.version)
-                                val versionData = VersionPacketFixture.Data(0, 0f, version)
-                                sendChannel.writePacketWithHeader(
-                                    TestPacketTypes.CONNECTED,
-                                    versionData.buildPayload(),
-                                )
-                            }
-
-                            sendChannel.writePacketWithHeader(packetType, data.buildPayload())
-                            packetCount++
-                        }
-
-                        eventually(testTimeout) {
-                            TestListener.calls(packetClass) shouldHaveSize packetCount
-                        }
-                    }
-
-                    suspend fun PacketTestFixture.Client<*>.testRead(
-                        data: PacketTestData.Client<*>
-                    ) {
-                        data.validate(readPacket(readChannel), expectedPayloadSize, packetType)
-                    }
-
-                    suspend fun PacketTestFixture.Client<*>.testClient() {
-                        generator.checkAll { data ->
-                            eventually(
-                                eventuallyConfig {
-                                    duration = 5.minutes
-                                    expectedExceptions = setOf(TimeoutCancellationException::class)
-                                    includeFirst = false
-                                }
-                            ) {
-                                withTimeout(5.seconds) {
-                                    readChannel.readByteArray(readChannel.availableForRead)
-                                    client.sendPacket(data.packet)
-                                    testRead(data)
-                                }
-                            }
-                        }
-                    }
-
-                    describe("Can receive packets from server") {
-                        val clientArbVersion =
-                            Arb.choose(999 to Arb.version(2, 3..7), 1 to Arb.version(2, 8, 0..1))
-
-                        arrayOf(
-                                Triple(
-                                    "WelcomePacket",
-                                    WelcomePacket::class,
-                                    listOf(WelcomePacketFixture),
-                                ),
-                                Triple(
-                                    "VersionPacket",
-                                    VersionPacket::class,
-                                    listOf(VersionPacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "BiomechRagePacket",
-                                    BiomechRagePacket::class,
-                                    listOf(BiomechRagePacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "DockedPacket",
-                                    DockedPacket::class,
-                                    listOf(DockedPacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "EndGamePacket",
-                                    EndGamePacket::class,
-                                    listOf(EndGamePacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "GameOverReasonPacket",
-                                    GameOverReasonPacket::class,
-                                    listOf(GameOverReasonPacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "HeartbeatPacket.Server",
-                                    HeartbeatPacket.Server::class,
-                                    listOf(HeartbeatPacketFixture.Server(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "JumpEndPacket",
-                                    JumpEndPacket::class,
-                                    listOf(JumpEndPacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "PlayerShipDamagePacket",
-                                    PlayerShipDamagePacket::class,
-                                    listOf(PlayerShipDamagePacketFixture(clientArbVersion)),
-                                ),
-                                Triple(
-                                    "AllShipSettingsPacket",
-                                    AllShipSettingsPacket::class,
-                                    AllShipSettingsPacketFixture.ALL,
-                                ),
-                                Triple(
-                                    "BayStatusPacket",
-                                    BayStatusPacket::class,
-                                    BayStatusPacketFixture.ALL,
-                                ),
-                                Triple(
-                                    "CommsButtonPacket",
-                                    CommsButtonPacket::class,
-                                    CommsButtonPacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "CommsIncomingPacket",
-                                    CommsIncomingPacket::class,
-                                    CommsIncomingPacketFixture.ALL,
-                                ),
-                                Triple(
-                                    "DeleteObjectPacket",
-                                    DeleteObjectPacket::class,
-                                    DeleteObjectPacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "GameStartPacket",
-                                    GameStartPacket::class,
-                                    GameStartPacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "GridUpdatePacket",
-                                    GridUpdatePacket::class,
-                                    GridUpdatePacketFixture.ALL,
-                                ),
-                                Triple(
-                                    "IncomingAudioPacket",
-                                    IncomingAudioPacket::class,
-                                    IncomingAudioPacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "IntelPacket",
-                                    IntelPacket::class,
-                                    IntelPacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "PausePacket",
-                                    PausePacket::class,
-                                    PausePacketFixture.allFixtures(clientArbVersion),
-                                ),
-                                Triple(
-                                    "ObjectUpdatePacket",
-                                    ObjectUpdatePacket::class,
-                                    ObjectUpdatePacketFixture.ALL,
-                                ),
-                            )
-                            .forEachIndexed { index, (specName, packetClass, fixtures) ->
-                                val addVersion = index > 1
-
-                                if (
-                                    fixtures.size == 1 ||
-                                        (fixtures[0].groupName.isBlank() &&
-                                            fixtures[0].specName.isBlank())
-                                ) {
-                                    it(specName) {
-                                        fixtures.forEach { it.testClient(packetClass, addVersion) }
+                        it("Can connect") {
+                            eventually(5.seconds) {
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        client.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = connectionTimeout,
+                                        )
                                     }
-                                } else {
-                                    describe(specName) {
-                                        fixtures
-                                            .groupBy { fixture ->
-                                                fixture.groupName.takeIf { it.isNotBlank() }
-                                                    ?: fixture.specName
+
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                client.startTime.shouldBeNull()
+                            }
+                        }
+
+                        it("Cannot stop before starting") {
+                            shouldNotThrowAnyUnit { client.stop() }
+                        }
+
+                        it("Can start") {
+                            client.start()
+                            client.startTime.shouldNotBeNull()
+                        }
+
+                        it("Cannot start a second time") {
+                            val startTime = client.startTime.shouldNotBeNull()
+                            client.start()
+                            client.startTime.shouldNotBeNull() shouldBeEqual startTime
+                        }
+
+                        it("Can reconnect") {
+                            eventually(5.seconds) {
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        client.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = connectionTimeout,
+                                        )
+                                    }
+
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                client.startTime.shouldBeNull()
+                                client.start()
+                            }
+                        }
+
+                        val sendChannel = socket.openWriteChannel()
+                        val readChannel = socket.openReadChannel()
+
+                        suspend fun PacketTestFixture.Server<*>.testClient(
+                            packetClass: KClass<out Packet.Server>,
+                            shouldSendVersionPacket: Boolean,
+                        ) {
+                            TestListener.clear()
+                            var packetCount = 0
+
+                            generator.checkAll { data ->
+                                if (shouldSendVersionPacket) {
+                                    val version = minOf(Version.DEFAULT, data.version)
+                                    val versionData = VersionPacketFixture.Data(0, 0f, version)
+                                    sendChannel.writePacketWithHeader(
+                                        TestPacketTypes.CONNECTED,
+                                        versionData.buildPayload(),
+                                    )
+                                }
+
+                                sendChannel.writePacketWithHeader(packetType, data.buildPayload())
+                                packetCount++
+                            }
+
+                            eventually(testTimeout) {
+                                TestListener.calls(packetClass) shouldHaveSize packetCount
+                            }
+                        }
+
+                        suspend fun PacketTestFixture.Client<*>.testRead(
+                            data: PacketTestData.Client<*>,
+                        ) {
+                            data.validate(readPacket(readChannel), expectedPayloadSize, packetType)
+                        }
+
+                        suspend fun PacketTestFixture.Client<*>.testClient() {
+                            generator.checkAll { data ->
+                                eventually(
+                                    eventuallyConfig {
+                                        duration = 5.minutes
+                                        expectedExceptions =
+                                            setOf(TimeoutCancellationException::class)
+                                        includeFirst = false
+                                    },
+                                ) {
+                                    withTimeout(5.seconds) {
+                                        readChannel.readByteArray(readChannel.availableForRead)
+                                        client.sendPacket(data.packet)
+                                        testRead(data)
+                                    }
+                                }
+                            }
+                        }
+
+                        describe("Can receive packets from server") {
+                            val clientArbVersion =
+                                Arb.choose(
+                                    999 to Arb.version(2, 3..7),
+                                    1 to Arb.version(2, 8, 0..1),
+                                )
+
+                            arrayOf(
+                                    Triple(
+                                        "WelcomePacket",
+                                        WelcomePacket::class,
+                                        listOf(WelcomePacketFixture),
+                                    ),
+                                    Triple(
+                                        "VersionPacket",
+                                        VersionPacket::class,
+                                        listOf(VersionPacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "BiomechRagePacket",
+                                        BiomechRagePacket::class,
+                                        listOf(BiomechRagePacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "DockedPacket",
+                                        DockedPacket::class,
+                                        listOf(DockedPacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "EndGamePacket",
+                                        EndGamePacket::class,
+                                        listOf(EndGamePacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "GameOverReasonPacket",
+                                        GameOverReasonPacket::class,
+                                        listOf(GameOverReasonPacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "HeartbeatPacket.Server",
+                                        HeartbeatPacket.Server::class,
+                                        listOf(HeartbeatPacketFixture.Server(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "JumpEndPacket",
+                                        JumpEndPacket::class,
+                                        listOf(JumpEndPacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "PlayerShipDamagePacket",
+                                        PlayerShipDamagePacket::class,
+                                        listOf(PlayerShipDamagePacketFixture(clientArbVersion)),
+                                    ),
+                                    Triple(
+                                        "AllShipSettingsPacket",
+                                        AllShipSettingsPacket::class,
+                                        AllShipSettingsPacketFixture.ALL,
+                                    ),
+                                    Triple(
+                                        "BayStatusPacket",
+                                        BayStatusPacket::class,
+                                        BayStatusPacketFixture.ALL,
+                                    ),
+                                    Triple(
+                                        "CommsButtonPacket",
+                                        CommsButtonPacket::class,
+                                        CommsButtonPacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "CommsIncomingPacket",
+                                        CommsIncomingPacket::class,
+                                        CommsIncomingPacketFixture.ALL,
+                                    ),
+                                    Triple(
+                                        "DeleteObjectPacket",
+                                        DeleteObjectPacket::class,
+                                        DeleteObjectPacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "GameStartPacket",
+                                        GameStartPacket::class,
+                                        GameStartPacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "GridUpdatePacket",
+                                        GridUpdatePacket::class,
+                                        GridUpdatePacketFixture.ALL,
+                                    ),
+                                    Triple(
+                                        "IncomingAudioPacket",
+                                        IncomingAudioPacket::class,
+                                        IncomingAudioPacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "IntelPacket",
+                                        IntelPacket::class,
+                                        IntelPacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "PausePacket",
+                                        PausePacket::class,
+                                        PausePacketFixture.allFixtures(clientArbVersion),
+                                    ),
+                                    Triple(
+                                        "ObjectUpdatePacket",
+                                        ObjectUpdatePacket::class,
+                                        ObjectUpdatePacketFixture.ALL,
+                                    ),
+                                )
+                                .forEachIndexed { index, (specName, packetClass, fixtures) ->
+                                    val addVersion = index > 1
+
+                                    if (
+                                        fixtures.size == 1 ||
+                                            (fixtures[0].groupName.isBlank() &&
+                                                fixtures[0].specName.isBlank())
+                                    ) {
+                                        it(specName) {
+                                            fixtures.forEach {
+                                                it.testClient(packetClass, addVersion)
                                             }
-                                            .forEach { (groupName, list) ->
-                                                it(groupName) {
-                                                    list.forEach {
-                                                        it.testClient(packetClass, addVersion)
+                                        }
+                                    } else {
+                                        describe(specName) {
+                                            fixtures
+                                                .groupBy { fixture ->
+                                                    fixture.groupName.takeIf { it.isNotBlank() }
+                                                        ?: fixture.specName
+                                                }
+                                                .forEach { (groupName, list) ->
+                                                    it(groupName) {
+                                                        list.forEach {
+                                                            it.testClient(packetClass, addVersion)
+                                                        }
                                                     }
                                                 }
-                                            }
+                                        }
+                                    }
+                                }
+                        }
+
+                        describe("Can send packets from client") {
+                            withData(
+                                nameFn = { it.first },
+                                "ActivateUpgradePacket" to ActivateUpgradePacketFixture.ALL,
+                                "AudioCommandPacket" to AudioCommandPacketFixture.ALL,
+                                "ButtonClickPacket" to ButtonClickPacketFixture.ALL,
+                                "CommsOutgoingPacket" to CommsOutgoingPacketFixture.ALL,
+                                "HeartbeatPacket.Client" to listOf(HeartbeatPacketFixture.Client),
+                                "ReadyPacket" to listOf(ReadyPacketFixture),
+                                "SetConsolePacket" to SetConsolePacketFixture.ALL,
+                                "SetShipPacket" to SetShipPacketFixture.ALL,
+                                "ToggleRedAlertPacket" to listOf(ToggleRedAlertPacketFixture),
+                            ) { (_, fixtures) ->
+                                if (fixtures.size == 1) {
+                                    fixtures[0].testClient()
+                                } else {
+                                    withData(nameFn = { it.specName }, fixtures) { fixture ->
+                                        fixture.testClient()
                                     }
                                 }
                             }
-                    }
-
-                    describe("Can send packets from client") {
-                        withData(
-                            nameFn = { it.first },
-                            "ActivateUpgradePacket" to ActivateUpgradePacketFixture.ALL,
-                            "AudioCommandPacket" to AudioCommandPacketFixture.ALL,
-                            "ButtonClickPacket" to ButtonClickPacketFixture.ALL,
-                            "CommsOutgoingPacket" to CommsOutgoingPacketFixture.ALL,
-                            "HeartbeatPacket.Client" to listOf(HeartbeatPacketFixture.Client),
-                            "ReadyPacket" to listOf(ReadyPacketFixture),
-                            "SetConsolePacket" to SetConsolePacketFixture.ALL,
-                            "SetShipPacket" to SetShipPacketFixture.ALL,
-                            "ToggleRedAlertPacket" to listOf(ToggleRedAlertPacketFixture),
-                        ) { (_, fixtures) ->
-                            if (fixtures.size == 1) {
-                                fixtures[0].testClient()
-                            } else {
-                                withData(nameFn = { it.specName }, fixtures) { fixture ->
-                                    fixture.testClient()
-                                }
-                            }
                         }
-                    }
 
-                    it("Can lose heartbeat") {
-                        TestListener.clear()
-                        val gameStartData =
-                            GameStartPacketFixture.Data(client.version, GameType.SIEGE, 0)
-                        sendChannel.writePacketWithHeader(
-                            TestPacketTypes.START_GAME,
-                            gameStartData.buildPayload(),
-                        )
-
-                        client.setTimeout(1.milliseconds)
-                        eventually(2.seconds) {
-                            TestListener.calls<ConnectionEvent.HeartbeatLost>().shouldBeSingleton()
-                        }
-                    }
-
-                    it("Can regain heartbeat") {
-                        client.setTimeout(1.seconds)
-                        retry(3, 15.seconds) {
+                        it("Can lose heartbeat") {
                             TestListener.clear()
+                            val gameStartData =
+                                GameStartPacketFixture.Data(client.version, GameType.SIEGE, 0)
                             sendChannel.writePacketWithHeader(
-                                TestPacketTypes.HEARTBEAT,
-                                HeartbeatPacketFixture.Server.Data(client.version).buildPayload(),
+                                TestPacketTypes.START_GAME,
+                                gameStartData.buildPayload(),
                             )
 
-                            eventually(5.seconds) {
-                                TestListener.calls<ConnectionEvent.HeartbeatRegained>()
+                            client.setTimeout(1.milliseconds)
+                            eventually(2.seconds) {
+                                TestListener.calls<ConnectionEvent.HeartbeatLost>()
                                     .shouldBeSingleton()
                             }
                         }
-                        client.setTimeout(15.seconds)
-                    }
 
-                    it("Sends heartbeats intermittently") {
-                        client.setAutoSendHeartbeat(true)
+                        it("Can regain heartbeat") {
+                            client.setTimeout(1.seconds)
+                            retry(3, 15.seconds) {
+                                TestListener.clear()
+                                sendChannel.writePacketWithHeader(
+                                    TestPacketTypes.HEARTBEAT,
+                                    HeartbeatPacketFixture.Server.Data(client.version)
+                                        .buildPayload(),
+                                )
 
-                        repeat(3) {
-                            eventually(60.seconds) {
-                                withTimeout(10.seconds) {
-                                    HeartbeatPacketFixture.Client.testRead(
-                                        HeartbeatPacketFixture.Client.Data
-                                    )
+                                eventually(5.seconds) {
+                                    TestListener.calls<ConnectionEvent.HeartbeatRegained>()
+                                        .shouldBeSingleton()
+                                }
+                            }
+                            client.setTimeout(15.seconds)
+                        }
+
+                        it("Sends heartbeats intermittently") {
+                            client.setAutoSendHeartbeat(true)
+
+                            repeat(3) {
+                                eventually(60.seconds) {
+                                    withTimeout(10.seconds) {
+                                        HeartbeatPacketFixture.Client.testRead(
+                                            HeartbeatPacketFixture.Client.Data,
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    it("Can stop") {
-                        TestListener.clear()
-                        client.sendJob.cancelAndJoin()
-                        client.parseResultDispatchJob.cancelAndJoin()
-                        client.connectionListenerJob.cancelAndJoin()
-
-                        val mockPacket = mockk<WelcomePacket>()
-
-                        client.sendingChannel.send(HeartbeatPacket.Client)
-                        client.parseResultsChannel.send(
-                            ParseResult.Success(mockPacket, ParseResult.Skip)
-                        )
-                        client.connectionEventChannel.send(ConnectionEvent.Success(""))
-
-                        client.stop()
-
-                        clearMocks(mockPacket)
-                        unmockkAll()
-
-                        eventually(1.seconds) {
-                            TestListener.calls<ConnectionEvent.Disconnect>().shouldBeSingleton {
-                                it.cause.shouldBeInstanceOf<DisconnectCause.LocalDisconnect>()
-                            }
-
-                            TestListener.calls<ConnectionEvent.Success>().shouldBeEmpty()
-                            TestListener.calls<WelcomePacket>().shouldBeEmpty()
-                        }
-                    }
-
-                    it("Sending channel cleared on stop") {
-                        client.sendingChannel.tryReceive().isFailure.shouldBeTrue()
-                    }
-
-                    it("Parse results channel cleared on stop") {
-                        client.parseResultsChannel.tryReceive().isFailure.shouldBeTrue()
-                    }
-
-                    it("Connection events channel cleared on stop") {
-                        client.connectionEventChannel.tryReceive().isFailure.shouldBeTrue()
-                    }
-
-                    readChannel.cancel()
-                    sendChannel.flushAndClose()
-
-                    it("Closes on remote disconnect") {
-                        client.setAutoSendHeartbeat(false)
-
-                        eventually(testTimeout * 5) {
-                            val connectDeferred =
-                                async(testDispatcher) {
-                                    client.connect(
-                                        host = loopbackAddress,
-                                        port = port,
-                                        timeout = connectionTimeout,
-                                    )
-                                }
-
-                            socket = server.accept()
-                            connectDeferred.await().shouldBeTrue()
-                            client.start()
+                        it("Can stop") {
                             TestListener.clear()
+                            client.sendJob.cancelAndJoin()
+                            client.parseResultDispatchJob.cancelAndJoin()
+                            client.connectionListenerJob.cancelAndJoin()
 
-                            socket.dispose()
+                            val mockPacket = mockk<WelcomePacket>()
 
-                            eventually(testTimeout) {
-                                assertSoftly {
-                                    TestListener.calls<ConnectionEvent.Disconnect>()
-                                        .shouldBeSingleton {
-                                            it.cause should
-                                                beInstanceOf<DisconnectCause.RemoteDisconnect>()
-                                        }
+                            client.sendingChannel.send(HeartbeatPacket.Client)
+                            client.parseResultsChannel.send(
+                                ParseResult.Success(mockPacket, ParseResult.Skip),
+                            )
+                            client.connectionEventChannel.send(ConnectionEvent.Success(""))
+
+                            client.stop()
+
+                            clearMocks(mockPacket)
+                            unmockkAll()
+
+                            eventually(1.seconds) {
+                                TestListener.calls<ConnectionEvent.Disconnect>().shouldBeSingleton {
+                                    it.cause.shouldBeInstanceOf<DisconnectCause.LocalDisconnect>()
                                 }
+
+                                TestListener.calls<ConnectionEvent.Success>().shouldBeEmpty()
+                                TestListener.calls<WelcomePacket>().shouldBeEmpty()
                             }
                         }
-                    }
 
-                    it("Closes on read exception") {
-                        eventually(testTimeout) {
-                            val connectDeferred =
-                                async(testDispatcher) {
-                                    client.connect(
-                                        host = loopbackAddress,
-                                        port = port,
-                                        timeout = connectionTimeout,
-                                    )
-                                }
+                        it("Sending channel cleared on stop") {
+                            client.sendingChannel.tryReceive().isFailure.shouldBeTrue()
+                        }
 
-                            socket.dispose()
-                            socket = server.accept()
-                            connectDeferred.await().shouldBeTrue()
-                            client.start()
-                            TestListener.clear()
+                        it("Parse results channel cleared on stop") {
+                            client.parseResultsChannel.tryReceive().isFailure.shouldBeTrue()
+                        }
 
-                            socket.openWriteChannel().use {
-                                writePacketWithHeader(TestPacketTypes.CONNECTED, buildPacket {})
+                        it("Connection events channel cleared on stop") {
+                            client.connectionEventChannel.tryReceive().isFailure.shouldBeTrue()
+                        }
 
-                                eventually(2.seconds) {
+                        readChannel.cancel()
+                        sendChannel.flushAndClose()
+
+                        it("Closes on remote disconnect") {
+                            client.setAutoSendHeartbeat(false)
+
+                            eventually(testTimeout * 5) {
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        client.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = connectionTimeout,
+                                        )
+                                    }
+
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                client.start()
+                                TestListener.clear()
+
+                                socket.dispose()
+
+                                eventually(testTimeout) {
                                     assertSoftly {
                                         TestListener.calls<ConnectionEvent.Disconnect>()
                                             .shouldBeSingleton {
                                                 it.cause should
-                                                    beInstanceOf<DisconnectCause.PacketParseError>()
+                                                    beInstanceOf<DisconnectCause.RemoteDisconnect>()
                                             }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    withData<Triple<String, Throwable, (DisconnectCause) -> Unit>>(
-                        nameFn = { "Closes on ${it.first} error" },
-                        Triple("write", IOException()) { cause: DisconnectCause ->
-                            cause.shouldBeInstanceOf<DisconnectCause.IOError>()
-                        },
-                        Triple("unknown", RuntimeException()) { cause: DisconnectCause ->
-                            cause.shouldBeInstanceOf<DisconnectCause.UnknownError>()
-                        },
-                    ) { (_, exception, testCause) ->
-                        val mockPacket =
-                            mockk<Packet.Client> { every { writeTo(any()) } throws exception }
-
-                        eventually(testTimeout) {
-                            val connectDeferred =
-                                async(testDispatcher) {
-                                    client.connect(
-                                        host = loopbackAddress,
-                                        port = port,
-                                        timeout = 1.seconds,
-                                    )
-                                }
-
-                            socket.dispose()
-                            socket = server.accept()
-                            connectDeferred.await().shouldBeTrue()
-                            client.start()
-                            TestListener.clear()
-
-                            client.sendPacket(mockPacket)
-
-                            eventually(2.seconds) {
-                                assertSoftly {
-                                    TestListener.calls<ConnectionEvent.Disconnect>()
-                                        .shouldBeSingleton { testCause(it.cause) }
-                                }
-                            }
-                        }
-
-                        clearMocks(mockPacket)
-                    }
-
-                    describe("Closes on unsupported version") {
-                        val iterations = PropertyTesting.defaultIterationCount / 2
-
-                        val unsupportedTestCases =
-                            listOf(
-                                "Too old" to
-                                    Arb.choose(
-                                        3 to Arb.version(2, 0..2),
-                                        iterations - 3 to Arb.version(0..1),
-                                    ),
-                                "Beyond latest version" to
-                                    Arb.choose(
-                                        1 to Arb.version(2, 8, Arb.int(min = 2)),
-                                        9 to Arb.version(2, Arb.int(min = 9)),
-                                        iterations - 10 to Arb.version(Arb.int(min = 3)),
-                                    ),
-                            )
-
-                        val versions = mutableListOf<Version>()
-
-                        val spyClient = spyk(client)
-                        every { spyClient.isRunning } answers { spyClient.startTime != null }
-                        every { spyClient.stop() } answers { spyClient.dispatchDisconnect() }
-
-                        val connectDeferred =
-                            async(testDispatcher) {
-                                spyClient.connect(
-                                    host = loopbackAddress,
-                                    port = port,
-                                    timeout = connectionTimeout,
-                                )
-                            }
-
-                        socket.dispose()
-                        socket = server.accept()
-                        connectDeferred.await().shouldBeTrue()
-                        spyClient.start()
-
-                        socket.openWriteChannel().use {
-                            withData(nameFn = { it.first }, unsupportedTestCases) { (_, versionArb)
-                                ->
-                                val versionFixture = VersionPacketFixture(versionArb)
-                                val disconnectEvents = mutableListOf<ConnectionEvent.Disconnect>()
-
-                                versionFixture.generator.checkAll(iterations = iterations) { data ->
-                                    val version = data.packetVersion
-
-                                    collect(
-                                        when {
-                                            version.major < 2 -> "${version.major}.*"
-                                            version.major > 2 -> ">2.*"
-                                            version.minor < 3 -> "2.${version.minor}.*"
-                                            version.minor > 8 -> "2.9+"
-                                            else -> "2.8.2+"
-                                        }
-                                    )
-
-                                    TestListener.clear()
-
-                                    writePacketWithHeader(
-                                        TestPacketTypes.CONNECTED,
-                                        data.buildPayload(),
-                                    )
-
-                                    eventually(5.seconds) {
-                                        val newEvents =
-                                            TestListener.calls<ConnectionEvent.Disconnect>()
-                                        newEvents.shouldBeSingleton {
-                                            it.cause.shouldBeInstanceOf<
-                                                DisconnectCause.UnsupportedVersion
-                                            >()
-                                        }
-                                        disconnectEvents += newEvents
+                        it("Closes on read exception") {
+                            eventually(testTimeout) {
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        client.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = connectionTimeout,
+                                        )
                                     }
 
-                                    versions.add(version)
-                                }
+                                socket.dispose()
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                client.start()
+                                TestListener.clear()
 
-                                disconnectEvents shouldBeSameSizeAs versions
-                                disconnectEvents.forEachIndexed { index, event ->
-                                    event.cause
-                                        .shouldBeInstanceOf<DisconnectCause.UnsupportedVersion>()
-                                        .version shouldBeEqual versions[index]
+                                socket.openWriteChannel().use {
+                                    writePacketWithHeader(TestPacketTypes.CONNECTED, buildPacket {})
+
+                                    eventually(2.seconds) {
+                                        assertSoftly {
+                                            TestListener.calls<ConnectionEvent.Disconnect>()
+                                                .shouldBeSingleton {
+                                                    it.cause should
+                                                        beInstanceOf<
+                                                            DisconnectCause.PacketParseError,
+                                                        >()
+                                                }
+                                        }
+                                    }
                                 }
-                                versions.clear()
-                                disconnectEvents.clear()
                             }
                         }
 
-                        clearMocks(spyClient)
-                        spyClient.stop()
+                        withData<Triple<String, Throwable, (DisconnectCause) -> Unit>>(
+                            nameFn = { "Closes on ${it.first} error" },
+                            Triple("write", IOException()) { cause: DisconnectCause ->
+                                cause.shouldBeInstanceOf<DisconnectCause.IOError>()
+                            },
+                            Triple("unknown", RuntimeException()) { cause: DisconnectCause ->
+                                cause.shouldBeInstanceOf<DisconnectCause.UnknownError>()
+                            },
+                        ) { (_, exception, testCause) ->
+                            val mockPacket =
+                                mockk<Packet.Client> { every { writeTo(any()) } throws exception }
 
-                        it("No upper bound in debug mode") {
-                            val versionFixture =
-                                VersionPacketFixture(unsupportedTestCases.last().second)
+                            eventually(testTimeout) {
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        client.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = 1.seconds,
+                                        )
+                                    }
+
+                                socket.dispose()
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                client.start()
+                                TestListener.clear()
+
+                                client.sendPacket(mockPacket)
+
+                                eventually(2.seconds) {
+                                    assertSoftly {
+                                        TestListener.calls<ConnectionEvent.Disconnect>()
+                                            .shouldBeSingleton { testCause(it.cause) }
+                                    }
+                                }
+                            }
+
+                            clearMocks(mockPacket)
+                        }
+
+                        describe("Closes on unsupported version") {
+                            val iterations = PropertyTesting.defaultIterationCount / 2
+
+                            val unsupportedTestCases =
+                                listOf(
+                                    "Too old" to
+                                        Arb.choose(
+                                            3 to Arb.version(2, 0..2),
+                                            iterations - 3 to Arb.version(0..1),
+                                        ),
+                                    "Beyond latest version" to
+                                        Arb.choose(
+                                            1 to Arb.version(2, 8, Arb.int(min = 2)),
+                                            9 to Arb.version(2, Arb.int(min = 9)),
+                                            iterations - 10 to Arb.version(Arb.int(min = 3)),
+                                        ),
+                                )
+
+                            val versions = mutableListOf<Version>()
+
+                            val spyClient = spyk(client)
+                            every { spyClient.isRunning } answers { spyClient.startTime != null }
+                            every { spyClient.stop() } answers { spyClient.dispatchDisconnect() }
 
                             val connectDeferred =
                                 async(testDispatcher) {
-                                    debugClient.connect(
+                                    spyClient.connect(
                                         host = loopbackAddress,
                                         port = port,
                                         timeout = connectionTimeout,
@@ -711,56 +652,134 @@ class ArtemisNetworkInterfaceTest :
                             socket.dispose()
                             socket = server.accept()
                             connectDeferred.await().shouldBeTrue()
-                            debugClient.start()
-                            TestListener.clear()
+                            spyClient.start()
 
                             socket.openWriteChannel().use {
-                                versionFixture.generator.checkAll(iterations = iterations) { data ->
-                                    writePacketWithHeader(
-                                        TestPacketTypes.CONNECTED,
-                                        data.buildPayload(),
-                                    )
-                                    versions.add(data.packetVersion)
-                                }
+                                withData(nameFn = { it.first }, unsupportedTestCases) {
+                                    (_, versionArb) ->
+                                    val versionFixture = VersionPacketFixture(versionArb)
+                                    val disconnectEvents =
+                                        mutableListOf<ConnectionEvent.Disconnect>()
 
-                                eventually(testTimeout) {
-                                    val packets = TestListener.calls<VersionPacket>()
-                                    packets.map { it.version } shouldContainExactly versions
+                                    versionFixture.generator.checkAll(iterations = iterations) {
+                                        data ->
+                                        val version = data.packetVersion
+
+                                        collect(
+                                            when {
+                                                version.major < 2 -> "${version.major}.*"
+                                                version.major > 2 -> ">2.*"
+                                                version.minor < 3 -> "2.${version.minor}.*"
+                                                version.minor > 8 -> "2.9+"
+                                                else -> "2.8.2+"
+                                            },
+                                        )
+
+                                        TestListener.clear()
+
+                                        writePacketWithHeader(
+                                            TestPacketTypes.CONNECTED,
+                                            data.buildPayload(),
+                                        )
+
+                                        eventually(5.seconds) {
+                                            val newEvents =
+                                                TestListener.calls<ConnectionEvent.Disconnect>()
+                                            newEvents.shouldBeSingleton {
+                                                it.cause.shouldBeInstanceOf<
+                                                    DisconnectCause.UnsupportedVersion,
+                                                >()
+                                            }
+                                            disconnectEvents += newEvents
+                                        }
+
+                                        versions.add(version)
+                                    }
+
+                                    disconnectEvents shouldBeSameSizeAs versions
+                                    disconnectEvents.forEachIndexed { index, event ->
+                                        event.cause
+                                            .shouldBeInstanceOf<
+                                                DisconnectCause.UnsupportedVersion,
+                                            >()
+                                            .version shouldBeEqual versions[index]
+                                    }
+                                    versions.clear()
+                                    disconnectEvents.clear()
                                 }
                             }
 
-                            debugClient.stop()
-                            socket.dispose()
-                            versions.clear()
+                            clearMocks(spyClient)
+                            spyClient.stop()
+
+                            it("No upper bound in debug mode") {
+                                val versionFixture =
+                                    VersionPacketFixture(unsupportedTestCases.last().second)
+
+                                val connectDeferred =
+                                    async(testDispatcher) {
+                                        debugClient.connect(
+                                            host = loopbackAddress,
+                                            port = port,
+                                            timeout = connectionTimeout,
+                                        )
+                                    }
+
+                                socket.dispose()
+                                socket = server.accept()
+                                connectDeferred.await().shouldBeTrue()
+                                debugClient.start()
+                                TestListener.clear()
+
+                                socket.openWriteChannel().use {
+                                    versionFixture.generator.checkAll(iterations = iterations) {
+                                        data ->
+                                        writePacketWithHeader(
+                                            TestPacketTypes.CONNECTED,
+                                            data.buildPayload(),
+                                        )
+                                        versions.add(data.packetVersion)
+                                    }
+
+                                    eventually(testTimeout) {
+                                        val packets = TestListener.calls<VersionPacket>()
+                                        packets.map { it.version } shouldContainExactly versions
+                                    }
+                                }
+
+                                debugClient.stop()
+                                socket.dispose()
+                                versions.clear()
+                            }
                         }
                     }
                 }
-            }
 
-            it("Cannot restart without new connection") {
-                client.start()
-                client.startTime.shouldBeNull()
-            }
+                it("Cannot restart without new connection") {
+                    client.start()
+                    client.startTime.shouldBeNull()
+                }
 
-            it("Connection attempt can time out") {
-                client
-                    .connect(host = loopbackAddress, port = port, timeout = Duration.ZERO)
-                    .shouldBeFalse()
-            }
+                it("Connection attempt can time out") {
+                    client
+                        .connect(host = loopbackAddress, port = port, timeout = Duration.ZERO)
+                        .shouldBeFalse()
+                }
 
-            it("Cannot connect to invalid address") {
-                Arb.string(minSize = 1, codepoints = Codepoint.alphanumeric()).checkAll {
-                    client.connect(host = it, port = port, timeout = 5.seconds).shouldBeFalse()
+                it("Cannot connect to invalid address") {
+                    Arb.string(minSize = 1, codepoints = Codepoint.alphanumeric()).checkAll {
+                        client.connect(host = it, port = port, timeout = 5.seconds).shouldBeFalse()
+                    }
+                }
+
+                it("Can dispose") {
+                    client.dispose()
+                    debugClient.dispose()
+
+                    client.sendingChannel.tryReceive().isClosed.shouldBeTrue()
+                    client.parseResultsChannel.tryReceive().isClosed.shouldBeTrue()
+                    client.connectionEventChannel.tryReceive().isClosed.shouldBeTrue()
                 }
             }
-
-            it("Can dispose") {
-                client.dispose()
-                debugClient.dispose()
-
-                client.sendingChannel.tryReceive().isClosed.shouldBeTrue()
-                client.parseResultsChannel.tryReceive().isClosed.shouldBeTrue()
-                client.connectionEventChannel.tryReceive().isClosed.shouldBeTrue()
-            }
-        }
-    })
+        },
+    )

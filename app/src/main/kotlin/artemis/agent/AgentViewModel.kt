@@ -109,7 +109,7 @@ class AgentViewModel(application: Application) :
                     enemiesManager.listeners +
                     missionManager.listeners +
                     biomechManager.listeners +
-                    miscManager.listeners
+                    miscManager.listeners,
             )
         }
     }
@@ -620,7 +620,7 @@ class AgentViewModel(application: Application) :
             try {
                 serverDiscoveryRequester.run(
                     broadcastAddress?.takeUnless { alwaysScanPublicBroadcasts }
-                        ?: ServerDiscoveryRequester.DEFAULT_BROADCAST_ADDRESS
+                        ?: ServerDiscoveryRequester.DEFAULT_BROADCAST_ADDRESS,
                 )
             } catch (_: Exception) {
                 isScanningUDP.emit(false)
@@ -848,7 +848,7 @@ class AgentViewModel(application: Application) :
                 allyShipList.forEach { ship -> if (ship != ally) add(ship.obj) }
 
                 addAll(players.values)
-            }
+            },
         )
 
         missionManager.missions.tryEmit(missionList)
@@ -863,7 +863,7 @@ class AgentViewModel(application: Application) :
         enemiesManager.selectionIndex.tryEmit(
             selectedEnemyEntry?.let { entry ->
                 scannedEnemies.indexOfFirst { it.enemy == entry.enemy }
-            } ?: -1
+            } ?: -1,
         )
 
         gamePages.value = pagesWithFlash
@@ -942,7 +942,7 @@ class AgentViewModel(application: Application) :
             maxOf(
                 Duration.ZERO,
                 (updateObjectsInterval + startTime - System.currentTimeMillis()).milliseconds,
-            )
+            ),
         )
     }
 
@@ -1021,7 +1021,7 @@ class AgentViewModel(application: Application) :
 
     @Listener
     fun onHeartbeatRegained(
-        @Suppress("UNUSED_PARAMETER") event: ConnectionEvent.HeartbeatRegained
+        @Suppress("UNUSED_PARAMETER") event: ConnectionEvent.HeartbeatRegained,
     ) {
         connectionStatus.value = ConnectionStatus.Connected
         playSound(SoundEffect.BEEP_2)

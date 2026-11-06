@@ -22,8 +22,8 @@ class BitField(private val bitCount: Int) {
             countBytes(
                 bitCount.also {
                     require(it >= 0) { "Bit field cannot have a negative number of bits" }
-                }
-            )
+                },
+            ),
         )
 
     /** Returns the number of bytes in this BitField. */

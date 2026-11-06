@@ -34,7 +34,7 @@ class ServerDiscoveryRequester(private val listener: Listener, private val timeo
                         Datagram(
                             packet = buildPacket { writeByte(Server.ENQ) },
                             address = InetSocketAddress(broadcastAddress, PORT),
-                        )
+                        ),
                     )
 
                     withTimeoutOrNull(timeout) {

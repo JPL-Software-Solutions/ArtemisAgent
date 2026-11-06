@@ -119,7 +119,7 @@ class AllySettingsFragmentTest : TestCase() {
                         enabled = alliesEnabled.get(),
                         sortMethods = sortMethods,
                         toggles = toggles,
-                    )
+                    ),
                 )
             }
         }
@@ -242,14 +242,14 @@ class AllySettingsFragmentTest : TestCase() {
                 }
 
                 scenario(
-                    SortMethodPairScenario(sortClassButton1, sortClassButton2, sortDefaultButton)
+                    SortMethodPairScenario(sortClassButton1, sortClassButton2, sortDefaultButton),
                 )
                 scenario(
                     SortMethodDependentScenario(
                         sortEnergyButton to "energy",
                         sortStatusButton to "status",
                         sortDefaultButton,
-                    )
+                    ),
                 )
                 scenario(SortMethodSingleScenario(sortNameButton, sortDefaultButton))
                 scenario(
@@ -263,7 +263,7 @@ class AllySettingsFragmentTest : TestCase() {
                         sortStatusButton,
                         sortClassButton2,
                         sortNameButton,
-                    )
+                    ),
                 )
 
                 step("Restore sort methods from initial settings") {

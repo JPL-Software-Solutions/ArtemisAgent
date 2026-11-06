@@ -63,7 +63,7 @@ class PersonalSettingsFragmentTest : TestCase() {
                         val viewModel = activity.viewModels<AgentViewModel>().value
                         threeDigits.lazySet(viewModel.threeDigitDirections)
                         soundVolume.lazySet(
-                            (viewModel.volume * AgentViewModel.VOLUME_SCALE).toInt()
+                            (viewModel.volume * AgentViewModel.VOLUME_SCALE).toInt(),
                         )
                         soundsMuted.lazySet(viewModel.soundsMuted)
                         hapticsEnabled.lazySet(viewModel.hapticsEnabled)
@@ -127,7 +127,7 @@ class PersonalSettingsFragmentTest : TestCase() {
 
                             step("Test UI") {
                                 threeDigitDirectionsTitle.isDisplayedWithText(
-                                    R.string.three_digit_directions
+                                    R.string.three_digit_directions,
                                 )
                                 threeDigitDirectionsButton {
                                     isCompletelyDisplayed()
@@ -137,7 +137,7 @@ class PersonalSettingsFragmentTest : TestCase() {
                                     device.targetContext.getString(
                                         R.string.direction,
                                         "0".repeat(if (showingThree) 3 else 1),
-                                    )
+                                    ),
                                 )
                             }
                         }

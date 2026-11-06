@@ -6,57 +6,59 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.equals.shouldBeEqual
 
 class SortingComparatorTest :
-    DescribeSpec({
-        val unsortedTriples =
-            listOf(
-                Triple("B", 1, true),
-                Triple("A", 1, false),
-                Triple("A", 2, true),
-                Triple("A", 1, true),
-                Triple("B", 2, false),
-                Triple("B", 1, false),
-                Triple("B", 2, true),
-                Triple("A", 2, false),
-            )
+    DescribeSpec(
+        {
+            val unsortedTriples =
+                listOf(
+                    Triple("B", 1, true),
+                    Triple("A", 1, false),
+                    Triple("A", 2, true),
+                    Triple("A", 1, true),
+                    Triple("B", 2, false),
+                    Triple("B", 1, false),
+                    Triple("B", 2, true),
+                    Triple("A", 2, false),
+                )
 
-        val firstComparator = compareBy<Triple<String, Int, Boolean>> { it.first }
-        val secondComparator = compareBy<Triple<String, Int, Boolean>> { it.second }
-        val thirdComparator = compareBy<Triple<String, Int, Boolean>> { it.third }
+            val firstComparator = compareBy<Triple<String, Int, Boolean>> { it.first }
+            val secondComparator = compareBy<Triple<String, Int, Boolean>> { it.second }
+            val thirdComparator = compareBy<Triple<String, Int, Boolean>> { it.third }
 
-        describe("buildSortingComparator") {
-            testSortingComparators(
-                name = "first",
-                testCases = SortingTestCase.entries,
-                partitionFn = { it.sortByFirst },
-            ) { firstTestCaseSet ->
+            describe("buildSortingComparator") {
                 testSortingComparators(
-                    name = "second",
-                    testCases = firstTestCaseSet,
-                    partitionFn = { it.sortBySecond },
-                ) { secondTestCaseSet ->
+                    name = "first",
+                    testCases = SortingTestCase.entries,
+                    partitionFn = { it.sortByFirst },
+                ) { firstTestCaseSet ->
                     testSortingComparators(
-                        name = "third",
-                        testCases = secondTestCaseSet,
-                        partitionFn = { it.sortByThird },
-                    ) { thirdTestCaseSet ->
-                        thirdTestCaseSet.forEach { sortingTestCase ->
-                            val sorter =
-                                buildSortingComparator(
-                                    firstComparator to sortingTestCase.sortByFirst,
-                                    secondComparator to sortingTestCase.sortBySecond,
-                                    thirdComparator to sortingTestCase.sortByThird,
-                                )
+                        name = "second",
+                        testCases = firstTestCaseSet,
+                        partitionFn = { it.sortBySecond },
+                    ) { secondTestCaseSet ->
+                        testSortingComparators(
+                            name = "third",
+                            testCases = secondTestCaseSet,
+                            partitionFn = { it.sortByThird },
+                        ) { thirdTestCaseSet ->
+                            thirdTestCaseSet.forEach { sortingTestCase ->
+                                val sorter =
+                                    buildSortingComparator(
+                                        firstComparator to sortingTestCase.sortByFirst,
+                                        secondComparator to sortingTestCase.sortBySecond,
+                                        thirdComparator to sortingTestCase.sortByThird,
+                                    )
 
-                            val expectedSort =
-                                sortingTestCase.expectedSortIndices.map { unsortedTriples[it] }
-                            val actualSort = unsortedTriples.sortedWith(sorter)
-                            actualSort shouldBeEqual expectedSort
+                                val expectedSort =
+                                    sortingTestCase.expectedSortIndices.map { unsortedTriples[it] }
+                                val actualSort = unsortedTriples.sortedWith(sorter)
+                                actualSort shouldBeEqual expectedSort
+                            }
                         }
                     }
                 }
             }
-        }
-    })
+        },
+    )
 
 enum class SortingTestCase(
     val sortByFirst: Boolean,

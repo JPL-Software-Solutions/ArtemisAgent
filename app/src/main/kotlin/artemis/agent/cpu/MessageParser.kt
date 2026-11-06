@@ -130,7 +130,7 @@ sealed interface MessageParser {
                                     obj,
                                     BaseMessage.PleaseReportStatus,
                                     viewModel.vesselData,
-                                )
+                                ),
                             )
                         }
 
@@ -148,7 +148,7 @@ sealed interface MessageParser {
                                     obj,
                                     BaseMessage.PleaseReportStatus,
                                     viewModel.vesselData,
-                                )
+                                ),
                             )
                         }
 
@@ -337,7 +337,7 @@ sealed interface MessageParser {
                 }
             if (existingMission == null) {
                 missionManager.allMissions.add(
-                    SideMissionEntry(source, destination, rewardType, packet.timestamp)
+                    SideMissionEntry(source, destination, rewardType, packet.timestamp),
                 )
                 missionManager.confirmed = true
             } else {
@@ -568,7 +568,7 @@ sealed interface MessageParser {
                                 it.obj,
                                 BaseMessage.PleaseReportStatus,
                                 viewModel.vesselData,
-                            )
+                            ),
                         )
                     }
             }

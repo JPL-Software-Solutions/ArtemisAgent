@@ -90,7 +90,11 @@ class SettingsMenuFragment : Fragment(R.layout.settings_menu) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettingsPageViewHolder =
             SettingsPageViewHolder(
-                SettingsMenuEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                SettingsMenuEntryBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false,
+                ),
             )
 
         override fun onBindViewHolder(holder: SettingsPageViewHolder, position: Int) {

@@ -23,96 +23,98 @@ import io.kotest.property.forAll
 import kotlin.time.Duration.Companion.minutes
 
 class OrdnanceTypeTest :
-    DescribeSpec({
-        describe("OrdnanceType") {
-            val validCodes = arrayOf("trp", "nuk", "min", "emp", "shk", "bea", "pro", "tag")
+    DescribeSpec(
+        {
+            describe("OrdnanceType") {
+                val validCodes = arrayOf("trp", "nuk", "min", "emp", "shk", "bea", "pro", "tag")
 
-            validCodes shouldBeSameSizeAs OrdnanceType.entries
+                validCodes shouldBeSameSizeAs OrdnanceType.entries
 
-            val legacyTypes = intArrayOf(1, 4, 6, 9, 8)
-            legacyTypes shouldHaveSize OrdnanceType.BEACON.ordinal
+                val legacyTypes = intArrayOf(1, 4, 6, 9, 8)
+                legacyTypes shouldHaveSize OrdnanceType.BEACON.ordinal
 
-            describe("Infer from three-letter code") {
-                withData(
-                    nameFn = { (code, expectedOrdnanceType) -> "$code = $expectedOrdnanceType" },
-                    validCodes.zip(OrdnanceType.entries),
-                ) { (code, expectedOrdnanceType) ->
-                    val actualOrdnanceType = OrdnanceType[code]
-                    actualOrdnanceType.shouldNotBeNull() shouldBeEqual expectedOrdnanceType
-                    actualOrdnanceType.code shouldBeEqual code
-                }
-            }
-
-            it("Invalid code returns null") {
-                Arb.string()
-                    .filter { !validCodes.contains(it) }
-                    .forAll { code ->
-                        val lengthClass =
-                            when (code.length) {
-                                in 0..2 -> "Shorter than"
-                                3 -> "Exactly"
-                                else -> "Longer than"
-                            }
-                        collect("$lengthClass 3 characters")
-                        OrdnanceType[code] == null
-                    }
-            }
-
-            describe("Ordnance types by version") {
-                val preSplitSize = OrdnanceType.BEACON.ordinal
-                val splitVersion = "2.6.3"
-                val arbVersionSinceSplit =
-                    Arb.choose(
-                        1 to Arb.version(major = 2, minor = 6, patchArb = Arb.int(min = 3)),
-                        3 to Arb.version(major = 2, minorRange = 7..9),
-                        96 to Arb.version(major = 2, minorArb = Arb.int(min = 10)),
-                    )
-
-                it("Before $splitVersion: 5 ordnance types") {
-                    val preSplitList = OrdnanceType.entries.subList(0, preSplitSize)
-
-                    Arb.version(major = 2, minorRange = 3..5).checkAll { version ->
-                        collect("${version.toString().substringBeforeLast('.')}.*")
-                        OrdnanceType.countForVersion(version) shouldBeEqual preSplitSize
-                        OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
-                            preSplitList
-                    }
-
-                    Exhaustive.of(0, 1, 2).checkAll { patch ->
-                        collect("2.6.$patch")
-                        val version = Version(2, 6, patch)
-                        OrdnanceType.countForVersion(version) shouldBeEqual preSplitSize
-                        OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
-                            preSplitList
+                describe("Infer from three-letter code") {
+                    withData(
+                        nameFn = { (code, expectedOrdnanceType) ->
+                            "$code = $expectedOrdnanceType"
+                        },
+                        validCodes.zip(OrdnanceType.entries),
+                    ) { (code, expectedOrdnanceType) ->
+                        val actualOrdnanceType = OrdnanceType[code]
+                        actualOrdnanceType.shouldNotBeNull() shouldBeEqual expectedOrdnanceType
+                        actualOrdnanceType.code shouldBeEqual code
                     }
                 }
 
-                it("Since $splitVersion: 8 ordnance types") {
-                    arbVersionSinceSplit.checkAll { version ->
-                        val parts = version.toString().split(".").map(String::toInt)
-                        collect(
-                            when (val minor = parts[1]) {
-                                6 -> "2.6.3+"
-                                in 7..9 -> "2.7-9.*"
-                                else -> {
-                                    val minorLength = minor.toString().length
-                                    val minimum =
-                                        Array(minorLength - 1) { "0" }
-                                            .joinToString("", prefix = "1")
-                                    val maximum = Array(minorLength) { "9" }.joinToString("")
-                                    "2.$minimum-$maximum.*"
+                it("Invalid code returns null") {
+                    Arb.string()
+                        .filter { !validCodes.contains(it) }
+                        .forAll { code ->
+                            val lengthClass =
+                                when (code.length) {
+                                    in 0..2 -> "Shorter than"
+                                    3 -> "Exactly"
+                                    else -> "Longer than"
                                 }
-                            }
+                            collect("$lengthClass 3 characters")
+                            OrdnanceType[code] == null
+                        }
+                }
+
+                describe("Ordnance types by version") {
+                    val preSplitSize = OrdnanceType.BEACON.ordinal
+                    val splitVersion = "2.6.3"
+                    val arbVersionSinceSplit =
+                        Arb.choose(
+                            1 to Arb.version(major = 2, minor = 6, patchArb = Arb.int(min = 3)),
+                            3 to Arb.version(major = 2, minorRange = 7..9),
+                            96 to Arb.version(major = 2, minorArb = Arb.int(min = 10)),
                         )
 
-                        OrdnanceType.countForVersion(version) shouldBeEqual OrdnanceType.size
-                        OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
-                            OrdnanceType.entries
-                    }
-                }
+                    it("Before $splitVersion: 5 ordnance types") {
+                        val preSplitList = OrdnanceType.entries.subList(0, preSplitSize)
 
-                OrdnanceType.entries.forEach { ordnanceType ->
-                    describe(ordnanceType.toString()) {
+                        Arb.version(major = 2, minorRange = 3..5).checkAll { version ->
+                            collect("${version.toString().substringBeforeLast('.')}.*")
+                            OrdnanceType.countForVersion(version) shouldBeEqual preSplitSize
+                            OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
+                                preSplitList
+                        }
+
+                        Exhaustive.of(0, 1, 2).checkAll { patch ->
+                            collect("2.6.$patch")
+                            val version = Version(2, 6, patch)
+                            OrdnanceType.countForVersion(version) shouldBeEqual preSplitSize
+                            OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
+                                preSplitList
+                        }
+                    }
+
+                    it("Since $splitVersion: 8 ordnance types") {
+                        arbVersionSinceSplit.checkAll { version ->
+                            val parts = version.toString().split(".").map(String::toInt)
+                            collect(
+                                when (val minor = parts[1]) {
+                                    6 -> "2.6.3+"
+                                    in 7..9 -> "2.7-9.*"
+                                    else -> {
+                                        val minorLength = minor.toString().length
+                                        val minimum =
+                                            Array(minorLength - 1) { "0" }
+                                                .joinToString("", prefix = "1")
+                                        val maximum = Array(minorLength) { "9" }.joinToString("")
+                                        "2.$minimum-$maximum.*"
+                                    }
+                                },
+                            )
+
+                            OrdnanceType.countForVersion(version) shouldBeEqual OrdnanceType.size
+                            OrdnanceType.getAllForVersion(version).toList() shouldContainExactly
+                                OrdnanceType.entries
+                        }
+                    }
+
+                    withData(OrdnanceType.entries) { ordnanceType ->
                         if (ordnanceType < OrdnanceType.BEACON) {
                             it("Existed before $splitVersion") {
                                 Arb.version(major = 2, minorRange = 3..5).forAll { version ->
@@ -169,7 +171,7 @@ class OrdnanceTypeTest :
                                                 Array(minorLength) { "9" }.joinToString("")
                                             "2.$minimum-$maximum.*"
                                         }
-                                    }
+                                    },
                                 )
 
                                 ordnanceType existsIn version
@@ -177,26 +179,25 @@ class OrdnanceTypeTest :
                         }
                     }
                 }
-            }
 
-            describe("Build minutes") {
-                val expectedBuildTimes = intArrayOf(3, 10, 4, 5, 10, 1, 1, 1)
+                describe("Build minutes") {
+                    val expectedBuildTimes = intArrayOf(3, 10, 4, 5, 10, 1, 1, 1)
 
-                withData(
-                    nameFn = {
-                        "${it.second}: ${it.first} minute${if (it.first == 1) "" else "s"}"
-                    },
-                    expectedBuildTimes.zip(OrdnanceType.entries),
-                ) { (expectedTime, ordnanceType) ->
-                    ordnanceType.buildTime shouldBeEqual expectedTime.minutes.inWholeMilliseconds
+                    withData(
+                        nameFn = {
+                            "${it.second}: ${it.first} minute${if (it.first == 1) "" else "s"}"
+                        },
+                        expectedBuildTimes.zip(OrdnanceType.entries),
+                    ) { (expectedTime, ordnanceType) ->
+                        ordnanceType.buildTime shouldBeEqual
+                            expectedTime.minutes.inWholeMilliseconds
+                    }
                 }
-            }
 
-            describe("Labels") {
-                val latestVersion = Version.DEFAULT
+                describe("Labels") {
+                    val latestVersion = Version.DEFAULT
 
-                OrdnanceType.entries.forEach { ordnanceType ->
-                    describe(ordnanceType.toString()) {
+                    withData(OrdnanceType.entries) { ordnanceType ->
                         val labels =
                             listOfNotNull(
                                 ordnanceType.toString(),
@@ -223,5 +224,5 @@ class OrdnanceTypeTest :
                     }
                 }
             }
-        }
-    })
+        },
+    )

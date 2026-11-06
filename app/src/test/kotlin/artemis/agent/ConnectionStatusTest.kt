@@ -9,9 +9,13 @@ import io.kotest.engine.names.WithDataTestName
 import io.kotest.matchers.equals.shouldBeEqual
 
 class ConnectionStatusTest :
-    DescribeSpec({
-        describe("ConnectionStatus") { withData(ConnectionStatusTestCase.entries) { it.test() } }
-    })
+    DescribeSpec(
+        {
+            describe("ConnectionStatus") {
+                withData(ConnectionStatusTestCase.entries) { it.test() }
+            }
+        },
+    )
 
 private enum class ConnectionStatusTestCase(
     private val status: ConnectionStatus,

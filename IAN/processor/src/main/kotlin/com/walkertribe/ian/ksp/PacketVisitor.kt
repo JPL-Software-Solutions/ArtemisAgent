@@ -55,7 +55,7 @@ class PacketVisitor(private val codeGenerator: CodeGenerator) :
                 objectBuilder
                     .addProperty(factoryClassBuilder.build())
                     .addFunction(buildFunBuilder.build())
-                    .build()
+                    .build(),
             )
             .build()
             .writeTo(codeGenerator, aggregating = false)

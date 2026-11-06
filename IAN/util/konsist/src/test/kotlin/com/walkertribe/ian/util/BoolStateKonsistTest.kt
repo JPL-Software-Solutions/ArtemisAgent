@@ -13,26 +13,32 @@ import io.kotest.matchers.collections.shouldBeSameSizeAs
 import withoutCompanionModifier
 
 class BoolStateKonsistTest :
-    DescribeSpec({
-        describe("BoolState") {
-            val matchingClasses =
-                Konsist.scopeFromModule("IAN/util")
-                    .classes()
-                    .withRepresentedTypeOf(BoolState::class)
-            val stateObjects = matchingClasses.objects().withoutCompanionModifier()
-            val expectedNames = setOf("True", "False", "Unknown")
+    DescribeSpec(
+        {
+            describe("BoolState") {
+                val matchingClasses =
+                    Konsist.scopeFromModule("IAN/util")
+                        .classes()
+                        .withRepresentedTypeOf(BoolState::class)
+                val stateObjects = matchingClasses.objects().withoutCompanionModifier()
+                val expectedNames = setOf("True", "False", "Unknown")
 
-            it("Only has object members") { matchingClasses.classesAndInterfaces().shouldBeEmpty() }
-
-            describe("Members") {
-                it("Count: ${expectedNames.size}") { stateObjects shouldBeSameSizeAs expectedNames }
-                it("All inheritors") {
-                    stateObjects.assertTrue { state -> state.hasParentClassOf<BoolState>() }
+                it("Only has object members") {
+                    matchingClasses.classesAndInterfaces().shouldBeEmpty()
                 }
 
-                withData(nameFn = { it.name }, stateObjects) { state ->
-                    state.assertTrue { expectedNames.contains(it.name) }
+                describe("Members") {
+                    it("Count: ${expectedNames.size}") {
+                        stateObjects shouldBeSameSizeAs expectedNames
+                    }
+                    it("All inheritors") {
+                        stateObjects.assertTrue { state -> state.hasParentClassOf<BoolState>() }
+                    }
+
+                    withData(nameFn = { it.name }, stateObjects) { state ->
+                        state.assertTrue { expectedNames.contains(it.name) }
+                    }
                 }
             }
-        }
-    })
+        },
+    )

@@ -131,7 +131,7 @@ class NotificationManager(context: Context) {
                     NotificationChannelGroupCompat.Builder(group.id)
                         .setName(context.getString(group.nameID))
                         .build()
-                }
+                },
             )
 
             createNotificationChannelsCompat(
@@ -143,7 +143,7 @@ class NotificationManager(context: Context) {
                             .setShowBadge(channel.shouldShowBadge)
                             .build()
                     }
-                }
+                },
             )
         }
 

@@ -23,99 +23,101 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 
 class IncentiveSettingTest :
-    DescribeSpec({
-        describe("IncentiveSetting") {
-            mockkStatic(ViewBindings::class)
+    DescribeSpec(
+        {
+            describe("IncentiveSetting") {
+                mockkStatic(ViewBindings::class)
 
-            mockkViewBinding<ToggleButton>(R.id.incentivesMissionsButton, 0)
-            mockkViewBinding<ToggleButton>(R.id.incentivesNeedsDamConButton, 1)
-            mockkViewBinding<ToggleButton>(R.id.incentivesNeedsEnergyButton, 2)
-            mockkViewBinding<ToggleButton>(R.id.incentivesHasEnergyButton, 3)
-            mockkViewBinding<ToggleButton>(R.id.incentivesMalfunctionButton, 4)
-            mockkViewBinding<ToggleButton>(R.id.incentivesAmbassadorButton, 5)
-            mockkViewBinding<ToggleButton>(R.id.incentivesHostageButton, 6)
-            mockkViewBinding<ToggleButton>(R.id.incentivesCommandeeredButton, 7)
+                mockkViewBinding<ToggleButton>(R.id.incentivesMissionsButton, 0)
+                mockkViewBinding<ToggleButton>(R.id.incentivesNeedsDamConButton, 1)
+                mockkViewBinding<ToggleButton>(R.id.incentivesNeedsEnergyButton, 2)
+                mockkViewBinding<ToggleButton>(R.id.incentivesHasEnergyButton, 3)
+                mockkViewBinding<ToggleButton>(R.id.incentivesMalfunctionButton, 4)
+                mockkViewBinding<ToggleButton>(R.id.incentivesAmbassadorButton, 5)
+                mockkViewBinding<ToggleButton>(R.id.incentivesHostageButton, 6)
+                mockkViewBinding<ToggleButton>(R.id.incentivesCommandeeredButton, 7)
 
-            mockkViewBinding<Button>(R.id.incentivesAllButton)
-            mockkViewBinding<Button>(R.id.incentivesNoneButton)
-            mockkViewBinding<TextView>(R.id.incentivesTitle)
-            mockkViewBinding<View>(R.id.incentivesDivider)
+                mockkViewBinding<Button>(R.id.incentivesAllButton)
+                mockkViewBinding<Button>(R.id.incentivesNoneButton)
+                mockkViewBinding<TextView>(R.id.incentivesTitle)
+                mockkViewBinding<View>(R.id.incentivesDivider)
 
-            mockkViewBinding<Button>(R.id.avoidancesAllButton)
-            mockkViewBinding<Button>(R.id.avoidancesNoneButton)
-            mockkViewBinding<TextView>(R.id.avoidancesTitle)
-            mockkViewBinding<View>(R.id.avoidancesDivider)
-            mockkViewBinding<ToggleButton>(R.id.blackHolesButton)
-            mockkViewBinding<ToggleButton>(R.id.minesButton)
-            mockkViewBinding<ToggleButton>(R.id.typhonsButton)
-            mockkViewBinding<EditText>(R.id.blackHolesClearanceField)
-            mockkViewBinding<EditText>(R.id.minesClearanceField)
-            mockkViewBinding<EditText>(R.id.typhonsClearanceField)
-            mockkViewBinding<TextView>(R.id.blackHolesClearanceKm)
-            mockkViewBinding<TextView>(R.id.minesClearanceKm)
-            mockkViewBinding<TextView>(R.id.typhonsClearanceKm)
-            mockkViewBinding<TextView>(R.id.blackHolesTitle)
-            mockkViewBinding<TextView>(R.id.minesTitle)
-            mockkViewBinding<TextView>(R.id.typhonsTitle)
+                mockkViewBinding<Button>(R.id.avoidancesAllButton)
+                mockkViewBinding<Button>(R.id.avoidancesNoneButton)
+                mockkViewBinding<TextView>(R.id.avoidancesTitle)
+                mockkViewBinding<View>(R.id.avoidancesDivider)
+                mockkViewBinding<ToggleButton>(R.id.blackHolesButton)
+                mockkViewBinding<ToggleButton>(R.id.minesButton)
+                mockkViewBinding<ToggleButton>(R.id.typhonsButton)
+                mockkViewBinding<EditText>(R.id.blackHolesClearanceField)
+                mockkViewBinding<EditText>(R.id.minesClearanceField)
+                mockkViewBinding<EditText>(R.id.typhonsClearanceField)
+                mockkViewBinding<TextView>(R.id.blackHolesClearanceKm)
+                mockkViewBinding<TextView>(R.id.minesClearanceKm)
+                mockkViewBinding<TextView>(R.id.typhonsClearanceKm)
+                mockkViewBinding<TextView>(R.id.blackHolesTitle)
+                mockkViewBinding<TextView>(R.id.minesTitle)
+                mockkViewBinding<TextView>(R.id.typhonsTitle)
 
-            val mockBinding = SettingsRoutingBinding.bind(mockk<ConstraintLayout>())
+                val mockBinding = SettingsRoutingBinding.bind(mockk<ConstraintLayout>())
 
-            afterSpec {
-                clearAllMocks()
-                unmockkAll()
-            }
-
-            describe("Toggle buttons") {
-                withData(IncentiveSetting.entries) { entry ->
-                    entry.getButton(mockBinding).id shouldBeEqual entry.ordinal
-                }
-            }
-
-            describe("User settings") {
-                val baseSettings = userSettings {
-                    routeMissions = false
-                    routeNeedsDamcon = false
-                    routeNeedsEnergy = false
-                    routeHasEnergy = false
-                    routeMalfunction = false
-                    routeAmbassador = false
-                    routeHostage = false
-                    routeCommandeered = false
+                afterSpec {
+                    clearAllMocks()
+                    unmockkAll()
                 }
 
-                val copies =
-                    listOf(
-                        baseSettings.copy { routeMissions = true },
-                        baseSettings.copy { routeNeedsDamcon = true },
-                        baseSettings.copy { routeNeedsEnergy = true },
-                        baseSettings.copy { routeHasEnergy = true },
-                        baseSettings.copy { routeMalfunction = true },
-                        baseSettings.copy { routeAmbassador = true },
-                        baseSettings.copy { routeHostage = true },
-                        baseSettings.copy { routeCommandeered = true },
-                    )
-
-                describe("Get") {
+                describe("Toggle buttons") {
                     withData(IncentiveSetting.entries) { entry ->
-                        it("Off") { entry.isChecked(baseSettings).shouldBeFalse() }
-
-                        it("On") { entry.isChecked(copies[entry.ordinal]).shouldBeTrue() }
+                        entry.getButton(mockBinding).id shouldBeEqual entry.ordinal
                     }
                 }
 
-                describe("Set") {
-                    withData(IncentiveSetting.entries) { entry ->
-                        var currentSettings = baseSettings
+                describe("User settings") {
+                    val baseSettings = userSettings {
+                        routeMissions = false
+                        routeNeedsDamcon = false
+                        routeNeedsEnergy = false
+                        routeHasEnergy = false
+                        routeMalfunction = false
+                        routeAmbassador = false
+                        routeHostage = false
+                        routeCommandeered = false
+                    }
 
-                        withData(nameFn = { it.first }, "On" to true, "Off" to false) {
-                            (_, isChecked) ->
-                            currentSettings = currentSettings.copy {
-                                entry.onCheckedChanged(this, isChecked)
+                    val copies =
+                        listOf(
+                            baseSettings.copy { routeMissions = true },
+                            baseSettings.copy { routeNeedsDamcon = true },
+                            baseSettings.copy { routeNeedsEnergy = true },
+                            baseSettings.copy { routeHasEnergy = true },
+                            baseSettings.copy { routeMalfunction = true },
+                            baseSettings.copy { routeAmbassador = true },
+                            baseSettings.copy { routeHostage = true },
+                            baseSettings.copy { routeCommandeered = true },
+                        )
+
+                    describe("Get") {
+                        withData(IncentiveSetting.entries) { entry ->
+                            it("Off") { entry.isChecked(baseSettings).shouldBeFalse() }
+
+                            it("On") { entry.isChecked(copies[entry.ordinal]).shouldBeTrue() }
+                        }
+                    }
+
+                    describe("Set") {
+                        withData(IncentiveSetting.entries) { entry ->
+                            var currentSettings = baseSettings
+
+                            withData(nameFn = { it.first }, "On" to true, "Off" to false) {
+                                (_, isChecked) ->
+                                currentSettings = currentSettings.copy {
+                                    entry.onCheckedChanged(this, isChecked)
+                                }
+                                entry.isChecked(currentSettings) shouldBeEqual isChecked
                             }
-                            entry.isChecked(currentSettings) shouldBeEqual isChecked
                         }
                     }
                 }
             }
-        }
-    })
+        },
+    )

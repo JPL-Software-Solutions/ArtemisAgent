@@ -24,7 +24,7 @@ internal constructor(
     val attributes: Set<String> = build(keys)
 
     internal constructor(
-        xml: Xml
+        xml: Xml,
     ) : this(
         id = xml.requiredInt("ID"),
         name = xml.requiredString("name"),
