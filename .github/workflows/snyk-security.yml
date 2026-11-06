@@ -70,18 +70,25 @@ jobs:
 
       - name: Generate Snyk category
         id: get-category
-        if: ${{ matrix.path != '.' }}
         uses: mad9000/actions-find-and-replace-string@789e104bfa5a1e90579e74de187e696450611aa2 # 6
         with:
           source: ${{ matrix.path }}
           find: '/'
           replace: '-'
 
+      - name: Generate Snyk project name
+        id: get-project
+        uses: mad9000/actions-find-and-replace-string@789e104bfa5a1e90579e74de187e696450611aa2 # 6
+        with:
+          source: ${{ matrix.path }}
+          find: 'IAN/'
+          replace: ''
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # Tolerate issues being found
         with:
-          args: ${{ matrix.path }} --sarif-file-output=snyk.sarif
+          args: ${{ matrix.path }} --project-name=${{ steps.get-project.outputs.value }} --sarif-file-output=snyk.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -89,7 +96,7 @@ jobs:
         uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         with:
           command: monitor
-          args: ${{ matrix.path }}
+          args: ${{ matrix.path }} --project-name=${{ steps.get-project.outputs.value }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
