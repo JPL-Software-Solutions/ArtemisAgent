@@ -1,9 +1,9 @@
 package artemis.agent.util
 
 import android.content.res.AssetManager
+import androidx.annotation.VisibleForTesting
 import com.walkertribe.ian.util.ResourceReader
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import okio.Path
 import okio.Path.Companion.toPath
@@ -21,7 +21,7 @@ class AssetsReader(manager: AssetManager) : ResourceReader {
                 val outFile = File(datDir, it.name)
                 if (outFile.exists()) return@forEach
                 fileSystem.read(ResourceReader.DAT / it) {
-                    FileOutputStream(outFile).use { outStream -> outStream.write(readByteArray()) }
+                    outFile.outputStream().use { outStream -> outStream.write(readByteArray()) }
                 }
             }
             true
@@ -29,7 +29,7 @@ class AssetsReader(manager: AssetManager) : ResourceReader {
             false
         }
 
-    private companion object {
-        val ROOT = "/".toPath()
+    companion object {
+        @VisibleForTesting val ROOT = "/".toPath()
     }
 }
