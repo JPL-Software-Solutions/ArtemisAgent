@@ -43,10 +43,10 @@ class AllyStatusTest :
                     }
 
                     withData(
-                        nameFn = { it.first },
-                        "Is pirate" to true,
-                        "Is not pirate" to false,
-                    ) { (_, isPirate) ->
+                        nameFn = { "Is ${if (it) "" else "not "}pirate" },
+                        first = true,
+                        second = false,
+                    ) { isPirate ->
                         testCases.forEach { test ->
                             val expected = test.getStatusForPirate(isPirate)
                             it("${test.allyStatus} -> $expected") {
