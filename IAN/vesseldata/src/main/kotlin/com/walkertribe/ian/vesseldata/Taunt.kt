@@ -5,7 +5,7 @@ import korlibs.io.serialization.xml.Xml
 @ConsistentCopyVisibility
 data class Taunt internal constructor(val immunity: String, val text: String) {
     internal constructor(
-        xml: Xml
+        xml: Xml,
     ) : this(immunity = xml.requiredString("immunity"), text = xml.requiredString("text"))
 
     companion object {

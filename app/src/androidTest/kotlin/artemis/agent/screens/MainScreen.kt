@@ -73,7 +73,7 @@ object MainScreen : KScreen<MainScreen>() {
             step("Deny permissions #$time") {
                 device.permissions.denyViaDialog(
                     if (isFirstTime) Permissions.Button.DENY
-                    else Permissions.Button.DENY_AND_DONT_ASK_AGAIN
+                    else Permissions.Button.DENY_AND_DONT_ASK_AGAIN,
                 )
             }
         }

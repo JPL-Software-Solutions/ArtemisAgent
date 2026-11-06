@@ -10,27 +10,31 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 
 class AudioEntryTest :
-    DescribeSpec({
-        describe("AudioEntry") {
-            describe("Properties") {
-                it("Audio ID") {
-                    testAudioEntry { entry, audioId, _ -> entry.audioId shouldBeEqual audioId }
+    DescribeSpec(
+        {
+            describe("AudioEntry") {
+                describe("Properties") {
+                    it("Audio ID") {
+                        testAudioEntry { entry, audioId, _ -> entry.audioId shouldBeEqual audioId }
+                    }
+
+                    it("Title") {
+                        testAudioEntry { entry, _, title -> entry.title shouldBeEqual title }
+                    }
+
+                    it("Hash code") {
+                        testAudioEntry { entry, audioId, _ ->
+                            entry.hashCode() shouldBeEqual audioId
+                        }
+                    }
                 }
 
-                it("Title") {
-                    testAudioEntry { entry, _, title -> entry.title shouldBeEqual title }
-                }
+                it("Play packet") { testPacketType(AudioCommand.PLAY) { playPacket } }
 
-                it("Hash code") {
-                    testAudioEntry { entry, audioId, _ -> entry.hashCode() shouldBeEqual audioId }
-                }
+                it("Dismiss packet") { testPacketType(AudioCommand.DISMISS) { dismissPacket } }
             }
-
-            it("Play packet") { testPacketType(AudioCommand.PLAY) { playPacket } }
-
-            it("Dismiss packet") { testPacketType(AudioCommand.DISMISS) { dismissPacket } }
-        }
-    })
+        },
+    )
 
 suspend inline fun testAudioEntry(crossinline test: (AudioEntry, Int, String) -> Unit) {
     checkAll(Arb.int(), Arb.string()) { audioId, title ->

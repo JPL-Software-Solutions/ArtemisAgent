@@ -289,7 +289,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
                 activateHaptic()
                 playSound(SoundEffect.BEEP_2)
                 sendToServer(
-                    CommsOutgoingPacket(entry.obj, BaseMessage.PleaseReportStatus, vesselData)
+                    CommsOutgoingPacket(entry.obj, BaseMessage.PleaseReportStatus, vesselData),
                 )
             }
         }
@@ -303,7 +303,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
                         entry.obj,
                         BaseMessage.StandByForDockingOrCeaseOperation,
                         vesselData,
-                    )
+                    ),
                 )
             }
         }
@@ -409,7 +409,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationEntryViewHolder =
             StationEntryViewHolder(
-                SelectorEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                SelectorEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: StationEntryViewHolder, position: Int) {
@@ -447,7 +447,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
                     activateHaptic()
                     playSound(SoundEffect.BEEP_2)
                     sendToServer(
-                        CommsOutgoingPacket(station.obj, BaseMessage.Build(ordnance), vesselData)
+                        CommsOutgoingPacket(station.obj, BaseMessage.Build(ordnance), vesselData),
                     )
                 }
                 ordnanceSelectorPopup.dismiss()

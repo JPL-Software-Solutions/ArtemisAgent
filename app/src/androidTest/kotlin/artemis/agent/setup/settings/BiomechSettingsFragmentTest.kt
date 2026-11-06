@@ -167,7 +167,7 @@ class BiomechSettingsFragmentTest : TestCase() {
                 if (shouldTestSettings) {
                     step("Freeze duration changing test") {
                         scenario(
-                            TimeInputTestScenario(freezeDurationTimeInput, freezeSeconds, true)
+                            TimeInputTestScenario(freezeDurationTimeInput, freezeSeconds, true),
                         )
                     }
                 }
@@ -216,7 +216,7 @@ class BiomechSettingsFragmentTest : TestCase() {
                 }
 
                 scenario(
-                    SortMethodPairScenario(sortClassButton1, sortClassButton2, sortDefaultButton)
+                    SortMethodPairScenario(sortClassButton1, sortClassButton2, sortDefaultButton),
                 )
                 scenario(SortMethodSingleScenario(sortStatusButton, sortDefaultButton))
                 scenario(SortMethodSingleScenario(sortNameButton, sortDefaultButton))
@@ -230,7 +230,7 @@ class BiomechSettingsFragmentTest : TestCase() {
                         sortStatusButton,
                         sortClassButton2,
                         sortNameButton,
-                    )
+                    ),
                 )
 
                 step("Restore sort methods from initial settings") {

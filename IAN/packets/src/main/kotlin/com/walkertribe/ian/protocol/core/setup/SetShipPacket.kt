@@ -10,7 +10,7 @@ import com.walkertribe.ian.world.Artemis
  */
 class SetShipPacket(
     /** The ship index being selected (0-based). */
-    val shipIndex: Int
+    val shipIndex: Int,
 ) : ValueIntPacket(Subtype.SET_SHIP, shipIndex) {
     init {
         require(shipIndex in 0 until Artemis.SHIP_COUNT) {

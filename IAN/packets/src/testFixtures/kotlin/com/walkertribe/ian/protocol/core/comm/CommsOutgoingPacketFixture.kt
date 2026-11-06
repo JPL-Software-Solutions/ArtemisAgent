@@ -57,7 +57,7 @@ sealed class CommsOutgoingPacketFixture(
         vesselData: VesselData,
     ) :
         PacketTestData.Client<CommsOutgoingPacket>(
-            CommsOutgoingPacket(recipient, message, vesselData)
+            CommsOutgoingPacket(recipient, message, vesselData),
         ) {
         private val expectedArgument =
             if (message is OtherMessage.GoDefend) message.targetID else UNKNOWN_ARG

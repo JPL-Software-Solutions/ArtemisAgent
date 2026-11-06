@@ -76,7 +76,7 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
             StatusInfo.Energy(player.energy.value),
             StatusInfo.Header(
                 if (player.shieldsActive.value.booleanValue) R.string.shields_active
-                else R.string.shields_inactive
+                else R.string.shields_inactive,
             ),
             StatusInfo.Shield(ShieldPosition.FRONT, player.shieldsFront),
             StatusInfo.Shield(ShieldPosition.REAR, player.shieldsRear),
@@ -109,7 +109,7 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
                 .zip(fighterStockStrings)
                 .mapNotNull { (count, fighterLabel) ->
                     if (count <= 0) null else StatusInfo.Singleseat(fighterLabel, count)
-                }
+                },
         )
     }
 
@@ -221,7 +221,7 @@ class StatusFragment : Fragment(R.layout.status_fragment) {
                     context.resources.getDimensionPixelSize(R.dimen.baseTextSize),
                     TOP_BOTTOM_PADDING,
                 )
-            }
+            },
         ) {
         var info: StatusInfo? = null
             set(value) {

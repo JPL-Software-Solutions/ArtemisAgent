@@ -334,7 +334,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                     this[0] = context.getString(R.string.ally_status_deep_strike)
                     add(
                         if (viewModel.torpedoesReady) context.getString(R.string.has_ordnance)
-                        else viewModel.getManufacturingTimer(context)
+                        else viewModel.getManufacturingTimer(context),
                     )
                 }
 
@@ -368,7 +368,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                     context.getString(
                         R.string.currently_moving_to_heading,
                         viewModel.formattedHeading(it),
-                    )
+                    ),
                 )
             }
         }
@@ -417,7 +417,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                                 }
                                 ?.takeIf { it > 0 } ?: spanDimension
                         width / crossDimension
-                    }
+                    },
                 )
             super.onLayoutChildren(recycler, state)
         }

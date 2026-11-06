@@ -32,6 +32,6 @@ class DeleteObjectPacketTest :
                                 writeIntLe(id)
                             }
                         }
-                }
+                },
             ),
     )

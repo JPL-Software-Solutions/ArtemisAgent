@@ -76,7 +76,7 @@ class MissionSettingsFragmentTest : TestCase() {
 
                         missionsEnabled.lazySet(missionManager.enabled)
                         autoDismissalTime.lazySet(
-                            missionManager.completedDismissalSeconds.inWholeSeconds
+                            missionManager.completedDismissalSeconds.inWholeSeconds,
                         )
                         autoDismissal.lazySet(missionManager.autoDismissCompletedMissions)
 
@@ -107,7 +107,7 @@ class MissionSettingsFragmentTest : TestCase() {
                         autoDismissal = autoDismissalOn,
                         autoDismissalSeconds = autoDismissalSeconds,
                         rewards = rewardSettings,
-                    )
+                    ),
                 )
             }
         }
@@ -214,7 +214,7 @@ class MissionSettingsFragmentTest : TestCase() {
                                 setting.button to rewardsEnabled[index]
                             },
                         shouldTest = shouldTest,
-                    )
+                    ),
                 )
             }
         }

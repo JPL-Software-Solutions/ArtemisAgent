@@ -94,7 +94,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         }
 
         viewLifecycleOwner.collectLatestWhileStarted(
-            Konnection.instance.observeNetworkConnection()
+            Konnection.instance.observeNetworkConnection(),
         ) {
             val info = Konnection.instance.getInfo()
             val address = info?.ipv4
@@ -133,7 +133,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         viewLifecycleOwner.collectLatestWhileStarted(viewModel.connectionStatus) {
             binding.connectLabel.text = getString(it.stringId)
             binding.connectBar.setBackgroundColor(
-                ContextCompat.getColor(binding.root.context, it.color)
+                ContextCompat.getColor(binding.root.context, it.color),
             )
             binding.connectSpinner.visibility = it.spinnerVisibility
 
@@ -182,7 +182,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
         viewLifecycleOwner.collectLatestWhileStarted(viewModel.discoveredServers) {
             serverListAdapter.onListUpdate(
-                it.map { (ip, hostName) -> GenericDataEntry(hostName, ip) }
+                it.map { (ip, hostName) -> GenericDataEntry(hostName, ip) },
             )
         }
 
@@ -252,7 +252,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
                     Regex(
                         constraint.split('.').filter(String::isNotBlank).joinToString(".*\\..*") {
                             Regex.escape(it)
-                        }
+                        },
                     )
                 val dotCount = constraint.count { it == '.' }
                 servers.filter { server ->

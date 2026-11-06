@@ -32,120 +32,132 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 
 class EnemyEntryTest :
-    DescribeSpec({
-        val cannotTaunt = "Cannot taunt"
-        val tauntCountStrings =
-            arrayOf(
-                R.string.taunts_zero to "Has not been taunted",
-                R.string.taunts_one to "Taunted once",
-                R.string.taunts_two to "Taunted twice",
-            )
+    DescribeSpec(
+        {
+            val cannotTaunt = "Cannot taunt"
+            val tauntCountStrings =
+                arrayOf(
+                    R.string.taunts_zero to "Has not been taunted",
+                    R.string.taunts_one to "Taunted once",
+                    R.string.taunts_two to "Taunted twice",
+                )
 
-        val contextStrings = tauntCountStrings.toMap() + (R.string.cannot_taunt to cannotTaunt)
+            val contextStrings = tauntCountStrings.toMap() + (R.string.cannot_taunt to cannotTaunt)
 
-        val mockContext =
-            mockk<Context> {
-                contextStrings.forEach { (key, string) -> every { getString(key) } returns string }
-                every { getString(R.string.taunts_many, *varargAny { nArgs == 1 }) } answers
-                    {
-                        "Taunted ${lastArg<Array<Any?>>().joinToString()} times"
+            val mockContext =
+                mockk<Context> {
+                    contextStrings.forEach { (key, string) ->
+                        every { getString(key) } returns string
                     }
-            }
-
-        mockkStatic(ContextCompat::getColor)
-        every { ContextCompat.getColor(any(), any()) } answers { lastArg() }
-
-        afterSpec {
-            clearAllMocks()
-            unmockkStatic(ContextCompat::getColor)
-        }
-
-        fun create(): EnemyEntry =
-            EnemyEntry(ArtemisNpc(0, 0L), mockk<Vessel>(), mockk<Faction>(), mockk<VesselData>())
-
-        describe("EnemyEntry") {
-            describe("Constructor") {
-                val enemy = create()
-
-                it("Heading") { enemy.heading.shouldBeEmpty() }
-
-                it("Range") { enemy.range.shouldBeZero() }
-
-                it("Taunt count") { enemy.tauntCount.shouldBeZero() }
-
-                it("Last taunt") { enemy.lastTaunt.shouldBeNull() }
-
-                it("Intel") { enemy.intel.shouldBeNull() }
-
-                it("Captain status") {
-                    enemy.captainStatus shouldBeEqual EnemyCaptainStatus.NO_INTEL
-                }
-            }
-
-            describe("Taunt count text") {
-                it("Three explicit taunt count strings") {
-                    EnemyEntry.TAUNT_COUNT_STRINGS shouldHaveSize 3
+                    every { getString(R.string.taunts_many, *varargAny { nArgs == 1 }) } answers
+                        {
+                            "Taunted ${lastArg<Array<Any?>>().joinToString()} times"
+                        }
                 }
 
-                it(cannotTaunt) {
+            mockkStatic(ContextCompat::getColor)
+            every { ContextCompat.getColor(any(), any()) } answers { lastArg() }
+
+            afterSpec {
+                clearAllMocks()
+                unmockkStatic(ContextCompat::getColor)
+            }
+
+            fun create(): EnemyEntry =
+                EnemyEntry(
+                    ArtemisNpc(0, 0L),
+                    mockk<Vessel>(),
+                    mockk<Faction>(),
+                    mockk<VesselData>(),
+                )
+
+            describe("EnemyEntry") {
+                describe("Constructor") {
                     val enemy = create()
-                    enemy.tauntStatuses.fill(TauntStatus.INEFFECTIVE)
-                    enemy.getTauntCountText(mockContext) shouldBeEqual cannotTaunt
+
+                    it("Heading") { enemy.heading.shouldBeEmpty() }
+
+                    it("Range") { enemy.range.shouldBeZero() }
+
+                    it("Taunt count") { enemy.tauntCount.shouldBeZero() }
+
+                    it("Last taunt") { enemy.lastTaunt.shouldBeNull() }
+
+                    it("Intel") { enemy.intel.shouldBeNull() }
+
+                    it("Captain status") {
+                        enemy.captainStatus shouldBeEqual EnemyCaptainStatus.NO_INTEL
+                    }
                 }
 
-                tauntCountStrings.forEachIndexed { count, (_, string) ->
-                    it(string) {
+                describe("Taunt count text") {
+                    it("Three explicit taunt count strings") {
+                        EnemyEntry.TAUNT_COUNT_STRINGS shouldHaveSize 3
+                    }
+
+                    it(cannotTaunt) {
                         val enemy = create()
-                        enemy.tauntCount = count
-                        enemy.getTauntCountText(mockContext) shouldBeEqual string
+                        enemy.tauntStatuses.fill(TauntStatus.INEFFECTIVE)
+                        enemy.getTauntCountText(mockContext) shouldBeEqual cannotTaunt
+                    }
+
+                    tauntCountStrings.forEachIndexed { count, (_, string) ->
+                        it(string) {
+                            val enemy = create()
+                            enemy.tauntCount = count
+                            enemy.getTauntCountText(mockContext) shouldBeEqual string
+                        }
+                    }
+
+                    it("Taunted <count> times") {
+                        val enemy = create()
+                        Arb.int(min = 3).checkAll { count ->
+                            enemy.tauntCount = count
+                            enemy.getTauntCountText(mockContext) shouldBeEqual
+                                "Taunted $count times"
+                        }
                     }
                 }
 
-                it("Taunted <count> times") {
+                describe("Color") {
                     val enemy = create()
-                    Arb.int(min = 3).checkAll { count ->
-                        enemy.tauntCount = count
-                        enemy.getTauntCountText(mockContext) shouldBeEqual "Taunted $count times"
+
+                    it("Normal: red") {
+                        enemy.getBackgroundColor(mockContext) shouldBeEqual R.color.enemyRed
+                    }
+
+                    it("Surrendered: yellow") {
+                        enemy.enemy.isSurrendered.value = BoolState.True
+                        enemy.getBackgroundColor(mockContext) shouldBeEqual
+                            R.color.surrenderedYellow
+                    }
+
+                    it("Duplicitous: orange") {
+                        enemy.captainStatus = EnemyCaptainStatus.DUPLICITOUS
+                        enemy.getBackgroundColor(mockContext) shouldBeEqual
+                            R.color.duplicitousOrange
+                    }
+                }
+
+                it("Full name") {
+                    checkAll(
+                        TestVessel.arbitrary().flatMap { vessel ->
+                            Arb.pair(
+                                Arb.vesselData(vessels = Arb.of(vessel), numVessels = 1..1),
+                                Arb.of(vessel.id),
+                            )
+                        },
+                        Arb.string(),
+                    ) { (vesselData, hullId), name ->
+                        val npc = ArtemisNpc(0, 0L)
+                        npc.name.value = name
+                        npc.hullId.value = hullId
+                        val vessel = npc.getVessel(vesselData).shouldNotBeNull()
+                        val faction = vessel.getFaction(vesselData).shouldNotBeNull()
+                        val enemy = EnemyEntry(npc, vessel, faction, vesselData)
+                        enemy.fullName shouldBeEqual "$name ${faction.name} ${vessel.name}"
                     }
                 }
             }
-
-            describe("Color") {
-                val enemy = create()
-
-                it("Normal: red") {
-                    enemy.getBackgroundColor(mockContext) shouldBeEqual R.color.enemyRed
-                }
-
-                it("Surrendered: yellow") {
-                    enemy.enemy.isSurrendered.value = BoolState.True
-                    enemy.getBackgroundColor(mockContext) shouldBeEqual R.color.surrenderedYellow
-                }
-
-                it("Duplicitous: orange") {
-                    enemy.captainStatus = EnemyCaptainStatus.DUPLICITOUS
-                    enemy.getBackgroundColor(mockContext) shouldBeEqual R.color.duplicitousOrange
-                }
-            }
-
-            it("Full name") {
-                checkAll(
-                    TestVessel.arbitrary().flatMap { vessel ->
-                        Arb.pair(
-                            Arb.vesselData(vessels = Arb.of(vessel), numVessels = 1..1),
-                            Arb.of(vessel.id),
-                        )
-                    },
-                    Arb.string(),
-                ) { (vesselData, hullId), name ->
-                    val npc = ArtemisNpc(0, 0L)
-                    npc.name.value = name
-                    npc.hullId.value = hullId
-                    val vessel = npc.getVessel(vesselData).shouldNotBeNull()
-                    val faction = vessel.getFaction(vesselData).shouldNotBeNull()
-                    val enemy = EnemyEntry(npc, vessel, faction, vesselData)
-                    enemy.fullName shouldBeEqual "$name ${faction.name} ${vessel.name}"
-                }
-            }
-        }
-    })
+        },
+    )

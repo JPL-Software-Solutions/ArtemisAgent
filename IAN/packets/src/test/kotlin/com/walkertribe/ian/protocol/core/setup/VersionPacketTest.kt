@@ -37,7 +37,7 @@ class VersionPacketTest :
                                 writeFloatLe(legacy)
                             }
                         }
-                }
+                },
             ),
         isRequired = true,
     ) {

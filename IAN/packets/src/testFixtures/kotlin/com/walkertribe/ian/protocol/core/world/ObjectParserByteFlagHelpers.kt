@@ -22,7 +22,7 @@ internal fun testBytePropertyFlags(pairs: Iterable<Pair<Flag<Byte>, Property.Byt
 }
 
 internal fun testBytePropertyFlags(
-    vararg triples: Triple<Flag<Byte>, Property.ByteProperty, Byte?>
+    vararg triples: Triple<Flag<Byte>, Property.ByteProperty, Byte?>,
 ) {
     triples.forEach { (flag, property, unknownValue) ->
         if (unknownValue != null) {

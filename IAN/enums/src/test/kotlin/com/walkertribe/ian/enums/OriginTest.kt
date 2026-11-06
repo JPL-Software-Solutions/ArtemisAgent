@@ -12,33 +12,35 @@ import io.kotest.property.arbitrary.int
 import io.kotest.property.forAll
 
 class OriginTest :
-    DescribeSpec({
-        describe("Origin") {
-            it("Constructor") { Arb.int().forAll { Origin(it).value == it } }
+    DescribeSpec(
+        {
+            describe("Origin") {
+                it("Constructor") { Arb.int().forAll { Origin(it).value == it } }
 
-            describe("Constants") {
-                withData(
-                    nameFn = { "${it.first} = ${it.third}" },
-                    Triple("SERVER", Origin.SERVER, 1),
-                    Triple("CLIENT", Origin.CLIENT, 2),
-                ) { (_, expectedOrigin, value) ->
-                    val origin = Origin(value)
-                    origin shouldBeEqual expectedOrigin
-                    origin.isValid.shouldBeTrue()
+                describe("Constants") {
+                    withData(
+                        nameFn = { "${it.first} = ${it.third}" },
+                        Triple("SERVER", Origin.SERVER, 1),
+                        Triple("CLIENT", Origin.CLIENT, 2),
+                    ) { (_, expectedOrigin, value) ->
+                        val origin = Origin(value)
+                        origin shouldBeEqual expectedOrigin
+                        origin.isValid.shouldBeTrue()
+                    }
+                }
+
+                it("Entry set contains only SERVER and CLIENT") {
+                    Origin.entries shouldContainExactly listOf(Origin.SERVER, Origin.CLIENT)
+                }
+
+                it("Invalid") {
+                    Arb.bind<Origin>()
+                        .filter { it.value !in 1..2 }
+                        .forAll { origin ->
+                            collect(if (origin.value > 2) "POSITIVE" else "NON-POSITIVE")
+                            !origin.isValid
+                        }
                 }
             }
-
-            it("Entry set contains only SERVER and CLIENT") {
-                Origin.entries shouldContainExactly listOf(Origin.SERVER, Origin.CLIENT)
-            }
-
-            it("Invalid") {
-                Arb.bind<Origin>()
-                    .filter { it.value !in 1..2 }
-                    .forAll { origin ->
-                        collect(if (origin.value > 2) "POSITIVE" else "NON-POSITIVE")
-                        !origin.isValid
-                    }
-            }
-        }
-    })
+        },
+    )

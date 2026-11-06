@@ -13,30 +13,33 @@ import io.kotest.datatest.withData
 import withCompanionModifier
 
 class PrivateNetworkTypeKonsistTest :
-    DescribeSpec({
-        describe("PrivateNetworkType") {
-            val matchingClasses =
-                Konsist.scopeFromModule("IAN/udp")
-                    .classes()
-                    .withRepresentedTypeOf(PrivateNetworkType::class)
-            val types = matchingClasses.enumConstants
-            val companionObjects = matchingClasses.objects().withCompanionModifier()
+    DescribeSpec(
+        {
+            describe("PrivateNetworkType") {
+                val matchingClasses =
+                    Konsist.scopeFromModule("IAN/udp")
+                        .classes()
+                        .withRepresentedTypeOf(PrivateNetworkType::class)
+                val types = matchingClasses.enumConstants
+                val companionObjects = matchingClasses.objects().withCompanionModifier()
 
-            withData(nameFn = { it.name }, types) { type ->
-                withData(nameFn = { it.testName }, NamingConventionTest.entries) { convention ->
-                    convention.test(type)
-                }
+                withData(nameFn = { it.name }, types) { type ->
+                    withData(nameFn = { it.testName }, NamingConventionTest.entries) { convention ->
+                        convention.test(type)
+                    }
 
-                it("Has comment explaining accepted addresses") {
-                    type.assertTrue { it.text.contains(Regex("// \\d+\\.(x|\\d+)\\.x\\.x")) }
-                }
+                    it("Has comment explaining accepted addresses") {
+                        type.assertTrue { it.text.contains(Regex("// \\d+\\.(x|\\d+)\\.x\\.x")) }
+                    }
 
-                withData(nameFn = { it.testName(type) }, CompanionTest.entries) { companionTest ->
-                    companionTest.test(companionObjects, type)
+                    withData(nameFn = { it.testName(type) }, CompanionTest.entries) { companionTest
+                        ->
+                        companionTest.test(companionObjects, type)
+                    }
                 }
             }
-        }
-    })
+        },
+    )
 
 private enum class NamingConventionTest(val testName: String) {
     CONSTANT_NAME("Name ends in BIT_BLOCK") {

@@ -75,7 +75,7 @@ class EnemyStationsFragment : Fragment(R.layout.enemy_stations_fragment) {
                             entry.obj,
                             BaseMessage.StandByForDockingOrCeaseOperation,
                             vesselData,
-                        )
+                        ),
                     )
                 }
             }
@@ -97,7 +97,11 @@ class EnemyStationsFragment : Fragment(R.layout.enemy_stations_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnemyStationViewHolder =
             EnemyStationViewHolder(
-                EnemyStationEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                EnemyStationEntryBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false,
+                ),
             )
 
         override fun onBindViewHolder(holder: EnemyStationViewHolder, position: Int) {

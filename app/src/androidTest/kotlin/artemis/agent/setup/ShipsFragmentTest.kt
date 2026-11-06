@@ -48,7 +48,7 @@ class ShipsFragmentTest : TestCase() {
                     ConnectScenario(
                         ConnectFragmentTest.FAKE_SERVER_IP,
                         activityScenarioRule.scenario,
-                    )
+                    ),
                 )
 
                 ShipsPageScreen {

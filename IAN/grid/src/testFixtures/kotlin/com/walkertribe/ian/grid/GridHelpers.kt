@@ -13,7 +13,7 @@ private const val BLOCK_SIZE_INTS = 8
 private const val SYSTEM_OFFSET = 3
 
 fun arbitraryShipSystemsList(
-    systemGen: Gen<ShipSystem?> = Arb.enum<ShipSystem>().orNull()
+    systemGen: Gen<ShipSystem?> = Arb.enum<ShipSystem>().orNull(),
 ): List<ShipSystem?> =
     systemGen.generate(RandomSource.default()).take(Coordinate.COUNT).map { it.value }.toList()
 

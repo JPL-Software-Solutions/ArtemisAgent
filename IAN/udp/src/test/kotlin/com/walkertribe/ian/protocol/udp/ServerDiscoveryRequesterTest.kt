@@ -39,134 +39,136 @@ import kotlinx.io.writeShortLe
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ServerDiscoveryRequesterTest :
-    DescribeSpec({
-        failfast = true
+    DescribeSpec(
+        {
+            failfast = true
 
-        describe("ServerDiscoveryRequester") {
-            val loopbackAddress = "127.0.0.1"
-            val testServers =
-                Arb.list(
-                        Arb.bind(Arb.ipAddressV4(), Arb.string(1..10000)) { ip, hostName ->
-                            Server(ip, hostName)
+            describe("ServerDiscoveryRequester") {
+                val loopbackAddress = "127.0.0.1"
+                val testServers =
+                    Arb.list(
+                            Arb.bind(Arb.ipAddressV4(), Arb.string(1..10000)) { ip, hostName ->
+                                Server(ip, hostName)
+                            },
+                        )
+                        .next()
+
+                lateinit var packet: Source
+                val discoveredServers = mutableListOf<Server>()
+                var onQuitCalled = false
+
+                val listener =
+                    object : ServerDiscoveryRequester.Listener {
+                        override suspend fun onDiscovered(server: Server) {
+                            discoveredServers.add(server)
                         }
-                    )
-                    .next()
 
-            lateinit var packet: Source
-            val discoveredServers = mutableListOf<Server>()
-            var onQuitCalled = false
-
-            val listener =
-                object : ServerDiscoveryRequester.Listener {
-                    override suspend fun onDiscovered(server: Server) {
-                        discoveredServers.add(server)
-                    }
-
-                    override suspend fun onQuit() {
-                        onQuitCalled = true
-                    }
-                }
-
-            val retryConfig = retryConfig { maxRetry = 10 }
-
-            it("Throws when initialized with invalid timeout") {
-                Arb.long(max = 0L).checkAll {
-                    shouldThrow<IllegalArgumentException> {
-                        ServerDiscoveryRequester(listener = listener, timeout = it.milliseconds)
-                    }
-                }
-            }
-
-            val requester =
-                ServerDiscoveryRequester(listener = listener, timeout = 500.milliseconds)
-
-            val localAddress = InetSocketAddress(loopbackAddress, ServerDiscoveryRequester.PORT)
-
-            SelectorManager(UnconfinedTestDispatcher()).use { selector ->
-                aSocket(selector).udp().bind(localAddress).use { socket ->
-                    var requesterJob: Job? = null
-                    lateinit var datagram: Datagram
-
-                    it("Datagram was sent through UDP") {
-                        retry(retryConfig) {
-                            requesterJob?.join()
-                            requesterJob = launch { requester.run(loopbackAddress) }
-
-                            datagram = socket.receive()
-                            packet = datagram.packet.shouldNotBeNull()
+                        override suspend fun onQuit() {
+                            onQuitCalled = true
                         }
                     }
 
-                    it("Datagram contains ENQ byte") {
-                        packet.exhausted().shouldBeFalse()
-                        val enq = packet.readByte()
-                        enq shouldBeEqual Server.ENQ
-                        packet.exhausted().shouldBeTrue()
+                val retryConfig = retryConfig { maxRetry = 10 }
+
+                it("Throws when initialized with invalid timeout") {
+                    Arb.long(max = 0L).checkAll {
+                        shouldThrow<IllegalArgumentException> {
+                            ServerDiscoveryRequester(listener = listener, timeout = it.milliseconds)
+                        }
                     }
+                }
 
-                    it("Discovered all broadcasting servers") {
-                        retry(retryConfig) {
-                            discoveredServers.clear()
-                            requesterJob?.join()
-                            requesterJob = launch { requester.run(loopbackAddress) }
+                val requester =
+                    ServerDiscoveryRequester(listener = listener, timeout = 500.milliseconds)
 
-                            datagram = socket.receive()
-                            testServers.forEach { (ip, hostName) ->
-                                socket.send(
-                                    Datagram(
-                                        packet =
-                                            buildPacket {
-                                                writeByte(Server.ACK)
+                val localAddress = InetSocketAddress(loopbackAddress, ServerDiscoveryRequester.PORT)
 
-                                                writeShortLe(ip.length.toShort())
-                                                writeText(ip)
+                SelectorManager(UnconfinedTestDispatcher()).use { selector ->
+                    aSocket(selector).udp().bind(localAddress).use { socket ->
+                        var requesterJob: Job? = null
+                        lateinit var datagram: Datagram
 
-                                                writeShortLe(hostName.length.toShort())
-                                                writeText(hostName)
+                        it("Datagram was sent through UDP") {
+                            retry(retryConfig) {
+                                requesterJob?.join()
+                                requesterJob = launch { requester.run(loopbackAddress) }
 
-                                                writeByte(0)
-                                            },
-                                        address = datagram.address,
-                                    )
-                                )
+                                datagram = socket.receive()
+                                packet = datagram.packet.shouldNotBeNull()
                             }
-
-                            requesterJob?.join()
-                            discoveredServers shouldContainExactly testServers
                         }
-                    }
 
-                    it("Ignores data not beginning with ACK byte") {
-                        retry(retryConfig) {
-                            discoveredServers.clear()
-                            requesterJob?.join()
-                            requesterJob = launch { requester.run(loopbackAddress) }
+                        it("Datagram contains ENQ byte") {
+                            packet.exhausted().shouldBeFalse()
+                            val enq = packet.readByte()
+                            enq shouldBeEqual Server.ENQ
+                            packet.exhausted().shouldBeTrue()
+                        }
 
-                            datagram = socket.receive()
+                        it("Discovered all broadcasting servers") {
+                            retry(retryConfig) {
+                                discoveredServers.clear()
+                                requesterJob?.join()
+                                requesterJob = launch { requester.run(loopbackAddress) }
 
-                            checkAll(
-                                Arb.byte().filter { it != Server.ACK },
-                                Arb.byteArray(Arb.positiveInt(max = 100), Arb.byte()),
-                            ) { firstByte, otherBytes ->
-                                socket.send(
-                                    Datagram(
-                                        packet =
-                                            buildPacket {
-                                                writeByte(firstByte)
-                                                writeFully(otherBytes)
-                                            },
-                                        address = datagram.address,
+                                datagram = socket.receive()
+                                testServers.forEach { (ip, hostName) ->
+                                    socket.send(
+                                        Datagram(
+                                            packet =
+                                                buildPacket {
+                                                    writeByte(Server.ACK)
+
+                                                    writeShortLe(ip.length.toShort())
+                                                    writeText(ip)
+
+                                                    writeShortLe(hostName.length.toShort())
+                                                    writeText(hostName)
+
+                                                    writeByte(0)
+                                                },
+                                            address = datagram.address,
+                                        ),
                                     )
-                                )
-                            }
+                                }
 
-                            requesterJob.join()
-                            discoveredServers.shouldBeEmpty()
+                                requesterJob?.join()
+                                discoveredServers shouldContainExactly testServers
+                            }
+                        }
+
+                        it("Ignores data not beginning with ACK byte") {
+                            retry(retryConfig) {
+                                discoveredServers.clear()
+                                requesterJob?.join()
+                                requesterJob = launch { requester.run(loopbackAddress) }
+
+                                datagram = socket.receive()
+
+                                checkAll(
+                                    Arb.byte().filter { it != Server.ACK },
+                                    Arb.byteArray(Arb.positiveInt(max = 100), Arb.byte()),
+                                ) { firstByte, otherBytes ->
+                                    socket.send(
+                                        Datagram(
+                                            packet =
+                                                buildPacket {
+                                                    writeByte(firstByte)
+                                                    writeFully(otherBytes)
+                                                },
+                                            address = datagram.address,
+                                        ),
+                                    )
+                                }
+
+                                requesterJob.join()
+                                discoveredServers.shouldBeEmpty()
+                            }
                         }
                     }
                 }
-            }
 
-            it("Quit after timeout") { onQuitCalled.shouldBeTrue() }
-        }
-    })
+                it("Quit after timeout") { onQuitCalled.shouldBeTrue() }
+            }
+        },
+    )
