@@ -39,26 +39,17 @@ jobs:
       matrix:
         path:
           - app
-          - app/konsist
           - IAN
           - IAN/annotations
-          - IAN/annotations/konsist
           - IAN/enums
-          - IAN/enums/konsist
           - IAN/grid
           - IAN/listener
-          - IAN/listener/konsist
           - IAN/packets
-          - IAN/packets/konsist
           - IAN/processor
           - IAN/udp
-          - IAN/udp/konsist
           - IAN/util
-          - IAN/util/konsist
           - IAN/vesseldata
-          - IAN/vesseldata/konsist
           - IAN/world
-          - IAN/world/konsist
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.path }}-${{ github.ref }}
       cancel-in-progress: true
@@ -100,6 +91,64 @@ jobs:
         with:
           sarif_file: snyk.sarif
           category: snyk-${{ steps.get-category.outputs.value }}
+
+  snyk-konsist:
+    name: Gradle (${{ matrix.path }}/konsist)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - app
+          - IAN/annotations
+          - IAN/enums
+          - IAN/listener
+          - IAN/packets
+          - IAN/udp
+          - IAN/util
+          - IAN/vesseldata
+          - IAN/world
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.path }}-konsist-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Generate Snyk category
+        id: get-category
+        if: ${{ matrix.path != '.' }}
+        uses: mad9000/actions-find-and-replace-string@789e104bfa5a1e90579e74de187e696450611aa2 # 6
+        with:
+          source: ${{ matrix.path }}
+          find: '/'
+          replace: '-'
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        continue-on-error: true # Tolerate issues being found
+        with:
+          args: ${{ matrix.path }} --file=konsist/build.gradle.kts --sarif-file-output=snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor
+        uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+        with:
+          command: monitor
+          args: ${{ matrix.path }} --file=konsist/build.gradle.kts
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # Push the Snyk Code results into GitHub Code Scanning tab
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        if: always() # Ensure SARIF file upload
+        with:
+          sarif_file: snyk.sarif
+          category: snyk-${{ steps.get-category.outputs.value }}-konsist
 
   snyk-gradle-root:
     name: Gradle (root)
