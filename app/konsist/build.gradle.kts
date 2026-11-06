@@ -49,16 +49,19 @@ dependencies {
     testRuntimeOnly(libs.bundles.konsist.runtime)
 
     constraints {
+        androidLintTool(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
         androidLintTool(libs.bouncycastle) {
             because("Version 1.84 patches five moderate security vulnerabilities")
         }
         androidLintTool(libs.commons.lang3) {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }
-        androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
-        androidLintTool(libs.asm) {
-            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        androidLintTool(libs.guava) {
+            because("Version 33.7.2-android patches a high-level security vulnerability")
         }
+        androidLintTool(libs.httpclient) { because("Version 4.5.13 patches an XSS vulnerability") }
         detekt(libs.kotlin.stdlib) {
             because("Detekt CLI uses outdated, deprecated Kotlin version")
         }
