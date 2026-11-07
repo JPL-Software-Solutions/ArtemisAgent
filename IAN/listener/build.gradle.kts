@@ -8,7 +8,7 @@ plugins {
     id("info.solidsoft.pitest")
 }
 
-configureTests()
+configureTests(useByteBuddyAgent = true)
 
 pitest.configure(rootPackage = "com.walkertribe.ian.iface", threads = 2)
 
