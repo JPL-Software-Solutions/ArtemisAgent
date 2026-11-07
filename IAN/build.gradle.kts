@@ -5,6 +5,7 @@ import com.android.build.gradle.internal.tasks.factory.dependsOn
 plugins {
     alias(conventions.plugins.ian.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.javaagent.test)
     alias(libs.plugins.kover)
     id("info.solidsoft.pitest")
 }
@@ -12,6 +13,8 @@ plugins {
 configureTests(maxMemoryGb = 8)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
+
+kover.currentProject.instrumentation.includedClasses.add("com.walkertribe.ian.*")
 
 val konsistCollect =
     tasks.register("konsistCollect") {
@@ -56,6 +59,7 @@ dependencies {
     testImplementation(projects.ian.enums)
     testImplementation(libs.bundles.ian.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 
     pitest(libs.bundles.arcmutate)
 
