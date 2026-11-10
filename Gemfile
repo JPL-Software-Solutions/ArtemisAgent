@@ -9,5 +9,3 @@ gem "danger-detekt-instacart"
 gem "danger-lgtm"
 gem "danger-rubocop"
 gem "rubocop", require: false
-
-gem "git", "< 6.0.0"
