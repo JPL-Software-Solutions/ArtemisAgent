@@ -75,10 +75,10 @@ extensions.configure<ApplicationExtension> {
     if (keystoreProperties.isNotEmpty()) {
         signingConfigs {
             create(release) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storePassword = keystoreProperties["storePassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storePassword = keystoreProperties.getProperty("storePassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
             }
         }
     }
