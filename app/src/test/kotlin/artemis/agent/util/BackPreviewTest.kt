@@ -14,112 +14,118 @@ import io.kotest.property.arbitrary.positiveFloat
 import io.kotest.property.checkAll
 
 class BackPreviewTest :
-    DescribeSpec({
-        var previewed = false
-        var reverted = false
-        var beforePreview = false
-        var closed = false
+    DescribeSpec(
+        {
+            var previewed = false
+            var reverted = false
+            var beforePreview = false
+            var closed = false
 
-        val backPreview =
-            object : BackPreview(true) {
-                override fun beforePreview() {
-                    super.beforePreview()
-                    beforePreview = true
+            val backPreview =
+                object : BackPreview(true) {
+                    override fun beforePreview() {
+                        super.beforePreview()
+                        beforePreview = true
+                    }
+
+                    override fun preview() {
+                        previewed = true
+                    }
+
+                    override fun revert() {
+                        reverted = true
+                    }
+
+                    override fun close() {
+                        super.close()
+                        closed = true
+                    }
                 }
 
-                override fun preview() {
-                    previewed = true
-                }
-
-                override fun revert() {
-                    reverted = true
-                }
-
-                override fun close() {
-                    super.close()
-                    closed = true
-                }
+            fun reset() {
+                previewed = false
+                reverted = false
+                beforePreview = false
+                closed = false
             }
 
-        fun reset() {
-            previewed = false
-            reverted = false
-            beforePreview = false
-            closed = false
-        }
+            beforeTest { reset() }
 
-        beforeTest { reset() }
+            val swipeEdgeArb =
+                Arb.of(
+                    BackEventCompat.EDGE_LEFT,
+                    BackEventCompat.EDGE_RIGHT,
+                    BackEventCompat.EDGE_NONE,
+                )
 
-        val swipeEdgeArb =
-            Arb.of(BackEventCompat.EDGE_LEFT, BackEventCompat.EDGE_RIGHT, BackEventCompat.EDGE_NONE)
-
-        describe("BackPreview") {
-            it("On back started") {
-                checkAll(Arb.float(), Arb.float(), Arb.float(0.0f, 1.0f), swipeEdgeArb) {
-                    touchX,
-                    touchY,
-                    progress,
-                    swipeEdge ->
-                    reset()
-                    backPreview.handleOnBackStarted(
-                        BackEventCompat(touchX, touchY, progress, swipeEdge)
-                    )
-
-                    backPreview.isEnabled.shouldBeTrue()
-                    backPreview.isPreviewing.value.shouldBeTrue()
-                    beforePreview.shouldBeTrue()
-                    previewed.shouldBeTrue()
-                    reverted.shouldBeFalse()
-                    closed.shouldBeFalse()
-                }
-            }
-
-            describe("On back progressed") {
-                withData(
-                    nameFn = { "${it.first} preview" },
-                    Triple("Activate", Arb.positiveFloat(includeNaNs = false), true),
-                    Triple("Revert", Arb.numericFloat(max = 0.0f), false),
-                ) { (_, progressArb, shouldPreview) ->
-                    checkAll(Arb.float(), Arb.float(), progressArb, swipeEdgeArb) {
+            describe("BackPreview") {
+                it("On back started") {
+                    checkAll(Arb.float(), Arb.float(), Arb.float(0.0f, 1.0f), swipeEdgeArb) {
                         touchX,
                         touchY,
                         progress,
                         swipeEdge ->
                         reset()
-                        backPreview.handleOnBackProgressed(
-                            BackEventCompat(touchX, touchY, progress, swipeEdge)
+                        backPreview.handleOnBackStarted(
+                            BackEventCompat(touchX, touchY, progress, swipeEdge),
                         )
 
                         backPreview.isEnabled.shouldBeTrue()
-                        backPreview.isPreviewing.value shouldBeEqual shouldPreview
-                        beforePreview.shouldBeFalse()
-                        previewed shouldBeEqual shouldPreview
-                        reverted shouldBeEqual !shouldPreview
+                        backPreview.isPreviewing.value.shouldBeTrue()
+                        beforePreview.shouldBeTrue()
+                        previewed.shouldBeTrue()
+                        reverted.shouldBeFalse()
                         closed.shouldBeFalse()
                     }
                 }
+
+                describe("On back progressed") {
+                    withData(
+                        nameFn = { "${it.first} preview" },
+                        Triple("Activate", Arb.positiveFloat(includeNaNs = false), true),
+                        Triple("Revert", Arb.numericFloat(max = 0.0f), false),
+                    ) { (_, progressArb, shouldPreview) ->
+                        checkAll(Arb.float(), Arb.float(), progressArb, swipeEdgeArb) {
+                            touchX,
+                            touchY,
+                            progress,
+                            swipeEdge ->
+                            reset()
+                            backPreview.handleOnBackProgressed(
+                                BackEventCompat(touchX, touchY, progress, swipeEdge),
+                            )
+
+                            backPreview.isEnabled.shouldBeTrue()
+                            backPreview.isPreviewing.value shouldBeEqual shouldPreview
+                            beforePreview.shouldBeFalse()
+                            previewed shouldBeEqual shouldPreview
+                            reverted shouldBeEqual !shouldPreview
+                            closed.shouldBeFalse()
+                        }
+                    }
+                }
+
+                it("On back cancelled") {
+                    backPreview.handleOnBackCancelled()
+
+                    backPreview.isEnabled.shouldBeTrue()
+                    backPreview.isPreviewing.value.shouldBeFalse()
+                    beforePreview.shouldBeFalse()
+                    previewed.shouldBeFalse()
+                    reverted.shouldBeTrue()
+                    closed.shouldBeTrue()
+                }
+
+                it("On back ended") {
+                    backPreview.handleOnBackPressed()
+
+                    backPreview.isEnabled.shouldBeFalse()
+                    backPreview.isPreviewing.value.shouldBeFalse()
+                    beforePreview.shouldBeFalse()
+                    previewed.shouldBeTrue()
+                    reverted.shouldBeFalse()
+                    closed.shouldBeTrue()
+                }
             }
-
-            it("On back cancelled") {
-                backPreview.handleOnBackCancelled()
-
-                backPreview.isEnabled.shouldBeTrue()
-                backPreview.isPreviewing.value.shouldBeFalse()
-                beforePreview.shouldBeFalse()
-                previewed.shouldBeFalse()
-                reverted.shouldBeTrue()
-                closed.shouldBeTrue()
-            }
-
-            it("On back ended") {
-                backPreview.handleOnBackPressed()
-
-                backPreview.isEnabled.shouldBeFalse()
-                backPreview.isPreviewing.value.shouldBeFalse()
-                beforePreview.shouldBeFalse()
-                previewed.shouldBeTrue()
-                reverted.shouldBeFalse()
-                closed.shouldBeTrue()
-            }
-        }
-    })
+        },
+    )

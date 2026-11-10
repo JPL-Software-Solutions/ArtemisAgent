@@ -98,7 +98,7 @@ class ClientSettingsFragmentTest : TestCase() {
 
                 step("Test showing info setting") {
                     SettingsPageScreen.Client.showNetworkInfoToggleSetting.testSingleToggle(
-                        showingInfo.get()
+                        showingInfo.get(),
                     )
                 }
 
@@ -140,7 +140,7 @@ class ClientSettingsFragmentTest : TestCase() {
                                 ConnectFragmentTest.FAKE_SERVER_IP,
                                 activityScenarioRule.scenario,
                                 shouldCheckConnection = index == 1,
-                            )
+                            ),
                         )
                     }
 
@@ -149,7 +149,7 @@ class ClientSettingsFragmentTest : TestCase() {
 
                     step("Disclaimer should be showing") {
                         SettingsPageScreen.Client.vesselDataDisclaimer.isDisplayedWithText(
-                            R.string.vessel_data_setting_disclaimer
+                            R.string.vessel_data_setting_disclaimer,
                         )
                     }
 
@@ -245,7 +245,7 @@ class ClientSettingsFragmentTest : TestCase() {
                 step("Test resetting port") {
                     repeat(PORT_TEST_COUNT) {
                         serverPortField.replaceText(
-                            Random.nextInt(UShort.MAX_VALUE.toInt()).toString()
+                            Random.nextInt(UShort.MAX_VALUE.toInt()).toString(),
                         )
                         serverPortResetButton.click()
                         serverPortField.isDisplayedWithText("2010")
@@ -301,7 +301,7 @@ class ClientSettingsFragmentTest : TestCase() {
                     updateIntervalTitle.isDisplayedWithText(R.string.update_interval)
                     updateIntervalMilliseconds.isDisplayedWithText(R.string.milliseconds)
                     updateIntervalDisclaimer.isDisplayedWithText(
-                        R.string.update_interval_disclaimer
+                        R.string.update_interval_disclaimer,
                     )
                     updateIntervalBar {
                         isCompletelyDisplayed()

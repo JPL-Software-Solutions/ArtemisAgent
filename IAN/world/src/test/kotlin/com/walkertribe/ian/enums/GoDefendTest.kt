@@ -12,21 +12,23 @@ import io.kotest.property.arbitrary.choose
 import io.kotest.property.checkAll
 
 class GoDefendTest :
-    DescribeSpec({
-        val arbObject =
-            Arb.choose(
-                3 to Arb.bind<ArtemisBase>(),
-                4 to Arb.bind<ArtemisNpc>(),
-                1 to Arb.bind<ArtemisPlayer>(),
-            )
+    DescribeSpec(
+        {
+            val arbObject =
+                Arb.choose(
+                    3 to Arb.bind<ArtemisBase>(),
+                    4 to Arb.bind<ArtemisNpc>(),
+                    1 to Arb.bind<ArtemisPlayer>(),
+                )
 
-        it("GoDefend helper extension") {
-            arbObject.checkAll { target ->
-                collect(target.type)
+            it("GoDefend helper extension") {
+                arbObject.checkAll { target ->
+                    collect(target.type)
 
-                val goDefend = OtherMessage.GoDefend(target)
-                goDefend.shouldBeInstanceOf<OtherMessage.GoDefend>()
-                goDefend.targetID shouldBeEqual target.id
+                    val goDefend = OtherMessage.GoDefend(target)
+                    goDefend.shouldBeInstanceOf<OtherMessage.GoDefend>()
+                    goDefend.targetID shouldBeEqual target.id
+                }
             }
-        }
-    })
+        },
+    )

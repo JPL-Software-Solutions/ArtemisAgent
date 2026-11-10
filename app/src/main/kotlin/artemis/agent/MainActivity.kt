@@ -555,7 +555,7 @@ class MainActivity : AppCompatActivity() {
             NotificationCompat.Builder(this, info.channel.tag)
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setLargeIcon(
-                    BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground)
+                    BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground),
                 )
                 .setContentIntent(pendingIntent)
                 .also(setBuilder)
@@ -595,7 +595,7 @@ class MainActivity : AppCompatActivity() {
                     override fun onAnimationEnd(animation: Animator) {
                         splash.remove()
                     }
-                }
+                },
             )
 
             clipAnimator.start()
@@ -762,7 +762,7 @@ class MainActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
             val insets =
                 windowInsets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
                 )
             view.updatePadding(insets.left, insets.top, insets.right, insets.bottom)
             WindowInsetsCompat.CONSUMED
@@ -861,7 +861,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun getDisconnectDialogContents(cause: DisconnectCause): Pair<String, Boolean>? {
         val crashlytics = Firebase.crashlytics
         return when (cause) {
@@ -969,7 +968,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkForUpdates(checkType: UpdateCheck) {
         viewModel.viewModelScope.launch(
-            CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() }
+            CoroutineExceptionHandler { _, _ -> checkType.createAlert(this@MainActivity)?.show() },
         ) {
             if (checkType == UpdateCheck.STARTUP) {
                 delay(INITIAL_UPDATE_DELAY.milliseconds)

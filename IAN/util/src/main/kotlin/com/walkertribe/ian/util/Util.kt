@@ -15,5 +15,5 @@ object Util {
     fun String.caretToNewline(): String = replace(CARET, NEWLINE)
 
     /** Converts the given byte to a hex String. */
-    @OptIn(ExperimentalStdlibApi::class) fun Byte.toHex(): String = this.toHexString()
+    fun Byte.toHex(): String = this.toHexString()
 }

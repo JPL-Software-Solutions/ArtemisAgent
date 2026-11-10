@@ -146,7 +146,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
                         entry.captainStatus == EnemyCaptainStatus.DUPLICITOUS ->
                             R.string.surrendered_duplicitous
                         else -> R.string.surrendered
-                    }
+                    },
                 )
 
             enemyBinding.enemyTauntsLabel.text = entry.getTauntCountText(context)
@@ -199,7 +199,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnemyViewHolder =
             EnemyViewHolder(
-                EnemiesEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                EnemiesEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: EnemyViewHolder, position: Int) {
@@ -280,7 +280,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TauntViewHolder =
             TauntViewHolder(
-                TauntEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                TauntEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: TauntViewHolder, position: Int) {
@@ -308,7 +308,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
                     enemiesManager.selection.value?.also { enemy ->
                         val tauntMessage = EnemyMessage.entries[position + 1]
                         viewModel.sendToServer(
-                            CommsOutgoingPacket(enemy.enemy, tauntMessage, viewModel.vesselData)
+                            CommsOutgoingPacket(enemy.enemy, tauntMessage, viewModel.vesselData),
                         )
                         enemy.lastTaunt = tauntMessage
                     }

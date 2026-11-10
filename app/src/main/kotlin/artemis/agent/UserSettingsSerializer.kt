@@ -148,7 +148,7 @@ object UserSettingsSerializer : Serializer<UserSettingsOuterClass.UserSettings> 
             currentData.version < version
 
         final override suspend fun migrate(
-            currentData: UserSettingsOuterClass.UserSettings
+            currentData: UserSettingsOuterClass.UserSettings,
         ): UserSettingsOuterClass.UserSettings = currentData.copy {
             this.version = this@Migration.version
             execute(this)

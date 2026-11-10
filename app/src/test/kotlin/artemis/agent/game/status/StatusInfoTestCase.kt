@@ -42,7 +42,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             Exhaustive.of(StatusInfo.Empty to StatusInfo.Empty)
 
         override fun statusInfoNotEqualsGen(
-            other: Empty
+            other: Empty,
         ): Gen<Pair<StatusInfo.Empty, StatusInfo.Empty>>? = null
 
         override suspend fun testText() {
@@ -71,7 +71,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             Exhaustive.of(StatusInfo.Header(stringId) to StatusInfo.Header(stringId))
 
         override fun statusInfoNotEqualsGen(
-            other: Header
+            other: Header,
         ): Gen<Pair<StatusInfo.Header, StatusInfo.Header>> =
             Exhaustive.of(StatusInfo.Header(stringId) to StatusInfo.Header(other.stringId))
 
@@ -104,7 +104,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             Arb.bind()
 
         override fun statusInfoNotEqualsGen(
-            other: Energy
+            other: Energy,
         ): Gen<Pair<StatusInfo.Energy, StatusInfo.Energy>>? = null
 
         override suspend fun testText() {
@@ -132,15 +132,15 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
         override val statusInfoEqualsGen: Gen<Pair<StatusInfo.Shield, StatusInfo.Shield>> =
             Exhaustive.of(
                 StatusInfo.Shield(shieldPosition, mockShields) to
-                    StatusInfo.Shield(shieldPosition, mockShields)
+                    StatusInfo.Shield(shieldPosition, mockShields),
             )
 
         override fun statusInfoNotEqualsGen(
-            other: Shield
+            other: Shield,
         ): Gen<Pair<StatusInfo.Shield, StatusInfo.Shield>> =
             Exhaustive.of(
                 StatusInfo.Shield(shieldPosition, mockShields) to
-                    StatusInfo.Shield(other.shieldPosition, mockShields)
+                    StatusInfo.Shield(other.shieldPosition, mockShields),
             )
 
         override suspend fun testText() {
@@ -185,7 +185,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             }
 
         override fun statusInfoNotEqualsGen(
-            other: OrdnanceCount
+            other: OrdnanceCount,
         ): Gen<Pair<StatusInfo.OrdnanceCount, StatusInfo.OrdnanceCount>> =
             arbData.map { (version, count, max) ->
                 StatusInfo.OrdnanceCount(ordnanceType, version, count, max) to
@@ -229,7 +229,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             }
 
         override fun statusInfoNotEqualsGen(
-            other: Singleseat
+            other: Singleseat,
         ): Gen<Pair<StatusInfo.Singleseat, StatusInfo.Singleseat>> =
             Arb.int().map { count ->
                 StatusInfo.Singleseat(fighterLabel, count) to
@@ -272,7 +272,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
             }
 
         override fun statusInfoNotEqualsGen(
-            other: DamageReport
+            other: DamageReport,
         ): Gen<Pair<StatusInfo.DamageReport, StatusInfo.DamageReport>> =
             Arb.bind(Arb.pair(Arb.string(), Arb.string()).filter { (a, b) -> a != b }, arbData) {
                 (label1, label2),
@@ -313,7 +313,7 @@ sealed interface StatusInfoTestCase<T : StatusInfo, TC : StatusInfoTestCase<T, T
         override val statusInfoEqualsGen: Gen<Pair<StatusInfo.Time, StatusInfo.Time>> = Arb.bind()
 
         override fun statusInfoNotEqualsGen(
-            other: Time
+            other: Time,
         ): Gen<Pair<StatusInfo.Time, StatusInfo.Time>>? = null
 
         override suspend fun testText() {

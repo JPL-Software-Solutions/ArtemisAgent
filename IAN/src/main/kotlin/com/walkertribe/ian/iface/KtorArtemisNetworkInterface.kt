@@ -109,8 +109,8 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
                     if (!wasConnected) {
                         listeners.offer(ConnectionEvent.Success(it.message))
                     }
-                }
-            ) + heartbeatManager.listeners
+                },
+            ) + heartbeatManager.listeners,
         )
     }
 
@@ -247,7 +247,7 @@ class KtorArtemisNetworkInterface(override val maxVersion: Version?) :
 
     internal fun dispatchDisconnect() {
         listeners.offer(
-            ConnectionEvent.Disconnect(disconnectCause ?: DisconnectCause.LocalDisconnect)
+            ConnectionEvent.Disconnect(disconnectCause ?: DisconnectCause.LocalDisconnect),
         )
     }
 }

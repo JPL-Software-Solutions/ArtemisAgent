@@ -60,7 +60,7 @@ private constructor(
 
     companion object {
         fun allFixtures(
-            arbVersion: Arb<Version> = Arb.version()
+            arbVersion: Arb<Version> = Arb.version(),
         ): List<IncomingAudioPacketFixture> =
             listOf(
                 IncomingAudioPacketFixture("Playing", arbVersion, Exhaustive.of(AudioMode.Playing)),

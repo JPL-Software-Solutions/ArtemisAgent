@@ -27,7 +27,7 @@ class GenericDataViewHolder private constructor(private val entryBinding: Generi
         }
 
     constructor(
-        parent: ViewGroup
+        parent: ViewGroup,
     ) : this(GenericDataEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     fun bind(entry: GenericDataEntry) {

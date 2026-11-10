@@ -8,21 +8,23 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 
 class CommsActionEntryTest :
-    DescribeSpec({
-        describe("CommsActionEntry") {
-            describe("Properties") {
-                it("Label") {
-                    testCommsActionEntry { entry, label -> entry.label shouldBeEqual label }
-                }
+    DescribeSpec(
+        {
+            describe("CommsActionEntry") {
+                describe("Properties") {
+                    it("Label") {
+                        testCommsActionEntry { entry, label -> entry.label shouldBeEqual label }
+                    }
 
-                it("Hash code") {
-                    testCommsActionEntry { entry, label ->
-                        entry.hashCode() shouldBeEqual JamCrc.compute(label)
+                    it("Hash code") {
+                        testCommsActionEntry { entry, label ->
+                            entry.hashCode() shouldBeEqual JamCrc.compute(label)
+                        }
                     }
                 }
             }
-        }
-    })
+        },
+    )
 
 suspend inline fun testCommsActionEntry(crossinline test: (CommsActionEntry, String) -> Unit) {
     Arb.string().checkAll { label -> test(CommsActionEntry(label), label) }

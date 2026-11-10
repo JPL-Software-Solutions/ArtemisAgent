@@ -258,7 +258,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
                     add(
                         INDEX_ABOUT_VERSIONS,
                         HelpTopicContent.Text(
-                            res.getString(R.string.supports_artemis_versions, vm.maxVersion)
+                            res.getString(R.string.supports_artemis_versions, vm.maxVersion),
                         ),
                     )
                     add(HelpTopicContent.Image(R.drawable.ic_launcher_foreground))

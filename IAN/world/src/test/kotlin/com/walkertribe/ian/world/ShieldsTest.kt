@@ -13,63 +13,65 @@ import io.kotest.property.arbitrary.numericFloat
 import io.kotest.property.checkAll
 
 class ShieldsTest :
-    DescribeSpec({
-        describe("Shields") {
-            val shields = Shields(0L)
+    DescribeSpec(
+        {
+            describe("Shields") {
+                val shields = Shields(0L)
 
-            describe("Initial state") {
-                it("Percentage: NaN") { shields.percentage.shouldBeNaN() }
+                describe("Initial state") {
+                    it("Percentage: NaN") { shields.percentage.shouldBeNaN() }
 
-                it("Is damaged: false") { shields.isDamaged.shouldBeFalse() }
-            }
-
-            describe("Full strength") {
-                val values = mutableListOf<Float>()
-                Arb.numericFloat(min = 1f).checkAll { values.add(it) }
-
-                it("Percentage: 100%") {
-                    values.forEach { strength ->
-                        shields.strength.value = strength
-                        shields.maxStrength.value = strength
-                        shields.percentage shouldBeEqual 1f
-                    }
+                    it("Is damaged: false") { shields.isDamaged.shouldBeFalse() }
                 }
 
-                it("Is damaged: false") {
-                    values.forEach { strength ->
-                        shields.strength.value = strength
-                        shields.maxStrength.value = strength
-                        shields.isDamaged.shouldBeFalse()
-                    }
-                }
-            }
+                describe("Full strength") {
+                    val values = mutableListOf<Float>()
+                    Arb.numericFloat(min = 1f).checkAll { values.add(it) }
 
-            describe("Less than full strength") {
-                val pairs = mutableListOf<Pair<Float, Float>>()
-
-                Arb.numericFloat(min = 1f)
-                    .flatMap { maxStrength ->
-                        Arb.numericFloat(min = 0f, max = maxStrength * 0.98f).map { strength ->
-                            strength to maxStrength
+                    it("Percentage: 100%") {
+                        values.forEach { strength ->
+                            shields.strength.value = strength
+                            shields.maxStrength.value = strength
+                            shields.percentage shouldBeEqual 1f
                         }
                     }
-                    .checkAll { pairs.add(it) }
 
-                it("Percentage") {
-                    pairs.forEach { (strength, maxStrength) ->
-                        shields.strength.value = strength
-                        shields.maxStrength.value = maxStrength
-                        shields.percentage.shouldBeBetween(0f, 1f, 0f)
+                    it("Is damaged: false") {
+                        values.forEach { strength ->
+                            shields.strength.value = strength
+                            shields.maxStrength.value = strength
+                            shields.isDamaged.shouldBeFalse()
+                        }
                     }
                 }
 
-                it("Is damaged: true") {
-                    pairs.forEach { (strength, maxStrength) ->
-                        shields.strength.value = strength
-                        shields.maxStrength.value = maxStrength
-                        shields.isDamaged.shouldBeTrue()
+                describe("Less than full strength") {
+                    val pairs = mutableListOf<Pair<Float, Float>>()
+
+                    Arb.numericFloat(min = 1f)
+                        .flatMap { maxStrength ->
+                            Arb.numericFloat(min = 0f, max = maxStrength * 0.98f).map { strength ->
+                                strength to maxStrength
+                            }
+                        }
+                        .checkAll { pairs.add(it) }
+
+                    it("Percentage") {
+                        pairs.forEach { (strength, maxStrength) ->
+                            shields.strength.value = strength
+                            shields.maxStrength.value = maxStrength
+                            shields.percentage.shouldBeBetween(0f, 1f, 0f)
+                        }
+                    }
+
+                    it("Is damaged: true") {
+                        pairs.forEach { (strength, maxStrength) ->
+                            shields.strength.value = strength
+                            shields.maxStrength.value = maxStrength
+                            shields.isDamaged.shouldBeTrue()
+                        }
                     }
                 }
             }
-        }
-    })
+        },
+    )

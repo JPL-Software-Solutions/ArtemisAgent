@@ -21,6 +21,6 @@ class CommsButtonPacketTest :
                         Exhaustive.bytes()
                             .filterNot { CommsButtonPacketFixture.ALL_VALID_ACTIONS.contains(it) }
                             .map { buildPacket { writeByte(it) } }
-                }
+                },
             ),
     )

@@ -76,8 +76,8 @@ class ListenerProcessor(private val codeGenerator: CodeGenerator) : SymbolProces
                         List::class.asClassName()
                             .plusParameter(
                                 listenerFunctionClass.plusParameter(
-                                    ListenerArgument::class.asTypeName()
-                                )
+                                    ListenerArgument::class.asTypeName(),
+                                ),
                             ),
                     )
                     .getter(moduleGetterSpec.build())

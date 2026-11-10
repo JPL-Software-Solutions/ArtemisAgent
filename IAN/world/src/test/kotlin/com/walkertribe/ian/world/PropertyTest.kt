@@ -40,13 +40,13 @@ import kotlin.math.sign
 import kotlinx.coroutines.launch
 
 class PropertyTest :
-    DescribeSpec({
-        describe("Property") {
-            PropertyTestCase.entries.forEach {
-                describe(it.toString()) { it.describeTestCases(this) }
+    DescribeSpec(
+        {
+            describe("Property") {
+                withData(PropertyTestCase.entries) { it.describeTestCases(this) }
             }
-        }
-    })
+        },
+    )
 
 enum class PropertyTestCase {
     FLOAT {

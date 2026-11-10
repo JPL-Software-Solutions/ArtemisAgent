@@ -13,35 +13,38 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 
 class HapticEffectTest :
-    DescribeSpec({
-        describe("HapticEffect") {
-            mockkStatic(VibrationEffect::createPredefined)
-            every { VibrationEffect.createPredefined(any()) } answers
-                {
-                    mockk<VibrationEffect> { every { describeContents() } returns firstArg() }
+    DescribeSpec(
+        {
+            describe("HapticEffect") {
+                mockkStatic(VibrationEffect::createPredefined)
+                every { VibrationEffect.createPredefined(any()) } answers
+                    {
+                        mockk<VibrationEffect> { every { describeContents() } returns firstArg() }
+                    }
+
+                afterSpec {
+                    clearAllMocks()
+                    unmockkAll()
                 }
 
-            afterSpec {
-                clearAllMocks()
-                unmockkAll()
+                it("Two entries: TICK and CLICK") { HapticEffect.entries shouldHaveSize 2 }
+
+                val durations = longArrayOf(50L, 100L)
+                val effectIds =
+                    intArrayOf(VibrationEffect.EFFECT_TICK, VibrationEffect.EFFECT_CLICK)
+
+                withData(HapticEffect.entries) { effect ->
+                    val expectedDuration = durations[effect.ordinal]
+
+                    it("Duration: $expectedDuration ms") {
+                        effect.duration shouldBeEqual expectedDuration
+                    }
+
+                    it("Begets vibration effect") {
+                        val vibration = effect.vibration.shouldBeInstanceOf<VibrationEffect>()
+                        vibration.describeContents() shouldBeEqual effectIds[effect.ordinal]
+                    }
+                }
             }
-
-            it("Two entries: TICK and CLICK") { HapticEffect.entries shouldHaveSize 2 }
-
-            val durations = longArrayOf(50L, 100L)
-            val effectIds = intArrayOf(VibrationEffect.EFFECT_TICK, VibrationEffect.EFFECT_CLICK)
-
-            withData(HapticEffect.entries) { effect ->
-                val expectedDuration = durations[effect.ordinal]
-
-                it("Duration: $expectedDuration ms") {
-                    effect.duration shouldBeEqual expectedDuration
-                }
-
-                it("Begets vibration effect") {
-                    val vibration = effect.vibration.shouldBeInstanceOf<VibrationEffect>()
-                    vibration.describeContents() shouldBeEqual effectIds[effect.ordinal]
-                }
-            }
-        }
-    })
+        },
+    )

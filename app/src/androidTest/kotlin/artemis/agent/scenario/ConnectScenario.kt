@@ -28,7 +28,7 @@ class ConnectScenario(
             step("Fetch connect timeout") {
                 activityScenario.onActivity { activity ->
                     connectTimeout.lazySet(
-                        activity.viewModels<AgentViewModel>().value.connectTimeout
+                        activity.viewModels<AgentViewModel>().value.connectTimeout,
                     )
                 }
             }

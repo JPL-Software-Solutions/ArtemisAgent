@@ -4,6 +4,7 @@ import com.walkertribe.ian.util.FileSystemResourceReader
 import com.walkertribe.ian.vesseldata.VesselData
 import com.walkertribe.ian.world.ArtemisNpc
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.datatest.withData
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldContainExactly
 import java.io.File
@@ -14,33 +15,35 @@ import okio.Path.Companion.toOkioPath
 
 @OptIn(ExperimentalSerializationApi::class)
 class EnemySorterTest :
-    DescribeSpec({
-        describe("EnemySorter") {
-            val (data, sortingTests) =
-                EnemySorter::class.java.getResourceAsStream("entries.json")!!.use {
-                    Json.decodeFromStream<EnemySorterTestData>(it)
+    DescribeSpec(
+        {
+            describe("EnemySorter") {
+                val (data, sortingTests) =
+                    EnemySorter::class.java.getResourceAsStream("entries.json")!!.use {
+                        Json.decodeFromStream<EnemySorterTestData>(it)
+                    }
+
+                val tmpDir = tempdir()
+                val datDir = File(tmpDir, "dat")
+                datDir.mkdir()
+                val datFile = File(datDir, "vesselData.xml")
+                datFile.writeText(
+                    EnemySorter::class.java.getResource("vesselData.xml")!!.readText(),
+                )
+
+                val vesselData = VesselData.load(FileSystemResourceReader(tmpDir.toOkioPath()))
+
+                val entries = data.map { entry ->
+                    val faction = vesselData.getFaction(entry.hullId)!!
+                    val vessel = vesselData[entry.hullId]!!
+                    val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
+                    EnemyEntry(enemy, vessel, faction, vesselData).also {
+                        it.range = entry.distance
+                        entry.status.applyTo(it)
+                    }
                 }
 
-            val tmpDir = tempdir()
-            val datDir = File(tmpDir, "dat")
-            datDir.mkdir()
-            val datFile = File(datDir, "vesselData.xml")
-            datFile.writeText(EnemySorter::class.java.getResource("vesselData.xml")!!.readText())
-
-            val vesselData = VesselData.load(FileSystemResourceReader(tmpDir.toOkioPath()))
-
-            val entries = data.map { entry ->
-                val faction = vesselData.getFaction(entry.hullId)!!
-                val vessel = vesselData[entry.hullId]!!
-                val enemy = ArtemisNpc(0, 0L).also { it.name.value = entry.name }
-                EnemyEntry(enemy, vessel, faction, vesselData).also {
-                    it.range = entry.distance
-                    entry.status.applyTo(it)
-                }
-            }
-
-            sortingTests.forEach { sortingTest ->
-                describe(sortingTest.dataTestName()) {
+                withData(sortingTests) { sortingTest ->
                     val sorter = sortingTest.toSorter()
                     val actualSort by lazy { entries.sortedWith(sorter) }
 
@@ -55,5 +58,5 @@ class EnemySorterTest :
                     }
                 }
             }
-        }
-    })
+        },
+    )

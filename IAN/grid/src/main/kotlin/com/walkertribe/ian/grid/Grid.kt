@@ -23,7 +23,7 @@ class Grid internal constructor(nodes: List<Node>) {
             }
         } catch (_: IOException) {
             emptyList()
-        }
+        },
     )
 
     operator fun get(x: Int, y: Int, z: Int): Node? =

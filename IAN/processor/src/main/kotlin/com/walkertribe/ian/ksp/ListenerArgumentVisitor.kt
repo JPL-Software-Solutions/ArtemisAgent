@@ -54,8 +54,8 @@ class ListenerArgumentVisitor(private val codeGenerator: CodeGenerator) :
                         .plusParameter(
                             ListenerFunction::class.asClassName()
                                 .plusParameter(
-                                    WildcardTypeName.producerOf(listenerArgumentTypeName)
-                                )
+                                    WildcardTypeName.producerOf(listenerArgumentTypeName),
+                                ),
                         ),
                 )
                 .addFunction(overrideFunBuilder.build())

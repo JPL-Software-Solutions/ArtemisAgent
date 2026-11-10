@@ -1036,11 +1036,12 @@ internal sealed class ObjectTestSuite<
 
         override fun DescribeSpecContainerScope.describeMore() = launch {
             describe("Scanned by") {
-                ScanBitsTestCase.entries.forEach { case ->
-                    describe(case.name.lowercase().replaceFirstChar { it.uppercase() }) {
-                        it("Sides") { case.testSides() }
-                        it("Ships") { case.testShips() }
-                    }
+                withData(
+                    nameFn = { it.name.lowercase().replaceFirstChar(Char::uppercase) },
+                    ScanBitsTestCase.entries,
+                ) { case ->
+                    it("Sides") { case.testSides() }
+                    it("Ships") { case.testShips() }
                 }
             }
 
@@ -1500,7 +1501,7 @@ internal sealed class ObjectTestSuite<
         }
 
         override suspend fun describeTestCreateAndUpdatePartially(
-            scope: DescribeSpecContainerScope
+            scope: DescribeSpecContainerScope,
         ) {
             super.describeTestCreateAndUpdatePartially(scope)
 

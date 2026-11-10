@@ -38,7 +38,7 @@ sealed class ParseResult {
          * exceptions. A fatal exception (one occurring before the payload can be read) should cause
          * the exception to be thrown instead.
          */
-        val exception: PacketException
+        val exception: PacketException,
     ) : ParseResult() {
         override fun addListeners(listeners: Iterable<ListenerModule>) {
             error("Cannot add listeners; parsing failed")

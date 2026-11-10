@@ -637,7 +637,7 @@ internal class RoutingGraph(
                         } catch (_: IllegalStateException) {
                             false
                         }
-                    }
+                    },
                 )
             }
 

@@ -269,7 +269,7 @@ class EnemySettingsFragmentTest : TestCase() {
                         sortSurrenderButton,
                         sortRaceButton,
                         sortRangeButton,
-                    )
+                    ),
                 )
 
                 step("Restore sort methods from initial settings") {
@@ -391,16 +391,16 @@ class EnemySettingsFragmentTest : TestCase() {
 
                 step("Check surrender burst interval") {
                     surrenderBurstIntervalTitle.isDisplayedWithText(
-                        R.string.surrender_burst_interval
+                        R.string.surrender_burst_interval,
                     )
                     surrenderBurstIntervalLabel.isDisplayedWithText(
-                        getExpectedIntervalLabel(surrenderBurstInterval)
+                        getExpectedIntervalLabel(surrenderBurstInterval),
                     )
                     surrenderBurstIntervalMs.isDisplayedWithText(R.string.milliseconds)
                     surrenderBurstIntervalBar {
                         isCompletelyDisplayed()
                         hasProgress(
-                            getExpectedProgress(surrenderBurstInterval, MIN_INTERVAL, MAX_INTERVAL)
+                            getExpectedProgress(surrenderBurstInterval, MIN_INTERVAL, MAX_INTERVAL),
                         )
                     }
                 }
@@ -410,7 +410,7 @@ class EnemySettingsFragmentTest : TestCase() {
                         val countTests = (1..BURST_COUNT_MAX).shuffled() + surrenderBurstCount
                         countTests.forEach { count ->
                             surrenderBurstCountBar.setProgress(
-                                getExpectedProgress(count, 1, BURST_COUNT_MAX)
+                                getExpectedProgress(count, 1, BURST_COUNT_MAX),
                             )
                             surrenderBurstCountLabel.isDisplayedWithText(count.toString())
                         }
@@ -423,10 +423,10 @@ class EnemySettingsFragmentTest : TestCase() {
                             } + surrenderBurstInterval
                         intervalTests.forEach { interval ->
                             surrenderBurstIntervalBar.setProgress(
-                                getExpectedProgress(interval, MIN_INTERVAL, MAX_INTERVAL)
+                                getExpectedProgress(interval, MIN_INTERVAL, MAX_INTERVAL),
                             )
                             surrenderBurstIntervalLabel.isDisplayedWithText(
-                                getExpectedIntervalLabel(interval)
+                                getExpectedIntervalLabel(interval),
                             )
                         }
                     }

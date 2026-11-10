@@ -18,7 +18,7 @@ sealed interface Packet {
 
     abstract class Client(
         /** Returns the type value for this packet, specified as the last field of the preamble. */
-        val type: Int
+        val type: Int,
     ) : Packet {
         constructor(type: String) : this(getHash(type))
 

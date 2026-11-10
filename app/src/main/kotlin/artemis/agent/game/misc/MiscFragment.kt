@@ -152,7 +152,7 @@ class MiscFragment : Fragment(R.layout.misc_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommsAudioViewHolder =
             CommsAudioViewHolder(
-                AudioEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                AudioEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: CommsAudioViewHolder, position: Int) {
@@ -211,7 +211,7 @@ class MiscFragment : Fragment(R.layout.misc_fragment) {
                         ContextThemeWrapper(
                             parent.context,
                             R.style.Widget_ArtemisAgent_Button_Yellow,
-                        )
+                        ),
                     )
                     .apply {
                         layoutParams =
@@ -219,7 +219,7 @@ class MiscFragment : Fragment(R.layout.misc_fragment) {
                                 RecyclerView.LayoutParams.MATCH_PARENT,
                                 RecyclerView.LayoutParams.WRAP_CONTENT,
                             )
-                    }
+                    },
             )
 
         override fun onBindViewHolder(holder: CommsActionViewHolder, position: Int) {

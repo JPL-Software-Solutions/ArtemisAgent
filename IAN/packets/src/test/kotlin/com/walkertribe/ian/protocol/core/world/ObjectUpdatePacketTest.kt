@@ -35,7 +35,7 @@ class ObjectUpdatePacketTest :
                         Exhaustive.bytes()
                             .filterNot { validObjectTypeIDs.contains(it) }
                             .map { buildPacket { writeIntLe(it.toInt()) } }
-                }
+                },
             ),
     ) {
     override fun DescribeSpecContainerScope.describeMore(): Job = launch {

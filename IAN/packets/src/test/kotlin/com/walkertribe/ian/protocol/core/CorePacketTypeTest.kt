@@ -6,28 +6,30 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import kotlin.reflect.full.memberProperties
 
 class CorePacketTypeTest :
-    DescribeSpec({
-        describe("CorePacketType") {
-            CorePacketType::class.memberProperties.forEach { property ->
-                var uppercase = false
-                val expectedValue =
-                    property.name.toCharArray().joinToString("") { ch ->
-                        when {
-                            uppercase -> {
-                                uppercase = false
-                                ch.toString()
+    DescribeSpec(
+        {
+            describe("CorePacketType") {
+                CorePacketType::class.memberProperties.forEach { property ->
+                    var uppercase = false
+                    val expectedValue =
+                        property.name.toCharArray().joinToString("") { ch ->
+                            when {
+                                uppercase -> {
+                                    uppercase = false
+                                    ch.toString()
+                                }
+                                ch == '_' -> {
+                                    uppercase = true
+                                    ""
+                                }
+                                else -> ch.lowercase()
                             }
-                            ch == '_' -> {
-                                uppercase = true
-                                ""
-                            }
-                            else -> ch.lowercase()
                         }
-                    }
 
-                it("${property.name} = \"$expectedValue\"") {
-                    property.getter.call().shouldNotBeNull() shouldBeEqual expectedValue
+                    it("${property.name} = \"$expectedValue\"") {
+                        property.getter.call().shouldNotBeNull() shouldBeEqual expectedValue
+                    }
                 }
             }
-        }
-    })
+        },
+    )

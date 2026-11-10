@@ -57,7 +57,7 @@ class MainActivityTest : TestCase() {
                     ConnectScenario(
                         ConnectFragmentTest.FAKE_SERVER_IP,
                         activityScenarioRule.scenario,
-                    )
+                    ),
                 )
 
                 step("Press back") { pressBack() }

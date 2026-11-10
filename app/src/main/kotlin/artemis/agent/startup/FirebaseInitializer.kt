@@ -22,7 +22,7 @@ class FirebaseInitializer : Initializer<FirebaseRemoteConfig> {
         return Firebase.remoteConfig.apply {
             setConfigSettingsAsync(configSettings)
             setDefaultsAsync(
-                mapOf(RemoteConfigKey.ARTEMIS_LATEST_VERSION to Version.DEFAULT.toString())
+                mapOf(RemoteConfigKey.ARTEMIS_LATEST_VERSION to Version.DEFAULT.toString()),
             )
         }
     }

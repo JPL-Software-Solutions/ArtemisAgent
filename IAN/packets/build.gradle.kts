@@ -13,7 +13,7 @@ plugins {
 configureTests(maxMemoryGb = 4)
 
 pitest {
-    configure(rootPackage = "com.walkertribe.ian.protocol", threads = 8)
+    configure(rootPackage = "com.walkertribe.ian", threads = 8)
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
 }
 
@@ -70,4 +70,10 @@ dependencies {
     pitest(testFixtures(projects.ian.util))
     pitest(testFixtures(projects.ian.vesseldata))
     pitest(testFixtures(projects.ian.world))
+
+    constraints {
+        pitest(libs.asm) {
+            because("Version 9.11.1 patches four medium-level security vulnerabilities")
+        }
+    }
 }

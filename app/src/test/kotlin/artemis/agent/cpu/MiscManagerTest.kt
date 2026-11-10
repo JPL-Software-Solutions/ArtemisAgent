@@ -25,136 +25,139 @@ import io.kotest.property.checkAll
 import io.ktor.utils.io.ByteChannel
 
 class MiscManagerTest :
-    DescribeSpec({
-        describe("MiscManager") {
-            val miscManager = MiscManager()
+    DescribeSpec(
+        {
+            describe("MiscManager") {
+                val miscManager = MiscManager()
 
-            val listenerRegistry =
-                ListenerRegistry().apply {
-                    register(CompositeListenerModule(miscManager.listeners))
+                val listenerRegistry =
+                    ListenerRegistry().apply {
+                        register(CompositeListenerModule(miscManager.listeners))
+                    }
+                val byteChannel = ByteChannel()
+                val reader = PacketReader(byteChannel, listenerRegistry)
+
+                val (playing, incomingAudio) = IncomingAudioPacketFixture.allFixtures()
+                val (remove, create, removeAll) =
+                    CommsButtonPacketFixture.allFixtures(arbLabels = Arb.of("Test"))
+
+                suspend fun <T : Packet.Server> PacketTestFixture.Server<T>.testPacket(
+                    iterations: Int = PropertyTesting.defaultIterationCount,
+                    onPacket: (T) -> Unit = {},
+                ) {
+                    generator.checkAll(iterations = iterations) { data ->
+                        val payload = data.buildPayload()
+                        byteChannel.writePacketWithHeader(packetType, payload)
+
+                        val result = reader.readPacket().shouldBeInstanceOf<ParseResult.Success>()
+                        val packet = testType(result.packet)
+                        onPacket(packet)
+                    }
                 }
-            val byteChannel = ByteChannel()
-            val reader = PacketReader(byteChannel, listenerRegistry)
 
-            val (playing, incomingAudio) = IncomingAudioPacketFixture.allFixtures()
-            val (remove, create, removeAll) =
-                CommsButtonPacketFixture.allFixtures(arbLabels = Arb.of("Test"))
+                describe("Initial state") {
+                    it("Actions do not exist") { miscManager.actionsExist.value.shouldBeFalse() }
 
-            suspend fun <T : Packet.Server> PacketTestFixture.Server<T>.testPacket(
-                iterations: Int = PropertyTesting.defaultIterationCount,
-                onPacket: (T) -> Unit = {},
-            ) {
-                generator.checkAll(iterations = iterations) { data ->
-                    val payload = data.buildPayload()
-                    byteChannel.writePacketWithHeader(packetType, payload)
+                    it("Audio does not exist") { miscManager.audioExists.value.shouldBeFalse() }
 
-                    val result = reader.readPacket().shouldBeInstanceOf<ParseResult.Success>()
-                    val packet = testType(result.packet)
-                    onPacket(packet)
+                    it("Action list empty") { miscManager.actions.value.shouldBeEmpty() }
+
+                    it("Audio list empty") { miscManager.audio.value.shouldBeEmpty() }
+
+                    it("Showing actions") { miscManager.showingAudio.value.shouldBeFalse() }
+
+                    it("Inactive") { miscManager.shouldFlash.shouldBeNull() }
                 }
-            }
 
-            describe("Initial state") {
-                it("Actions do not exist") { miscManager.actionsExist.value.shouldBeFalse() }
-
-                it("Audio does not exist") { miscManager.audioExists.value.shouldBeFalse() }
-
-                it("Action list empty") { miscManager.actions.value.shouldBeEmpty() }
-
-                it("Audio list empty") { miscManager.audio.value.shouldBeEmpty() }
-
-                it("Showing actions") { miscManager.showingAudio.value.shouldBeFalse() }
-
-                it("Inactive") { miscManager.shouldFlash.shouldBeNull() }
-            }
-
-            describe("Comms buttons") {
-                it("Create") {
-                    create.testPacket(iterations = 1) { packet ->
-                        miscManager.onPacket(packet)
-                        miscManager.actionsExist.value.shouldBeTrue()
-                        miscManager.actions.value.shouldBeSingleton {
-                            it.label shouldBeEqual "Test"
+                describe("Comms buttons") {
+                    it("Create") {
+                        create.testPacket(iterations = 1) { packet ->
+                            miscManager.onPacket(packet)
+                            miscManager.actionsExist.value.shouldBeTrue()
+                            miscManager.actions.value.shouldBeSingleton {
+                                it.label shouldBeEqual "Test"
+                            }
+                            miscManager.hasUpdate.shouldBeTrue()
+                            miscManager.shouldFlash.shouldBeTrue()
                         }
-                        miscManager.hasUpdate.shouldBeTrue()
-                        miscManager.shouldFlash.shouldBeTrue()
                     }
-                }
 
-                it("Remove") {
-                    remove.testPacket(iterations = 2) { packet ->
-                        miscManager.onPacket(packet)
-                        miscManager.actionsExist.value.shouldBeTrue()
-                        miscManager.actions.value.shouldBeEmpty()
-                        miscManager.hasUpdate.shouldBeTrue()
-                        miscManager.shouldFlash.shouldBeTrue()
+                    it("Remove") {
+                        remove.testPacket(iterations = 2) { packet ->
+                            miscManager.onPacket(packet)
+                            miscManager.actionsExist.value.shouldBeTrue()
+                            miscManager.actions.value.shouldBeEmpty()
+                            miscManager.hasUpdate.shouldBeTrue()
+                            miscManager.shouldFlash.shouldBeTrue()
+                        }
                     }
-                }
 
-                it("Reset update") {
-                    miscManager.resetUpdate()
-                    miscManager.hasUpdate.shouldBeFalse()
-                    miscManager.shouldFlash.shouldBeFalse()
-                }
-
-                it("Remove All") {
-                    create.testPacket(iterations = 1) { packet -> miscManager.onPacket(packet) }
-
-                    removeAll.testPacket(iterations = 1) { packet ->
-                        miscManager.onPacket(packet)
-                        miscManager.actionsExist.value.shouldBeTrue()
-                        miscManager.actions.value.shouldBeEmpty()
+                    it("Reset update") {
+                        miscManager.resetUpdate()
                         miscManager.hasUpdate.shouldBeFalse()
                         miscManager.shouldFlash.shouldBeFalse()
                     }
-                }
 
-                it("Reset") {
-                    miscManager.reset()
-                    miscManager.actionsExist.value.shouldBeFalse()
-                    miscManager.audioExists.value.shouldBeFalse()
-                    miscManager.actions.value.shouldBeEmpty()
-                    miscManager.audio.value.shouldBeEmpty()
-                    miscManager.hasUpdate.shouldBeFalse()
-                    miscManager.shouldFlash.shouldBeNull()
-                }
-            }
+                    it("Remove All") {
+                        create.testPacket(iterations = 1) { packet -> miscManager.onPacket(packet) }
 
-            describe("Incoming audio") {
-                it("Does not respond to Playing") {
-                    playing.testPacket { packet ->
-                        miscManager.onPacket(packet)
+                        removeAll.testPacket(iterations = 1) { packet ->
+                            miscManager.onPacket(packet)
+                            miscManager.actionsExist.value.shouldBeTrue()
+                            miscManager.actions.value.shouldBeEmpty()
+                            miscManager.hasUpdate.shouldBeFalse()
+                            miscManager.shouldFlash.shouldBeFalse()
+                        }
+                    }
+
+                    it("Reset") {
+                        miscManager.reset()
+                        miscManager.actionsExist.value.shouldBeFalse()
                         miscManager.audioExists.value.shouldBeFalse()
+                        miscManager.actions.value.shouldBeEmpty()
                         miscManager.audio.value.shouldBeEmpty()
                         miscManager.hasUpdate.shouldBeFalse()
                         miscManager.shouldFlash.shouldBeNull()
                     }
                 }
 
-                it("Responds to Incoming") {
-                    incomingAudio.testPacket(iterations = 1) { packet ->
-                        miscManager.onPacket(packet)
-                        val audioMode = packet.audioMode.shouldBeInstanceOf<AudioMode.Incoming>()
-
-                        miscManager.audioExists.value.shouldBeTrue()
-                        miscManager.audio.value.shouldBeSingleton {
-                            it.audioId shouldBeEqual packet.audioId
-                            it.title shouldBeEqual audioMode.title
+                describe("Incoming audio") {
+                    it("Does not respond to Playing") {
+                        playing.testPacket { packet ->
+                            miscManager.onPacket(packet)
+                            miscManager.audioExists.value.shouldBeFalse()
+                            miscManager.audio.value.shouldBeEmpty()
+                            miscManager.hasUpdate.shouldBeFalse()
+                            miscManager.shouldFlash.shouldBeNull()
                         }
-                        miscManager.hasUpdate.shouldBeTrue()
-                        miscManager.shouldFlash.shouldBeTrue()
+                    }
+
+                    it("Responds to Incoming") {
+                        incomingAudio.testPacket(iterations = 1) { packet ->
+                            miscManager.onPacket(packet)
+                            val audioMode =
+                                packet.audioMode.shouldBeInstanceOf<AudioMode.Incoming>()
+
+                            miscManager.audioExists.value.shouldBeTrue()
+                            miscManager.audio.value.shouldBeSingleton {
+                                it.audioId shouldBeEqual packet.audioId
+                                it.title shouldBeEqual audioMode.title
+                            }
+                            miscManager.hasUpdate.shouldBeTrue()
+                            miscManager.shouldFlash.shouldBeTrue()
+                        }
+                    }
+
+                    it("Reset") {
+                        miscManager.reset()
+                        miscManager.actionsExist.value.shouldBeFalse()
+                        miscManager.audioExists.value.shouldBeFalse()
+                        miscManager.actions.value.shouldBeEmpty()
+                        miscManager.audio.value.shouldBeEmpty()
+                        miscManager.hasUpdate.shouldBeFalse()
+                        miscManager.shouldFlash.shouldBeNull()
                     }
                 }
-
-                it("Reset") {
-                    miscManager.reset()
-                    miscManager.actionsExist.value.shouldBeFalse()
-                    miscManager.audioExists.value.shouldBeFalse()
-                    miscManager.actions.value.shouldBeEmpty()
-                    miscManager.audio.value.shouldBeEmpty()
-                    miscManager.hasUpdate.shouldBeFalse()
-                    miscManager.shouldFlash.shouldBeNull()
-                }
             }
-        }
-    })
+        },
+    )

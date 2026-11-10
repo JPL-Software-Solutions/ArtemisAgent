@@ -16,39 +16,43 @@ import io.mockk.mockkConstructor
 import io.mockk.unmockkAll
 
 class RecentServersAdapterTest :
-    DescribeSpec({
-        describe("RecentServersAdapter") {
-            val arbString = Arb.string()
-            val arbSize = Arb.int(10..30)
+    DescribeSpec(
+        {
+            describe("RecentServersAdapter") {
+                val arbString = Arb.string()
+                val arbSize = Arb.int(10..30)
 
-            val size = arbSize.next()
-            val servers = List(size) { arbString.next() }
+                val size = arbSize.next()
+                val servers = List(size) { arbString.next() }
 
-            val mockContext =
-                mockk<Context> { every { getSystemService(any()) } returns mockk<LayoutInflater>() }
+                val mockContext =
+                    mockk<Context> {
+                        every { getSystemService(any()) } returns mockk<LayoutInflater>()
+                    }
 
-            mockkConstructor(ConnectFragment.RecentServersFilter::class)
+                mockkConstructor(ConnectFragment.RecentServersFilter::class)
 
-            every { anyConstructed<ConnectFragment.RecentServersFilter>().suggestions } returns
-                servers
+                every { anyConstructed<ConnectFragment.RecentServersFilter>().suggestions } returns
+                    servers
 
-            val adapter = ConnectFragment.RecentServersAdapter(mockContext)
+                val adapter = ConnectFragment.RecentServersAdapter(mockContext)
 
-            afterSpec {
-                clearAllMocks()
-                unmockkAll()
-            }
+                afterSpec {
+                    clearAllMocks()
+                    unmockkAll()
+                }
 
-            it("Filter is defined") {
-                adapter.filter.shouldBeInstanceOf<ConnectFragment.RecentServersFilter>()
-            }
+                it("Filter is defined") {
+                    adapter.filter.shouldBeInstanceOf<ConnectFragment.RecentServersFilter>()
+                }
 
-            it("Item count") { adapter.count shouldBeEqual size }
+                it("Item count") { adapter.count shouldBeEqual size }
 
-            it("Items by position") {
-                repeat(size) { position ->
-                    adapter.getItem(position) shouldBeEqual servers[position]
+                it("Items by position") {
+                    repeat(size) { position ->
+                        adapter.getItem(position) shouldBeEqual servers[position]
+                    }
                 }
             }
-        }
-    })
+        },
+    )

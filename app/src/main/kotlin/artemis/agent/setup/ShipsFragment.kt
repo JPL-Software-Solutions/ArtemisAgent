@@ -68,7 +68,7 @@ class ShipsFragment : Fragment(R.layout.ships_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShipViewHolder =
             ShipViewHolder(
-                ShipEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                ShipEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: ShipViewHolder, position: Int) {
@@ -84,7 +84,7 @@ class ShipsFragment : Fragment(R.layout.ships_fragment) {
             val root = entryBinding.root
             root.setBackgroundColor(
                 if (hue.isNaN()) Color.TRANSPARENT
-                else Color.HSVToColor(floatArrayOf(hue, 1f, VALUE))
+                else Color.HSVToColor(floatArrayOf(hue, 1f, VALUE)),
             )
 
             entryBinding.vesselLabel.text = ship.getFullName(vesselData)

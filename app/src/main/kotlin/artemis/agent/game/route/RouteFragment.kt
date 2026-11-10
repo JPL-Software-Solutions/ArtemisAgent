@@ -321,7 +321,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteEntryViewHolder =
             RouteEntryViewHolder(
-                RouteEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                RouteEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: RouteEntryViewHolder, position: Int) {
