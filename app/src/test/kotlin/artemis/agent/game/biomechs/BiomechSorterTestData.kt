@@ -17,7 +17,7 @@ data class TestBiomechEntry(val name: String, val hullId: Int) {
             ArtemisNpc(0, 0L).also { npc ->
                 npc.name.value = name
                 npc.hullId.value = hullId
-            }
+            },
         )
 }
 

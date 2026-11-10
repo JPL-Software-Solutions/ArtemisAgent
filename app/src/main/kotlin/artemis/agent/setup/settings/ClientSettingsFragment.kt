@@ -142,7 +142,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
             viewModel.activateHaptic()
             viewModel.playSound(SoundEffect.BEEP_2)
             binding.serverPortField.setText(
-                UserSettingsSerializer.DEFAULT_SERVER_PORT.formatString()
+                UserSettingsSerializer.DEFAULT_SERVER_PORT.formatString(),
             )
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData { settings ->
@@ -243,7 +243,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                         }
                     }
                 }
-            }
+            },
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

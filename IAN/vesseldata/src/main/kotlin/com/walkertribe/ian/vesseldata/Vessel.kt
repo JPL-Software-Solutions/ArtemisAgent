@@ -50,7 +50,7 @@ internal constructor(
         get() = this[SINGLESEAT]
 
     internal constructor(
-        xml: Xml
+        xml: Xml,
     ) : this(
         id = xml.requiredInt("uniqueID"),
         side = xml.requiredInt("side"),

@@ -3,6 +3,7 @@ package com.walkertribe.ian.iface
 import com.walkertribe.ian.protocol.PacketException
 import com.walkertribe.ian.util.Version
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSingleElement
@@ -18,99 +19,98 @@ import kotlin.time.Clock
 import kotlinx.io.IOException
 
 class ConnectionEventTest :
-    DescribeSpec({
-        val connectionEvents = mutableListOf<ConnectionEvent>()
-        val listenerModule =
-            object : ConnectionEventListenerModule {
-                override val acceptedTypes: Set<KClass<out ListenerArgument>> =
-                    setOf(ConnectionEvent::class)
+    DescribeSpec(
+        {
+            val connectionEvents = mutableListOf<ConnectionEvent>()
+            val listenerModule =
+                object : ConnectionEventListenerModule {
+                    override val acceptedTypes: Set<KClass<out ListenerArgument>> =
+                        setOf(ConnectionEvent::class)
 
-                override val connectionEventListeners: List<ListenerFunction<out ConnectionEvent>> =
-                    listOf(ListenerFunction(ConnectionEvent::class, connectionEvents::add))
+                    override val connectionEventListeners:
+                        List<ListenerFunction<out ConnectionEvent>> =
+                        listOf(ListenerFunction(ConnectionEvent::class, connectionEvents::add))
 
-                override fun onPacket(arg: ListenerArgument) {
-                    assert(false) { "onPacket should not be called" }
-                }
+                    override fun onPacket(arg: ListenerArgument) {
+                        assert(false) { "onPacket should not be called" }
+                    }
 
-                override fun onArtemisObject(arg: ListenerArgument) {
-                    assert(false) { "onArtemisObject should not be called" }
-                }
-            }
-
-        describe("ConnectionEvent") {
-            beforeContainer { connectionEvents.clear() }
-
-            describe("Success") {
-                val events = mutableListOf<ConnectionEvent.Success>()
-
-                it("Constructor") {
-                    Arb.string().checkAll { message ->
-                        val startTime = Clock.System.now().toEpochMilliseconds()
-                        val event = ConnectionEvent.Success(message)
-                        val endTime = Clock.System.now().toEpochMilliseconds()
-
-                        event.message shouldBeEqual message
-                        event.timestamp shouldBeIn startTime..endTime
-
-                        events.add(event)
+                    override fun onArtemisObject(arg: ListenerArgument) {
+                        assert(false) { "onArtemisObject should not be called" }
                     }
                 }
 
-                it("Can offer to listener modules") {
-                    events.forEach { it.offerTo(listenerModule) }
-                    connectionEvents shouldContainExactly events
-                }
-            }
+            describe("ConnectionEvent") {
+                beforeContainer { connectionEvents.clear() }
 
-            describe("Disconnect") {
-                arrayOf(
+                describe("Success") {
+                    val events = mutableListOf<ConnectionEvent.Success>()
+
+                    it("Constructor") {
+                        Arb.string().checkAll { message ->
+                            val startTime = Clock.System.now().toEpochMilliseconds()
+                            val event = ConnectionEvent.Success(message)
+                            val endTime = Clock.System.now().toEpochMilliseconds()
+
+                            event.message shouldBeEqual message
+                            event.timestamp shouldBeIn startTime..endTime
+
+                            events.add(event)
+                        }
+                    }
+
+                    it("Can offer to listener modules") {
+                        events.forEach { it.offerTo(listenerModule) }
+                        connectionEvents shouldContainExactly events
+                    }
+                }
+
+                describe("Disconnect") {
+                    withData(
+                        nameFn = { it::class.simpleName ?: it.toString() },
                         DisconnectCause.LocalDisconnect,
                         DisconnectCause.RemoteDisconnect,
                         DisconnectCause.IOError(IOException()),
                         DisconnectCause.PacketParseError(mockk<PacketException>()),
                         DisconnectCause.UnsupportedVersion(Version.DEFAULT),
-                    )
-                    .forEach { cause ->
-                        describe(cause::class.simpleName ?: cause.toString()) {
-                            val event by lazy { ConnectionEvent.Disconnect(cause) }
+                    ) { cause ->
+                        val event by lazy { ConnectionEvent.Disconnect(cause) }
 
-                            it("Constructor") {
-                                val startTime = Clock.System.now().toEpochMilliseconds()
-                                val eventCause = event.cause
-                                val endTime = Clock.System.now().toEpochMilliseconds()
+                        it("Constructor") {
+                            val startTime = Clock.System.now().toEpochMilliseconds()
+                            val eventCause = event.cause
+                            val endTime = Clock.System.now().toEpochMilliseconds()
 
-                                eventCause shouldBeEqual cause
-                                event.timestamp shouldBeIn startTime..endTime
-                            }
+                            eventCause shouldBeEqual cause
+                            event.timestamp shouldBeIn startTime..endTime
+                        }
 
-                            it("Can offer to listener modules") {
-                                event.offerTo(listenerModule)
-                                connectionEvents.shouldHaveSingleElement(event)
-                            }
+                        it("Can offer to listener modules") {
+                            event.offerTo(listenerModule)
+                            connectionEvents.shouldHaveSingleElement(event)
                         }
                     }
-            }
+                }
 
-            arrayOf(ConnectionEvent.HeartbeatLost, ConnectionEvent.HeartbeatRegained).forEach {
-                event ->
-                describe(event.toString()) {
+                withData(ConnectionEvent.HeartbeatLost, ConnectionEvent.HeartbeatRegained) { event
+                    ->
                     it("Can offer to listener modules") {
                         event.offerTo(listenerModule)
                         connectionEvents.shouldHaveSingleElement(event)
                     }
                 }
             }
-        }
 
-        describe("ConnectionEventListenerModule") {
-            connectionEvents.clear()
-            val mockArgument = mockk<ListenerArgument>()
+            describe("ConnectionEventListenerModule") {
+                connectionEvents.clear()
+                val mockArgument = mockk<ListenerArgument>()
 
-            it("Does not accept arguments that are not connection events") {
-                listenerModule.onConnectionEvent(mockArgument)
-                connectionEvents.shouldBeEmpty()
+                it("Does not accept arguments that are not connection events") {
+                    listenerModule.onConnectionEvent(mockArgument)
+                    connectionEvents.shouldBeEmpty()
+                }
+
+                clearMocks(mockArgument)
             }
-
-            clearMocks(mockArgument)
-        }
-    })
+        },
+    )

@@ -25,7 +25,7 @@ sealed class ConnectionEvent : ListenerArgument {
         /**
          * Returns a [DisconnectCause] value describing the reason the connection was terminated.
          */
-        val cause: DisconnectCause
+        val cause: DisconnectCause,
     ) : ConnectionEvent()
 
     /**

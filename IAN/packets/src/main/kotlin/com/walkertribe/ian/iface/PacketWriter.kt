@@ -56,7 +56,7 @@ class PacketWriter(private val outputChannel: ByteWriteChannel) {
 
         outputChannel.writeInt(Packet.HEADER.reverseByteOrder())
         outputChannel.writeInt(
-            (payloadSize + Packet.PREAMBLE_SIZE - Int.SIZE_BYTES).reverseByteOrder()
+            (payloadSize + Packet.PREAMBLE_SIZE - Int.SIZE_BYTES).reverseByteOrder(),
         )
         outputChannel.writeInt(Origin.CLIENT.value.reverseByteOrder())
         outputChannel.writeInt(0)

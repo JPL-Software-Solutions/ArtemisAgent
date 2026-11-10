@@ -9,21 +9,23 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldBeSingleton
 
 class ViewModelKonsistTest :
-    DescribeSpec({
-        val viewModelClasses =
-            Konsist.scopeFromModule("app")
-                .classes()
-                .withParentOf(ViewModel::class, AndroidViewModel::class)
+    DescribeSpec(
+        {
+            val viewModelClasses =
+                Konsist.scopeFromModule("app")
+                    .classes()
+                    .withParentOf(ViewModel::class, AndroidViewModel::class)
 
-        it("Only one ViewModel class exists") { viewModelClasses.shouldBeSingleton() }
+            it("Only one ViewModel class exists") { viewModelClasses.shouldBeSingleton() }
 
-        it("ViewModel class names end with ViewModel") {
-            viewModelClasses.assertTrue { it.hasNameEndingWith("ViewModel") }
-        }
+            it("ViewModel class names end with ViewModel") {
+                viewModelClasses.assertTrue { it.hasNameEndingWith("ViewModel") }
+            }
 
-        it("ViewModel classes are top-level") { viewModelClasses.assertTrue { it.isTopLevel } }
+            it("ViewModel classes are top-level") { viewModelClasses.assertTrue { it.isTopLevel } }
 
-        it("ViewModel classes share name with containing file") {
-            viewModelClasses.assertTrue { it.containingFile.name == it.name }
-        }
-    })
+            it("ViewModel classes share name with containing file") {
+                viewModelClasses.assertTrue { it.containingFile.name == it.name }
+            }
+        },
+    )

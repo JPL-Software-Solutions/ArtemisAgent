@@ -42,7 +42,7 @@ data class BiomechEntry(val biomech: ArtemisNpc) : Comparable<BiomechEntry> {
         freezeSent = true
         viewModel.playSound(SoundEffect.BEEP_1)
         viewModel.sendToServer(
-            CommsOutgoingPacket(biomech, EnemyMessage.entries[++timesFrozen], viewModel.vesselData)
+            CommsOutgoingPacket(biomech, EnemyMessage.entries[++timesFrozen], viewModel.vesselData),
         )
     }
 

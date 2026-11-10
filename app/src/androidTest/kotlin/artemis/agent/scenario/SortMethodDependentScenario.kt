@@ -25,7 +25,7 @@ class SortMethodDependentScenario(
                     dependentSort.second
                 } should be ${
                     if (dependentFirst) "" else "in"
-                }active"
+                }active",
             ) {
                 dependentSort.first.isCheckedIf(dependentFirst)
             }
@@ -45,7 +45,7 @@ class SortMethodDependentScenario(
                     dependentSort.second
                 } should now be ${
                     if (dependentFirst) "in" else ""
-                }active"
+                }active",
             ) {
                 dependentSort.first.isCheckedIf(!dependentFirst)
             }

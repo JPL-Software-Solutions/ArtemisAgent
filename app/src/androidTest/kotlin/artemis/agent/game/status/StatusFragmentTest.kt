@@ -36,7 +36,7 @@ class StatusFragmentTest : TestCase() {
                     ) {
                         SetupPageScreen.shipsPageButton.isChecked()
                         ShipsPageScreen.shipsList.isDisplayedWithSize(Artemis.SHIP_COUNT)
-                    }
+                    },
                 )
 
                 step("Select ship") {

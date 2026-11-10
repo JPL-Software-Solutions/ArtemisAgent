@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class AssetsReaderTest {
+class AssetsReaderInstrumentationTest {
     @Test
     fun readTest() {
         reader.read("dat".toPath() / "test.txt") { Assert.assertEquals("TEST", readUtf8Line()) }

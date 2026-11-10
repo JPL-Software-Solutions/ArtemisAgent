@@ -139,7 +139,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
                         context.userSettings.updateData { it.copy { soundVolume = volume } }
                     }
                 }
-            }
+            },
         )
     }
 

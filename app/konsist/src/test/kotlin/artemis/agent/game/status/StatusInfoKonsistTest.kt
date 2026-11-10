@@ -6,11 +6,13 @@ import com.lemonappdev.konsist.api.verify.assertFalse
 import io.kotest.core.spec.style.DescribeSpec
 
 class StatusInfoKonsistTest :
-    DescribeSpec({
-        val statusPackage = Konsist.scopeFromPackage("artemis.agent.game.status", "app", "main")
-        val shieldClasses = statusPackage.classes().withName("Shield")
+    DescribeSpec(
+        {
+            val statusPackage = Konsist.scopeFromPackage("artemis.agent.game.status", "app", "main")
+            val shieldClasses = statusPackage.classes().withName("Shield")
 
-        it("StatusInfo.Shield cannot be a data class") {
-            shieldClasses.assertFalse { cls -> cls.hasDataModifier }
-        }
-    })
+            it("StatusInfo.Shield cannot be a data class") {
+                shieldClasses.assertFalse { cls -> cls.hasDataModifier }
+            }
+        },
+    )

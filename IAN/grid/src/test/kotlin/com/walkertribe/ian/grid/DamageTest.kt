@@ -18,64 +18,66 @@ import io.kotest.property.exhaustive.ints
 import io.kotest.property.exhaustive.map
 
 class DamageTest :
-    DescribeSpec({
-        describe("Damage") {
-            val exhaustiveCoords =
-                Exhaustive.ints(0 until Coordinate.COUNT).map { Coordinate.ALL[it] }
+    DescribeSpec(
+        {
+            describe("Damage") {
+                val exhaustiveCoords =
+                    Exhaustive.ints(0 until Coordinate.COUNT).map { Coordinate.ALL[it] }
 
-            it("Constructor") {
-                checkAll(exhaustiveCoords, Arb.numericFloat(min = 0f)) { coord, value ->
-                    shouldNotThrow<IllegalArgumentException> { Damage(coord, value) }
-                }
-            }
-
-            it("Hash code") {
-                exhaustiveCoords.checkAll { coord ->
-                    Arb.numericFloat(min = 0f).checkAll(iterations = 1) { value ->
-                        Damage(coord, value) shouldHaveSameHashCodeAs coord
-                    }
-                }
-            }
-
-            describe("Equality") {
-                it("Equals") {
-                    checkAll(
-                        exhaustiveCoords,
-                        Arb.numericFloat(min = 0f),
-                        Arb.numericFloat(min = 0f),
-                    ) { coord, value1, value2 ->
-                        Damage(coord, value1) shouldBeEqual Damage(coord, value2)
+                it("Constructor") {
+                    checkAll(exhaustiveCoords, Arb.numericFloat(min = 0f)) { coord, value ->
+                        shouldNotThrow<IllegalArgumentException> { Damage(coord, value) }
                     }
                 }
 
-                it("Not equals") {
-                    checkAll(
-                        Exhaustive.cartesianPairs(exhaustiveCoords, exhaustiveCoords).filter {
-                            (coord1, coord2) ->
-                            coord1 != coord2
-                        },
-                        Arb.numericFloat(min = 0f),
-                    ) { (coord1, coord2), value ->
-                        Damage(coord1, value) shouldNotBeEqual Damage(coord2, value)
+                it("Hash code") {
+                    exhaustiveCoords.checkAll { coord ->
+                        Arb.numericFloat(min = 0f).checkAll(iterations = 1) { value ->
+                            Damage(coord, value) shouldHaveSameHashCodeAs coord
+                        }
+                    }
+                }
+
+                describe("Equality") {
+                    it("Equals") {
+                        checkAll(
+                            exhaustiveCoords,
+                            Arb.numericFloat(min = 0f),
+                            Arb.numericFloat(min = 0f),
+                        ) { coord, value1, value2 ->
+                            Damage(coord, value1) shouldBeEqual Damage(coord, value2)
+                        }
+                    }
+
+                    it("Not equals") {
+                        checkAll(
+                            Exhaustive.cartesianPairs(exhaustiveCoords, exhaustiveCoords).filter {
+                                (coord1, coord2) ->
+                                coord1 != coord2
+                            },
+                            Arb.numericFloat(min = 0f),
+                        ) { (coord1, coord2), value ->
+                            Damage(coord1, value) shouldNotBeEqual Damage(coord2, value)
+                        }
+                    }
+                }
+
+                it("Invalid damage") {
+                    checkAll(exhaustiveCoords, Arb.negativeFloat()) { coord, value ->
+                        shouldThrow<IllegalArgumentException> { Damage(coord, value) }
+                    }
+                }
+
+                describe("String conversion") {
+                    repeat(5) {
+                        val amount = it * 0.25f
+                        val percent = it * 25
+                        it("$percent%") {
+                            val damage = Damage(Coordinate.ALL[it], amount)
+                            damage.toString() shouldStartWith "$percent% damage at Coordinate"
+                        }
                     }
                 }
             }
-
-            it("Invalid damage") {
-                checkAll(exhaustiveCoords, Arb.negativeFloat()) { coord, value ->
-                    shouldThrow<IllegalArgumentException> { Damage(coord, value) }
-                }
-            }
-
-            describe("String conversion") {
-                repeat(5) {
-                    val amount = it * 0.25f
-                    val percent = it * 25
-                    it("$percent%") {
-                        val damage = Damage(Coordinate.ALL[it], amount)
-                        damage.toString() shouldStartWith "$percent% damage at Coordinate"
-                    }
-                }
-            }
-        }
-    })
+        },
+    )

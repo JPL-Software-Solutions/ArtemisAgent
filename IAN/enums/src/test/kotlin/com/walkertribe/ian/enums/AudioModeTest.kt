@@ -8,16 +8,18 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 
 class AudioModeTest :
-    DescribeSpec({
-        it("Playing") { AudioMode.Playing.shouldBeInstanceOf<AudioMode>() }
+    DescribeSpec(
+        {
+            it("Playing") { AudioMode.Playing.shouldBeInstanceOf<AudioMode>() }
 
-        describe("Incoming") {
-            it("Constructor") {
-                checkAll(Arb.string(), Arb.string()) { title, filename ->
-                    val incomingAudio = AudioMode.Incoming(title, filename)
-                    incomingAudio.title shouldBeEqual title
-                    incomingAudio.filename shouldBeEqual filename
+            describe("Incoming") {
+                it("Constructor") {
+                    checkAll(Arb.string(), Arb.string()) { title, filename ->
+                        val incomingAudio = AudioMode.Incoming(title, filename)
+                        incomingAudio.title shouldBeEqual title
+                        incomingAudio.filename shouldBeEqual filename
+                    }
                 }
             }
-        }
-    })
+        },
+    )

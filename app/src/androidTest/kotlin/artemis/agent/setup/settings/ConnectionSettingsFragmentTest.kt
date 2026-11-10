@@ -85,7 +85,7 @@ class ConnectionSettingsFragmentTest : TestCase() {
                                             seconds = setting.initialSeconds,
                                             includeMinutes = false,
                                             minimumSeconds = 1,
-                                        )
+                                        ),
                                     )
                                 }
                             }
@@ -144,7 +144,7 @@ class ConnectionSettingsFragmentTest : TestCase() {
                     timeInput = connectionTimeoutTimeInput,
                     secondsLabel = connectionTimeoutSecondsLabel,
                     initialSeconds = connectTimeout,
-                )
+                ),
             )
             add(
                 TimeInputSetting(
@@ -154,7 +154,7 @@ class ConnectionSettingsFragmentTest : TestCase() {
                     timeInput = heartbeatTimeoutTimeInput,
                     secondsLabel = heartbeatTimeoutSecondsLabel,
                     initialSeconds = heartbeatTimeout,
-                )
+                ),
             )
             add(
                 TimeInputSetting(
@@ -164,7 +164,7 @@ class ConnectionSettingsFragmentTest : TestCase() {
                     timeInput = scanTimeoutTimeInput,
                     secondsLabel = scanTimeoutSecondsLabel,
                     initialSeconds = scanTimeout,
-                )
+                ),
             )
         }
     }

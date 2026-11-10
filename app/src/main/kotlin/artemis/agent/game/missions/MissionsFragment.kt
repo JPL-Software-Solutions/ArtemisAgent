@@ -220,7 +220,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
                             thenTo?.missionStatus ?: SideMissionStatus.ALL_CLEAR,
                         )
                         .backgroundColor,
-                )
+                ),
             )
 
             val nextVessel = nextTo.obj.getVessel(viewModel.vesselData)
@@ -252,7 +252,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
             }
 
             root.setBackgroundColor(
-                ContextCompat.getColor(root.context, R.color.completedMissionGreen)
+                ContextCompat.getColor(root.context, R.color.completedMissionGreen),
             )
             nextLabel.text = getString(R.string.mission_completed)
             thenLabel.text =
@@ -287,7 +287,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MissionViewHolder =
             MissionViewHolder(
-                MissionsEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                MissionsEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: MissionViewHolder, position: Int) {
@@ -312,7 +312,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
                     LayoutInflater.from(parent.context),
                     parent,
                     false,
-                )
+                ),
             )
 
         override fun onBindViewHolder(holder: CompletedViewHolder, position: Int) {

@@ -121,7 +121,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
                         ContextCompat.getColor(
                             binding.borderWarBackground.context,
                             status.backgroundColor,
-                        )
+                        ),
                     )
                     View.VISIBLE
                 } else {
@@ -274,7 +274,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GamePageViewHolder =
             GamePageViewHolder(
-                SelectorEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                SelectorEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             )
 
         override fun onBindViewHolder(holder: GamePageViewHolder, position: Int) {
@@ -284,7 +284,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
                     viewModel.activateHaptic()
                     viewModel.playSound(
                         if (viewModel.currentGamePage.value == page) SoundEffect.BEEP_2
-                        else SoundEffect.CONFIRMATION
+                        else SoundEffect.CONFIRMATION,
                     )
                     if (page != Page.ALLIES) {
                         viewModel.focusedAlly.value = null

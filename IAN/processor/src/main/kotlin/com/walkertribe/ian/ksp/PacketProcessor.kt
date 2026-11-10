@@ -171,7 +171,7 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
                             if (cls.isAbstract()) return@joinToString ""
                             val factoryName = makeFactoryClassName(cls)
                             "\n${typeName}${makeConstantName(cls)} to $factoryName,"
-                        }
+                        },
                     )
 
             return addProperties(
@@ -184,7 +184,7 @@ class PacketProcessor(private val codeGenerator: CodeGenerator) : SymbolProcesso
                             )
                             .initializer(format, literalFn(key))
                             .build()
-                    }
+                    },
                 )
                 .addProperty(factoryMapBuilder.build())
         }

@@ -6,23 +6,25 @@ import io.mockk.clearAllMocks
 import io.mockk.unmockkAll
 
 class StatusInfoTest :
-    DescribeSpec({
-        describe("StatusInfo") {
-            afterSpec {
-                clearAllMocks()
-                unmockkAll()
-            }
+    DescribeSpec(
+        {
+            describe("StatusInfo") {
+                afterSpec {
+                    clearAllMocks()
+                    unmockkAll()
+                }
 
-            describe("Text") {
-                withData(StatusInfoTestCategory.ALL) { category ->
-                    category.describeTextTests(this)
+                describe("Text") {
+                    withData(StatusInfoTestCategory.ALL) { category ->
+                        category.describeTextTests(this)
+                    }
+                }
+
+                describe("Item equals") {
+                    withData(StatusInfoTestCategory.ALL) { category ->
+                        category.describeItemEqualsTests(this)
+                    }
                 }
             }
-
-            describe("Item equals") {
-                withData(StatusInfoTestCategory.ALL) { category ->
-                    category.describeItemEqualsTests(this)
-                }
-            }
-        }
-    })
+        },
+    )

@@ -10,7 +10,7 @@ import com.walkertribe.ian.util.JamCrc
  */
 class ButtonClickPacket(
     /** Returns the label hash for the button that was clicked. */
-    val hash: Int
+    val hash: Int,
 ) : ValueIntPacket(Subtype.BUTTON_CLICK, UNKNOWN) {
     /** Creates a click command packet for the button with the given label. */
     constructor(label: String) : this(JamCrc.compute(label))

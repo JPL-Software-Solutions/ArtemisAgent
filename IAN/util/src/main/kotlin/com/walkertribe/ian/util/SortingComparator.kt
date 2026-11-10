@@ -1,7 +1,7 @@
 package com.walkertribe.ian.util
 
 inline fun <reified T> buildSortingComparator(
-    vararg comparators: Pair<Comparator<T>, Boolean>
+    vararg comparators: Pair<Comparator<T>, Boolean>,
 ): Comparator<T> {
     val enabledComparators = comparators.mapNotNull { (comparator, isEnabled) ->
         comparator.takeIf { isEnabled }

@@ -9,44 +9,46 @@ import io.mockk.every
 import io.mockk.mockk
 
 class ListenerRegistryTest :
-    DescribeSpec({
-        val mockModule =
-            mockk<ListenerModule>(relaxUnitFun = true) {
-                every { acceptedTypes } returns emptySet()
+    DescribeSpec(
+        {
+            val mockModule =
+                mockk<ListenerModule>(relaxUnitFun = true) {
+                    every { acceptedTypes } returns emptySet()
+                }
+
+            afterSpec {
+                TestListener.clear()
+                clearMocks(mockModule)
             }
 
-        afterSpec {
-            TestListener.clear()
-            clearMocks(mockModule)
-        }
+            describe("ListenerRegistry") {
+                val registry: ListenerRegistry by lazy { ListenerRegistry() }
 
-        describe("ListenerRegistry") {
-            val registry: ListenerRegistry by lazy { ListenerRegistry() }
+                it("Can create") { registry.shouldBeInstanceOf<ListenerRegistry>() }
 
-            it("Can create") { registry.shouldBeInstanceOf<ListenerRegistry>() }
+                it("Starts with no listener functions") {
+                    registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
+                }
 
-            it("Starts with no listener functions") {
-                registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
+                it("Registering an object with no listener functions does nothing") {
+                    registry.register(mockModule)
+                    registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
+                }
+
+                it("Registering an object with a listener function registers that function") {
+                    registry.register(TestListener.module)
+                    registry.listeningFor(ListenerArgument::class).shouldBeSingleton()
+                }
+
+                it("Can offer arguments") {
+                    registry.offer(ArgumentTypeA())
+                    TestListener.calls<ArgumentTypeA>().shouldBeSingleton()
+                }
+
+                it("Can clear") {
+                    registry.clear()
+                    registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
+                }
             }
-
-            it("Registering an object with no listener functions does nothing") {
-                registry.register(mockModule)
-                registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
-            }
-
-            it("Registering an object with a listener function registers that function") {
-                registry.register(TestListener.module)
-                registry.listeningFor(ListenerArgument::class).shouldBeSingleton()
-            }
-
-            it("Can offer arguments") {
-                registry.offer(ArgumentTypeA())
-                TestListener.calls<ArgumentTypeA>().shouldBeSingleton()
-            }
-
-            it("Can clear") {
-                registry.clear()
-                registry.listeningFor(ListenerArgument::class).shouldBeEmpty()
-            }
-        }
-    })
+        },
+    )

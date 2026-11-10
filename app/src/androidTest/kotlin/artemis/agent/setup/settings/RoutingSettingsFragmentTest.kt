@@ -238,7 +238,7 @@ class RoutingSettingsFragmentTest : TestCase() {
                                     setting.button to incentivesArray[index]
                                 },
                             shouldTest = shouldTest,
-                        )
+                        ),
                     )
                 }
             }
@@ -285,7 +285,7 @@ class RoutingSettingsFragmentTest : TestCase() {
                                     index + 1
                                 } should ${
                                     if (on) "" else "not "
-                                }be displayed"
+                                }be displayed",
                             ) {
                                 if (on) {
                                     setting.input.isDisplayedWithText(clearances[index].toString())
@@ -295,7 +295,7 @@ class RoutingSettingsFragmentTest : TestCase() {
                                     setting.kmLabel.isNotDisplayed()
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }

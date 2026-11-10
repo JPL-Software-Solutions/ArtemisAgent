@@ -35,8 +35,8 @@ class ListenerVisitor(
                     List::class.asClassName()
                         .plusParameter(
                             listenerFunctionClass.plusParameter(
-                                WildcardTypeName.producerOf(ListenerArgument::class)
-                            )
+                                WildcardTypeName.producerOf(ListenerArgument::class),
+                            ),
                         ),
                 )
                 .receiver(classDeclaration.toClassName())

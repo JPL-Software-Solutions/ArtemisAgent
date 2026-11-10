@@ -62,7 +62,7 @@ interface ArtemisNetworkInterface {
 }
 
 fun ArtemisNetworkInterface.addListeners(
-    listeners: Iterable<ListenerFunction<out ListenerArgument>>
+    listeners: Iterable<ListenerFunction<out ListenerArgument>>,
 ) {
     addListenerModule(CompositeListenerModule(listeners.toList()))
 }

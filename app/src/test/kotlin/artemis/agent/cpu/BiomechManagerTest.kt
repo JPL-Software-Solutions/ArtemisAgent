@@ -30,214 +30,221 @@ import io.mockk.every
 import io.mockk.mockk
 
 class BiomechManagerTest :
-    DescribeSpec({
-        describe("BiomechManager") {
-            val biomechManager = BiomechManager()
+    DescribeSpec(
+        {
+            describe("BiomechManager") {
+                val biomechManager = BiomechManager()
 
-            describe("Initial state") {
-                it("Enabled") { biomechManager.enabled.shouldBeTrue() }
+                describe("Initial state") {
+                    it("Enabled") { biomechManager.enabled.shouldBeTrue() }
 
-                it("Not yet confirmed") { biomechManager.confirmed.shouldBeFalse() }
+                    it("Not yet confirmed") { biomechManager.confirmed.shouldBeFalse() }
 
-                it("No BioMechs") {
-                    biomechManager.scanned.shouldBeEmpty()
-                    biomechManager.unscanned.shouldBeEmpty()
-                    biomechManager.sorted.shouldBeEmpty()
-                }
-
-                it("No destroyed BioMechs") {
-                    biomechManager.destroyedBiomechName.replayCache.shouldBeEmpty()
-                }
-
-                it("No next active BioMech") {
-                    biomechManager.nextActiveBiomech.replayCache.shouldBeEmpty()
-                }
-
-                it("Neutral rage") {
-                    biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
-                }
-
-                it("No sorting") {
-                    biomechManager.sorter.apply {
-                        sortByClassFirst.shouldBeFalse()
-                        sortByStatus.shouldBeFalse()
-                        sortByClassSecond.shouldBeFalse()
-                        sortByName.shouldBeFalse()
+                    it("No BioMechs") {
+                        biomechManager.scanned.shouldBeEmpty()
+                        biomechManager.unscanned.shouldBeEmpty()
+                        biomechManager.sorted.shouldBeEmpty()
                     }
-                }
 
-                it("Default freeze time") { biomechManager.freezeTime shouldBeEqual 220_000L }
-
-                it("No updates") { biomechManager.hasUpdate.shouldBeFalse() }
-
-                it("Inactive") { biomechManager.shouldFlash.shouldBeNull() }
-            }
-
-            it("Confirmed") {
-                biomechManager.confirmed = true
-                biomechManager.shouldFlash.shouldBeFalse()
-            }
-
-            describe("Responds to rage packets") {
-                val neutral = BiomechRagePacketFixture(arbRage = Arb.of(0))
-                val hostile = BiomechRagePacketFixture(arbRage = Arb.positiveInt())
-
-                val listenerRegistry =
-                    ListenerRegistry().apply {
-                        register(CompositeListenerModule(biomechManager.listeners))
+                    it("No destroyed BioMechs") {
+                        biomechManager.destroyedBiomechName.replayCache.shouldBeEmpty()
                     }
-                val byteChannel = ByteChannel()
-                val reader = PacketReader(byteChannel, listenerRegistry)
 
-                suspend fun BiomechRagePacketFixture.testPacket(
-                    iterations: Int = PropertyTesting.defaultIterationCount,
-                    onPacket: (BiomechRagePacket) -> Unit = {},
-                ) {
-                    generator.checkAll(iterations = iterations) { data ->
-                        val payload = data.buildPayload()
-                        byteChannel.writePacketWithHeader(packetType, payload)
-
-                        val result = reader.readPacket().shouldBeInstanceOf<ParseResult.Success>()
-                        val packet = testType(result.packet)
-                        onPacket(packet)
+                    it("No next active BioMech") {
+                        biomechManager.nextActiveBiomech.replayCache.shouldBeEmpty()
                     }
-                }
 
-                it("Neutral") {
-                    neutral.testPacket(iterations = 1) { packet ->
-                        biomechManager.onPacket(packet)
+                    it("Neutral rage") {
                         biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
-                        biomechManager.hasUpdate.shouldBeFalse()
                     }
+
+                    it("No sorting") {
+                        biomechManager.sorter.apply {
+                            sortByClassFirst.shouldBeFalse()
+                            sortByStatus.shouldBeFalse()
+                            sortByClassSecond.shouldBeFalse()
+                            sortByName.shouldBeFalse()
+                        }
+                    }
+
+                    it("Default freeze time") { biomechManager.freezeTime shouldBeEqual 220_000L }
+
+                    it("No updates") { biomechManager.hasUpdate.shouldBeFalse() }
+
+                    it("Inactive") { biomechManager.shouldFlash.shouldBeNull() }
                 }
 
-                it("Hostile") {
-                    hostile.testPacket { packet ->
-                        biomechManager.onPacket(packet)
-                        biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.HOSTILE
-                        biomechManager.hasUpdate.shouldBeTrue()
-                        biomechManager.shouldFlash.shouldBeTrue()
-                    }
-                }
-
-                it("Reset update") {
-                    biomechManager.resetUpdate()
-                    biomechManager.hasUpdate.shouldBeFalse()
+                it("Confirmed") {
+                    biomechManager.confirmed = true
                     biomechManager.shouldFlash.shouldBeFalse()
                 }
 
-                it("Back to neutral") {
-                    neutral.testPacket(iterations = 1) { packet ->
-                        biomechManager.onPacket(packet)
-                        biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
+                describe("Responds to rage packets") {
+                    val neutral = BiomechRagePacketFixture(arbRage = Arb.of(0))
+                    val hostile = BiomechRagePacketFixture(arbRage = Arb.positiveInt())
+
+                    val listenerRegistry =
+                        ListenerRegistry().apply {
+                            register(CompositeListenerModule(biomechManager.listeners))
+                        }
+                    val byteChannel = ByteChannel()
+                    val reader = PacketReader(byteChannel, listenerRegistry)
+
+                    suspend fun BiomechRagePacketFixture.testPacket(
+                        iterations: Int = PropertyTesting.defaultIterationCount,
+                        onPacket: (BiomechRagePacket) -> Unit = {},
+                    ) {
+                        generator.checkAll(iterations = iterations) { data ->
+                            val payload = data.buildPayload()
+                            byteChannel.writePacketWithHeader(packetType, payload)
+
+                            val result =
+                                reader.readPacket().shouldBeInstanceOf<ParseResult.Success>()
+                            val packet = testType(result.packet)
+                            onPacket(packet)
+                        }
+                    }
+
+                    it("Neutral") {
+                        neutral.testPacket(iterations = 1) { packet ->
+                            biomechManager.onPacket(packet)
+                            biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
+                            biomechManager.hasUpdate.shouldBeFalse()
+                        }
+                    }
+
+                    it("Hostile") {
+                        hostile.testPacket { packet ->
+                            biomechManager.onPacket(packet)
+                            biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.HOSTILE
+                            biomechManager.hasUpdate.shouldBeTrue()
+                            biomechManager.shouldFlash.shouldBeTrue()
+                        }
+                    }
+
+                    it("Reset update") {
+                        biomechManager.resetUpdate()
+                        biomechManager.hasUpdate.shouldBeFalse()
+                        biomechManager.shouldFlash.shouldBeFalse()
+                    }
+
+                    it("Back to neutral") {
+                        neutral.testPacket(iterations = 1) { packet ->
+                            biomechManager.onPacket(packet)
+                            biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
+                            biomechManager.hasUpdate.shouldBeFalse()
+                        }
+                    }
+
+                    it("Notify update") {
+                        biomechManager.notifyUpdate()
+                        biomechManager.hasUpdate.shouldBeTrue()
+                        biomechManager.shouldFlash.shouldBeTrue()
+                    }
+
+                    it("Neutral again") {
+                        neutral.testPacket(iterations = 1) { packet ->
+                            biomechManager.onPacket(packet)
+                            biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
+                            biomechManager.hasUpdate.shouldBeTrue()
+                        }
+                    }
+                }
+
+                describe("Update from settings") {
+                    val settings = userSettings {
+                        biomechsEnabled = false
+                        freezeDurationSeconds = 1
+                        biomechSortClassFirst = true
+                        biomechSortStatus = true
+                        biomechSortClassSecond = true
+                        biomechSortName = true
+                    }
+                    biomechManager.updateFromSettings(settings)
+
+                    it("Enabled") {
+                        biomechManager.enabled.shouldBeFalse()
+                        biomechManager.shouldFlash.shouldBeNull()
+                    }
+
+                    it("Freeze time") { biomechManager.freezeTime shouldBeEqual 1000L }
+
+                    describe("Sort settings") {
+                        it("Class first") { biomechManager.sorter.sortByClassFirst.shouldBeTrue() }
+                        it("Status") { biomechManager.sorter.sortByStatus.shouldBeTrue() }
+                        it("Class second") {
+                            biomechManager.sorter.sortByClassSecond.shouldBeTrue()
+                        }
+                        it("Name") { biomechManager.sorter.sortByName.shouldBeTrue() }
+                    }
+                }
+
+                describe("Revert settings") {
+                    biomechManager.enabled = true
+                    val settings = userSettings { biomechManager.revertSettings(this) }
+
+                    it("Enabled") { settings.biomechsEnabled.shouldBeTrue() }
+
+                    it("Freeze time") { settings.freezeDurationSeconds shouldBeEqual 1 }
+
+                    describe("Sort settings") {
+                        it("Class first") { settings.biomechSortClassFirst.shouldBeTrue() }
+                        it("Status") { settings.biomechSortStatus.shouldBeTrue() }
+                        it("Class second") { settings.biomechSortClassSecond.shouldBeTrue() }
+                        it("Name") { settings.biomechSortName.shouldBeTrue() }
+                    }
+                }
+
+                describe("Update at timestamp") {
+                    val scannedBiomechs =
+                        booleanArrayOf(true, false).map { frozen ->
+                            mockk<BiomechEntry> {
+                                every { onFreezeTimeExpired(any()) } returns frozen
+                            }
+                        }
+                    biomechManager.scanned.addAll(scannedBiomechs)
+
+                    it("Works when enabled") {
+                        biomechManager.updateBiomechs(0L)
+                        biomechManager.hasUpdate.shouldBeTrue()
+                    }
+
+                    it("Skips when disabled") {
+                        biomechManager.enabled = false
+                        biomechManager.resetUpdate()
+                        biomechManager.updateBiomechs(0L)
                         biomechManager.hasUpdate.shouldBeFalse()
                     }
                 }
 
-                it("Notify update") {
-                    biomechManager.notifyUpdate()
-                    biomechManager.hasUpdate.shouldBeTrue()
-                    biomechManager.shouldFlash.shouldBeTrue()
+                describe("Sorted list") {
+                    biomechManager.scanned.removeLast()
+
+                    it("Empty when disabled") { biomechManager.sorted.shouldBeEmpty() }
+
+                    it("Populated when enabled") {
+                        biomechManager.enabled = true
+                        biomechManager.sorted.shouldBeSingleton()
+                    }
                 }
 
-                it("Neutral again") {
-                    neutral.testPacket(iterations = 1) { packet ->
-                        biomechManager.onPacket(packet)
+                describe("Reset") {
+                    biomechManager.unscanned[0] = ArtemisNpc(0, 0L)
+                    biomechManager.reset()
+
+                    it("No longer confirmed") { biomechManager.confirmed.shouldBeFalse() }
+
+                    it("No more updates") { biomechManager.hasUpdate.shouldBeFalse() }
+
+                    it("Back to neutral") {
                         biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
-                        biomechManager.hasUpdate.shouldBeTrue()
+                    }
+
+                    it("No BioMechs") {
+                        biomechManager.scanned.shouldBeEmpty()
+                        biomechManager.unscanned.shouldBeEmpty()
                     }
                 }
             }
-
-            describe("Update from settings") {
-                val settings = userSettings {
-                    biomechsEnabled = false
-                    freezeDurationSeconds = 1
-                    biomechSortClassFirst = true
-                    biomechSortStatus = true
-                    biomechSortClassSecond = true
-                    biomechSortName = true
-                }
-                biomechManager.updateFromSettings(settings)
-
-                it("Enabled") {
-                    biomechManager.enabled.shouldBeFalse()
-                    biomechManager.shouldFlash.shouldBeNull()
-                }
-
-                it("Freeze time") { biomechManager.freezeTime shouldBeEqual 1000L }
-
-                describe("Sort settings") {
-                    it("Class first") { biomechManager.sorter.sortByClassFirst.shouldBeTrue() }
-                    it("Status") { biomechManager.sorter.sortByStatus.shouldBeTrue() }
-                    it("Class second") { biomechManager.sorter.sortByClassSecond.shouldBeTrue() }
-                    it("Name") { biomechManager.sorter.sortByName.shouldBeTrue() }
-                }
-            }
-
-            describe("Revert settings") {
-                biomechManager.enabled = true
-                val settings = userSettings { biomechManager.revertSettings(this) }
-
-                it("Enabled") { settings.biomechsEnabled.shouldBeTrue() }
-
-                it("Freeze time") { settings.freezeDurationSeconds shouldBeEqual 1 }
-
-                describe("Sort settings") {
-                    it("Class first") { settings.biomechSortClassFirst.shouldBeTrue() }
-                    it("Status") { settings.biomechSortStatus.shouldBeTrue() }
-                    it("Class second") { settings.biomechSortClassSecond.shouldBeTrue() }
-                    it("Name") { settings.biomechSortName.shouldBeTrue() }
-                }
-            }
-
-            describe("Update at timestamp") {
-                val scannedBiomechs =
-                    booleanArrayOf(true, false).map { frozen ->
-                        mockk<BiomechEntry> { every { onFreezeTimeExpired(any()) } returns frozen }
-                    }
-                biomechManager.scanned.addAll(scannedBiomechs)
-
-                it("Works when enabled") {
-                    biomechManager.updateBiomechs(0L)
-                    biomechManager.hasUpdate.shouldBeTrue()
-                }
-
-                it("Skips when disabled") {
-                    biomechManager.enabled = false
-                    biomechManager.resetUpdate()
-                    biomechManager.updateBiomechs(0L)
-                    biomechManager.hasUpdate.shouldBeFalse()
-                }
-            }
-
-            describe("Sorted list") {
-                biomechManager.scanned.removeLast()
-
-                it("Empty when disabled") { biomechManager.sorted.shouldBeEmpty() }
-
-                it("Populated when enabled") {
-                    biomechManager.enabled = true
-                    biomechManager.sorted.shouldBeSingleton()
-                }
-            }
-
-            describe("Reset") {
-                biomechManager.unscanned[0] = ArtemisNpc(0, 0L)
-                biomechManager.reset()
-
-                it("No longer confirmed") { biomechManager.confirmed.shouldBeFalse() }
-
-                it("No more updates") { biomechManager.hasUpdate.shouldBeFalse() }
-
-                it("Back to neutral") {
-                    biomechManager.rageStatus.value shouldBeEqual BiomechRageStatus.NEUTRAL
-                }
-
-                it("No BioMechs") {
-                    biomechManager.scanned.shouldBeEmpty()
-                    biomechManager.unscanned.shouldBeEmpty()
-                }
-            }
-        }
-    })
+        },
+    )

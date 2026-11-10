@@ -72,6 +72,14 @@ allprojects {
     }
 }
 
+dependencies {
+    constraints {
+        detekt(libs.kotlin.stdlib) {
+            because("Detekt CLI uses outdated, deprecated Kotlin version")
+        }
+    }
+}
+
 tasks.detekt { jvmTarget = javaVersion.toString() }
 
 tasks.detektBaseline { jvmTarget = javaVersion.toString() }

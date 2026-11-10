@@ -141,7 +141,7 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
         } else {
             addLivingStation(station)
             viewModel.sendToServer(
-                CommsOutgoingPacket(station, BaseMessage.PleaseReportStatus, viewModel.vesselData)
+                CommsOutgoingPacket(station, BaseMessage.PleaseReportStatus, viewModel.vesselData),
             )
         }
         return true
@@ -220,7 +220,7 @@ class CPU(private val viewModel: AgentViewModel) : CoroutineScope {
                                 dockingBase.obj,
                                 BaseMessage.PleaseReportStatus,
                                 viewModel.vesselData,
-                            )
+                            ),
                         )
                         dockingBase.isStandingBy = false
                     }

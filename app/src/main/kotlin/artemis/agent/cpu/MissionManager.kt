@@ -73,7 +73,7 @@ class MissionManager(private val viewModel: AgentViewModel) {
                     !it.isCompleted &&
                         (it.destination.obj == obj || (!it.isStarted && it.source.obj == obj))
                 }
-                .toSet()
+                .toSet(),
         )
     }
 
