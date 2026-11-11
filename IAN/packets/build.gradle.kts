@@ -5,9 +5,9 @@ import artemis.agent.gradle.dependsOnKonsist
 plugins {
     alias(conventions.plugins.ian.library)
     alias(conventions.plugins.fixtures)
+    alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
     alias(libs.plugins.javaagent)
-    id("info.solidsoft.pitest")
 }
 
 configureTests(maxMemoryGb = 4)
@@ -63,17 +63,9 @@ dependencies {
     testRuntimeOnly(libs.bundles.ian.test.runtime)
     testJavaagent(libs.byte.buddy.agent)
 
-    pitest(libs.bundles.arcmutate)
-
     pitest(testFixtures(projects.ian.enums))
     pitest(testFixtures(projects.ian.listener))
     pitest(testFixtures(projects.ian.util))
     pitest(testFixtures(projects.ian.vesseldata))
     pitest(testFixtures(projects.ian.world))
-
-    constraints {
-        pitest(libs.asm) {
-            because("Version 9.11.1 patches four medium-level security vulnerabilities")
-        }
-    }
 }
