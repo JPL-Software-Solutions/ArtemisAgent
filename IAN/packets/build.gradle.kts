@@ -17,7 +17,7 @@ pitest {
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
 }
 
-kover.currentProject.instrumentation.includedClasses.add("com.walkertribe.ian.*")
+kover.currentProject.instrumentation.excludedClasses.addAll("io.ktor.utils.io.*", "kotlinx.io.*")
 
 dependsOnKonsist()
 
