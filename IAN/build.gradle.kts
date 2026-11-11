@@ -4,10 +4,10 @@ import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 plugins {
     alias(conventions.plugins.ian.library)
+    alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
     alias(libs.plugins.javaagent.test)
     alias(libs.plugins.kover)
-    id("info.solidsoft.pitest")
 }
 
 configureTests(maxMemoryGb = 8)
@@ -61,15 +61,7 @@ dependencies {
     testRuntimeOnly(libs.bundles.ian.test.runtime)
     testJavaagent(libs.byte.buddy.agent)
 
-    pitest(libs.bundles.arcmutate)
-
     pitest(testFixtures(projects.ian.listener))
     pitest(testFixtures(projects.ian.packets))
     pitest(testFixtures(projects.ian.util))
-
-    constraints {
-        pitest(libs.asm) {
-            because("Version 9.11.1 patches four medium-level security vulnerabilities")
-        }
-    }
 }
