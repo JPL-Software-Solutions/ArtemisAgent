@@ -9,9 +9,11 @@ plugins {
     id("info.solidsoft.pitest")
 }
 
-configureTests(maxMemoryGb = 8)
+configureTests(maxMemoryGb = 8, useByteBuddyAgent = true)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
+
+kover.currentProject.instrumentation.excludedClasses.add("kotlinx.coroutines.*")
 
 val konsistCollect =
     tasks.register("konsistCollect") {

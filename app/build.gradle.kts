@@ -39,6 +39,8 @@ val changelog =
 val versionProperties =
     Properties().apply { rootProject.file("version.properties").inputStream().use { load(it) } }
 
+val byteBuddyAgent = configurations.create("byteBuddyAgent")
+
 extensions.configure<ApplicationExtension> {
     namespace = appId
     compileSdk = sdkVersion
@@ -68,6 +70,8 @@ extensions.configure<ApplicationExtension> {
             javaParameters = true
         }
     }
+
+    tasks.withType<Test>().configureEach { jvmArgs("-javaagent:${byteBuddyAgent.singleFile}") }
 
     testOptions.execution = "ANDROIDX_TEST_ORCHESTRATOR"
     testOptions.unitTests.all { it.useJUnitPlatform() }
@@ -154,6 +158,7 @@ dependencies {
     testImplementation(libs.bundles.app.test)
     testDebugImplementation(libs.bundles.app.test.debug)
     testRuntimeOnly(libs.bundles.app.test.runtime)
+    byteBuddyAgent(libs.byte.buddy.agent)
 
     androidTestImplementation(libs.bundles.app.androidTest) {
         exclude(group = "org.hamcrest", module = "hamcrest-core")
@@ -216,6 +221,11 @@ detekt {
     ignoredBuildTypes = listOf(release)
     ignoredVariants = listOf(release)
 }
+
+kover.currentProject.instrumentation.excludedClasses.addAll(
+    "androidx.viewbinding.ViewBinding",
+    "okio.*",
+)
 
 protobuf {
     protoc { artifact = libs.protoc.get().toString() }

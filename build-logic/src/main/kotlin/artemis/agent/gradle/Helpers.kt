@@ -2,8 +2,10 @@ package artemis.agent.gradle
 
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 import java.math.BigDecimal
+import libs
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 
 private const val PITEST_VERSION = "1.30.2"
@@ -36,15 +38,24 @@ fun PitestPluginExtension.configure(rootPackage: String, threads: Int) {
     mutators.addAll(MUTATORS)
 }
 
-fun Project.configureTests(maxMemoryGb: Int = 2) {
+fun Project.configureTests(maxMemoryGb: Int = 2, useByteBuddyAgent: Boolean = false) {
+    val byteBuddyAgent = if (useByteBuddyAgent) configurations.create("byteBuddyAgent") else null
+
     tasks.withType<Test>().configureEach {
         jvmArgs(
             "-Xmx${maxMemoryGb}g",
             "-Xms1g",
             "-XX:+HeapDumpOnOutOfMemoryError",
             "-XX:+UseParallelGC",
+            byteBuddyAgent?.let { "-javaagent:${it.singleFile}" }.orEmpty(),
         )
         useJUnitPlatform()
+    }
+
+    if (byteBuddyAgent != null) {
+        dependencies {
+            byteBuddyAgent(libs.byte.buddy.agent)
+        }
     }
 }
 
