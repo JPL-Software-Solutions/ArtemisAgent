@@ -184,6 +184,10 @@ dependencies {
             because("Version 1.84 patches five moderate security vulnerabilities")
         }
 
+        androidLintTool(libs.commons.codec) {
+            because("Version 1.23.0 patches a high-level security vulnerability")
+        }
+
         androidLintTool(libs.commons.lang3) {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }

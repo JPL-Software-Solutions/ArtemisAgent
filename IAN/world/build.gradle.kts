@@ -5,8 +5,8 @@ import artemis.agent.gradle.dependsOnKonsist
 plugins {
     alias(conventions.plugins.ian.library)
     alias(conventions.plugins.fixtures)
+    alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
-    id("info.solidsoft.pitest")
 }
 
 configureTests()
@@ -35,14 +35,6 @@ dependencies {
     testImplementation(libs.bundles.ian.world.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
 
-    pitest(libs.bundles.arcmutate)
-
     pitest(testFixtures(projects.ian.util))
     pitest(testFixtures(projects.ian.vesseldata))
-
-    constraints {
-        pitest(libs.asm) {
-            because("Version 9.11.1 patches four medium-level security vulnerabilities")
-        }
-    }
 }

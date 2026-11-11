@@ -31,6 +31,9 @@ dependencies {
     runtimeOnly(libs.gradle)
 
     constraints {
+        runtimeOnly(libs.commons.codec) {
+            because("Version 1.23.0 patches a high-level security vulnerability")
+        }
         runtimeOnly(libs.commons.lang3) {
             because("Version 3.18 fixes an uncontrolled recursion error")
         }
