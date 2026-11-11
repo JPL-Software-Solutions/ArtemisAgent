@@ -14,7 +14,7 @@ configureTests(maxMemoryGb = 8)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
 
-kover.currentProject.instrumentation.includedClasses.add("com.walkertribe.ian.*")
+kover.currentProject.instrumentation.excludedClasses.add("kotlinx.coroutines.CoroutineScope")
 
 val konsistCollect =
     tasks.register("konsistCollect") {

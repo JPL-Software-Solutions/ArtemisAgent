@@ -223,7 +223,10 @@ detekt {
     ignoredVariants = listOf(release)
 }
 
-kover.currentProject.instrumentation.includedClasses.add("artemis.agent.*")
+kover.currentProject.instrumentation.excludedClasses.addAll(
+    "androidx.viewbinding.ViewBinding",
+    "okio.*",
+)
 
 protobuf {
     protoc { artifact = libs.protoc.get().toString() }
