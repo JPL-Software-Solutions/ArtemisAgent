@@ -7,6 +7,7 @@ plugins {
     alias(conventions.plugins.fixtures)
     alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.javaagent.test)
 }
 
 configureTests(maxMemoryGb = 4)
@@ -15,6 +16,8 @@ pitest {
     configure(rootPackage = "com.walkertribe.ian", threads = 8)
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
 }
+
+kover.currentProject.instrumentation.excludedClasses.addAll("io.ktor.utils.io.*", "kotlinx.io.*")
 
 dependsOnKonsist()
 
@@ -58,6 +61,7 @@ dependencies {
     testImplementation(platform(libs.kotest.bom))
     testImplementation(libs.bundles.ian.packets.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 
     pitest(testFixtures(projects.ian.enums))
     pitest(testFixtures(projects.ian.listener))

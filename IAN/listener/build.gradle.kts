@@ -6,6 +6,7 @@ plugins {
     alias(conventions.plugins.ian.library)
     alias(conventions.plugins.fixtures)
     alias(conventions.plugins.pitest)
+    alias(libs.plugins.javaagent.test)
 }
 
 configureTests()
@@ -24,4 +25,5 @@ dependencies {
     testImplementation(libs.bundles.ian.listener.test)
     testFixturesImplementation(libs.kotlin.reflect)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 }
