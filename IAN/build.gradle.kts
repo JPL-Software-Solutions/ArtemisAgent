@@ -6,12 +6,15 @@ plugins {
     alias(conventions.plugins.ian.library)
     alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.javaagent)
     alias(libs.plugins.kover)
 }
 
 configureTests(maxMemoryGb = 8)
 
 pitest.configure(rootPackage = "com.walkertribe.ian", threads = 2)
+
+kover.currentProject.instrumentation.excludedClasses.add("kotlinx.coroutines.CoroutineScope")
 
 val konsistCollect =
     tasks.register("konsistCollect") {
@@ -56,6 +59,7 @@ dependencies {
     testImplementation(projects.ian.enums)
     testImplementation(libs.bundles.ian.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 
     pitest(testFixtures(projects.ian.listener))
     pitest(testFixtures(projects.ian.packets))
