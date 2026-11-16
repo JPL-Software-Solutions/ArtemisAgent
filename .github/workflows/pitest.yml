@@ -78,7 +78,7 @@ jobs:
 
       - name: Upload Pitest report
         if: steps.mutations-check.outputs.exists == 'true'
-        uses: Bonajo/pitest-report-action@b0d965117f15f2b4b1e1826149cd39e759a8d07b # v1.3.0
+        uses: Bonajo/pitest-report-action@4bde42b415dc756153d838c2b49f69e28e8be6ea # v1.3.1
         with:
           name: Pitest Report (${{ matrix.path }})
           file: ${{ github.workspace }}/${{ matrix.path }}/build/reports/pitest/mutations.xml
