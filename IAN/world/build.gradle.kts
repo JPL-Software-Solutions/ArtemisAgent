@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-configureTests()
+configureTests(useByteBuddyAgent = true)
 
 pitest.configure(rootPackage = "com.walkertribe.ian.world", threads = 2)
 
