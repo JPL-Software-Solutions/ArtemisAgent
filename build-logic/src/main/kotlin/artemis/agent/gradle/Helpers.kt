@@ -51,5 +51,5 @@ fun Project.configureTests(maxMemoryGb: Int = 2) {
 fun Project.dependsOnKonsist() {
     tasks
         .named { it.startsWith("assemble") }
-        .forEach { task -> task.dependsOn("$path:konsist:test") }
+        .configureEach { dependsOn("$path:konsist:test") }
 }
