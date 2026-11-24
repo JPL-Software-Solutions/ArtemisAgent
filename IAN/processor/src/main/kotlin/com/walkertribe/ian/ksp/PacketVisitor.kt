@@ -1,5 +1,6 @@
 package com.walkertribe.ian.ksp
 
+import com.google.devtools.ksp.KSApiFeatures
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
@@ -16,7 +17,7 @@ import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
 
 class PacketVisitor(private val codeGenerator: CodeGenerator) :
-    KSVisitorVoid(enableNewFeatures = true) {
+    KSVisitorVoid(apiFeatures = KSApiFeatures.ENABLE_ALL) {
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
         val containingFile = classDeclaration.containingFile ?: return
         val packageName = classDeclaration.packageName.asString()
