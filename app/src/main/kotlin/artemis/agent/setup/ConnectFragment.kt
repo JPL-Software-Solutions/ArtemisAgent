@@ -121,15 +121,11 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
         addressBar.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
             }
         }
 
-        addressBar.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
-        }
+        addressBar.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
         viewLifecycleOwner.collectLatestWhileStarted(viewModel.connectionStatus) {
             binding.connectLabel.text = getString(it.stringId)
@@ -174,8 +170,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         val noServersLabel = binding.noServersLabel
 
         scanButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
             hideKeyboard()
             checkForBroadcastAddress()
             viewModel.scanForServers(broadcastAddress)

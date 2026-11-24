@@ -102,8 +102,7 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
 
     private fun prepareDefaultSortMethodButton() {
         binding.enemySortingDefaultButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
         }
 
         binding.enemySortingDefaultButton.setOnCheckedChangeListener { _, isChecked ->
@@ -128,14 +127,12 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
         }
 
         binding.surrenderRangeField.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
         }
 
         binding.surrenderRangeField.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                 return@setOnFocusChangeListener
             }
 
@@ -148,8 +145,7 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
         }
 
         binding.surrenderRangeEnableButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
             clearFocus()
         }
 
@@ -166,10 +162,7 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
         EnemySettingsToggle.entries.forEach { toggle ->
             val button = toggle.getButton(binding)
 
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
             button.setOnCheckedChangeListener { _, isChecked ->
                 if (toggle.isSort) {
@@ -210,8 +203,7 @@ class EnemySettingsFragment : Fragment(R.layout.settings_enemies) {
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                     clearFocus()
-                    viewModel.activateHaptic(HapticEffect.TICK)
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(HapticEffect.TICK, SoundEffect.BEEP_2)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {

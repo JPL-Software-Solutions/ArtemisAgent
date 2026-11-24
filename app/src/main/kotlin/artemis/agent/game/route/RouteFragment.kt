@@ -44,8 +44,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
 
                 val selectorButton = binding.routeSuppliesSelector
                 selectorButton.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     root.measure(
                         View.MeasureSpec.makeMeasureSpec(
                             it.measuredWidth,
@@ -126,10 +125,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
         val fighterSupplyIndex = ordnanceTypes.size
 
         arrayOf(routeTasksButton, routeSuppliesButton).forEach { button ->
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
         }
 
         routeTasksButton.setOnCheckedChangeListener { _, isChecked ->
@@ -253,24 +249,18 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             destAllyCommandButton.visibility = View.INVISIBLE
 
             root.setOnClickListener {
-                with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_1)
-                    objEntry.obj.name.value?.also {
-                        stationName.value = it
-                        stationPage.value = StationsFragment.Page.FRIENDLY
-                        currentGamePage.value = GameFragment.Page.STATIONS
-                    }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
+                objEntry.obj.name.value?.also {
+                    viewModel.stationName.value = it
+                    viewModel.stationPage.value = StationsFragment.Page.FRIENDLY
+                    viewModel.currentGamePage.value = GameFragment.Page.STATIONS
                 }
             }
         }
 
         private fun sendToStation(objEntry: ObjectEntry.Station, message: BaseMessage) {
-            with(viewModel) {
-                activateHaptic()
-                soundManager.play(SoundEffect.BEEP_2)
-                sendToServer(CommsOutgoingPacket(objEntry.obj, message, vesselData))
-            }
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+            viewModel.sendToServer(CommsOutgoingPacket(objEntry.obj, message, viewModel.vesselData))
         }
 
         private fun bindAlly(objEntry: ObjectEntry.Ally) {
@@ -287,14 +277,11 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             destAllyCommandButton.visibility =
                 if (objEntry.isInstructable) {
                     destAllyCommandButton.setOnClickListener {
-                        with(viewModel) {
-                            activateHaptic()
-                            soundManager.play(SoundEffect.BEEP_1)
-                            showingDestroyedAllies.value = false
-                            scrollToAlly = objEntry
-                            focusedAlly.value = objEntry
-                            currentGamePage.value = GameFragment.Page.ALLIES
-                        }
+                        viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
+                        viewModel.showingDestroyedAllies.value = false
+                        viewModel.scrollToAlly = objEntry
+                        viewModel.focusedAlly.value = objEntry
+                        viewModel.currentGamePage.value = GameFragment.Page.ALLIES
                     }
                     View.VISIBLE
                 } else {
@@ -302,13 +289,10 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
                 }
 
             root.setOnClickListener {
-                with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_1)
-                    showingDestroyedAllies.value = false
-                    scrollToAlly = objEntry
-                    currentGamePage.value = GameFragment.Page.ALLIES
-                }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
+                viewModel.showingDestroyedAllies.value = false
+                viewModel.scrollToAlly = objEntry
+                viewModel.currentGamePage.value = GameFragment.Page.ALLIES
             }
         }
     }
@@ -358,12 +342,10 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             holder.name = routeObjectiveLabel
             holder.data = boundObjective.getDataFrom(viewModel)
             holder.itemView.setOnClickListener {
-                with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_2)
-                    routeObjective.value = boundObjective
-                    routeSuppliesIndex = position
-                }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+                viewModel.routeObjective.value = boundObjective
+                viewModel.routeSuppliesIndex = position
+
                 suppliesSelectorPopup.dismiss()
             }
         }

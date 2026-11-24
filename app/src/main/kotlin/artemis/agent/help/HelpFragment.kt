@@ -48,8 +48,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
             }
 
             override fun close() {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_1)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
             }
         }
     }
@@ -171,8 +170,7 @@ class HelpFragment : Fragment(R.layout.help_fragment) {
                     with(holder.itemView as Button) {
                         setText(helpTopics[position].buttonLabel)
                         setOnClickListener {
-                            viewModel.activateHaptic()
-                            viewModel.soundManager.play(SoundEffect.BEEP_2)
+                            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                             viewModel.helpTopicIndex.value = position
                         }
                     }

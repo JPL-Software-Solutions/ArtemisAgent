@@ -43,10 +43,7 @@ class StationsFragment : Fragment(R.layout.stations_fragment) {
         val stationsListSelector = binding.stationsListSelector
 
         stationsListSelector.children.forEach { button ->
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
         }
 
         stationsListSelector.setOnCheckedChangeListener { _, checkedId ->

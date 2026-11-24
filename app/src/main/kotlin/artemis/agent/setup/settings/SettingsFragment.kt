@@ -226,8 +226,7 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
             }
 
             override fun close() {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_1)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
             }
         }
     }

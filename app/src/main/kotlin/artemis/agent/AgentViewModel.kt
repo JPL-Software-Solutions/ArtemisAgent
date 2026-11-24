@@ -574,6 +574,14 @@ class AgentViewModel(application: Application) :
         }
     }
 
+    fun hapticAndSound(
+        haptic: HapticEffect = HapticEffect.CLICK,
+        sound: SoundEffect = SoundEffect.BEEP_2,
+    ) {
+        activateHaptic(haptic)
+        soundManager.play(sound)
+    }
+
     fun hideKeyboard(rootView: View) {
         rootView.context
             .getSystemService<InputMethodManager>()

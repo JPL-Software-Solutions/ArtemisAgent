@@ -17,9 +17,7 @@ class SoundManager(context: Context) {
         get() = volume > 0f && !isMuted
 
     private val sounds: MutableList<MediaPlayer?> =
-        SoundEffect.entries
-            .map { MediaPlayer.create(context, it.soundId) }
-            .toMutableList()
+        SoundEffect.entries.map { MediaPlayer.create(context, it.soundId) }.toMutableList()
 
     /** Plays a sound effect if sound effects are enabled. */
     fun play(sound: SoundEffect) {

@@ -57,8 +57,7 @@ class SettingsMenuFragment : Fragment(R.layout.settings_menu) {
             entryBinding.settingsEntryToggle.visibility =
                 page.onToggle?.let { onToggle ->
                     entryBinding.settingsEntryToggle.setOnClickListener {
-                        viewModel.activateHaptic()
-                        viewModel.soundManager.play(SoundEffect.BEEP_2)
+                        viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     }
                     entryBinding.settingsEntryToggle.setOnCheckedChangeListener { _, isChecked ->
                         viewModel.viewModelScope.launch {

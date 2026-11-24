@@ -62,10 +62,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
         }
 
         themeOptionButtons.forEachIndexed { index, button ->
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
             button.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
@@ -77,8 +74,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
         }
 
         binding.threeDigitDirectionsButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
         }
 
         binding.threeDigitDirectionsButton.setOnCheckedChangeListener { _, isChecked ->
@@ -132,8 +128,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    viewModel.activateHaptic(HapticEffect.TICK)
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(HapticEffect.TICK, SoundEffect.BEEP_2)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {

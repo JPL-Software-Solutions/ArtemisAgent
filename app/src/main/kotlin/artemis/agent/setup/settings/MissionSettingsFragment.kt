@@ -21,8 +21,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
 
     private val autoDismissalBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.autoDismissalTimeInput) { seconds ->
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData { settings ->
                     settings.copy { completedMissionDismissalSeconds = seconds }
@@ -66,8 +65,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
         val autoDismissalButton = binding.autoDismissalButton
 
         autoDismissalButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
         }
 
         autoDismissalButton.setOnCheckedChangeListener { _, isChecked ->
@@ -85,8 +83,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
         listOf(binding.rewardsAllButton to true, binding.rewardsNoneButton to false).forEach {
             (button, isOn) ->
             button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                 viewModel.viewModelScope.launch {
                     context.userSettings.updateData { settings ->
                         settings.copy {
@@ -102,10 +99,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
         DisplayRewardSetting.entries.forEach { display ->
             val button = display.getButton(binding)
 
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
             button.setOnCheckedChangeListener { _, isChecked ->
                 viewModel.viewModelScope.launch {

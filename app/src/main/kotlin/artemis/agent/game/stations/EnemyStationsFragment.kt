@@ -67,17 +67,14 @@ class EnemyStationsFragment : Fragment(R.layout.enemy_stations_fragment) {
 
             entryBinding.enemyNameLabel.text = entry.obj.name.value
             root.setOnClickListener {
-                viewModel.apply {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_2)
-                    sendToServer(
-                        CommsOutgoingPacket(
-                            entry.obj,
-                            BaseMessage.StandByForDockingOrCeaseOperation,
-                            vesselData,
-                        ),
-                    )
-                }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+                viewModel.sendToServer(
+                    CommsOutgoingPacket(
+                        entry.obj,
+                        BaseMessage.StandByForDockingOrCeaseOperation,
+                        viewModel.vesselData,
+                    ),
+                )
             }
 
             entryBinding.enemyShieldLabel.text =

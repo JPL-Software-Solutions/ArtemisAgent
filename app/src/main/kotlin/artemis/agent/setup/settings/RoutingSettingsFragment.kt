@@ -115,10 +115,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
         val toggleButton = avoidance.getToggleButton(binding)
         val clearanceField = avoidance.getClearanceField(binding)
 
-        toggleButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
-        }
+        toggleButton.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
         toggleButton.setOnCheckedChangeListener { _, isChecked ->
             if (!isChecked && clearanceField.hasFocus()) {
@@ -133,10 +130,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
             }
         }
 
-        clearanceField.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
-        }
+        clearanceField.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
         clearanceField.addTextChangedListener {
             if (playSoundsOnTextChange) {
@@ -146,8 +140,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
 
         clearanceField.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                 return@setOnFocusChangeListener
             }
 
@@ -180,8 +173,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
             val button = incentive.getButton(binding)
 
             button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                 clearFocus()
             }
 
@@ -206,8 +198,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
                 if (!maintainFocus || !isOn) {
                     clearFocus()
                 }
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                 viewModel.viewModelScope.launch {
                     button.context.userSettings.updateData { settings ->
                         settings.copy { update(isOn) }

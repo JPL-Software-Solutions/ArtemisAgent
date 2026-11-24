@@ -39,10 +39,7 @@ class AllySettingsFragment : Fragment(R.layout.settings_allies) {
         AllySettingsToggle.entries.forEach { toggle ->
             val button = toggle.getButton(binding)
 
-            button.setOnClickListener {
-                viewModel.activateHaptic()
-                viewModel.soundManager.play(SoundEffect.BEEP_2)
-            }
+            button.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
 
             button.setOnCheckedChangeListener { _, isChecked ->
                 if (toggle.isSort) {
@@ -59,8 +56,7 @@ class AllySettingsFragment : Fragment(R.layout.settings_allies) {
 
     private fun prepareDefaultSortMethodButton() {
         binding.allySortingDefaultButton.setOnClickListener {
-            viewModel.activateHaptic()
-            viewModel.soundManager.play(SoundEffect.BEEP_2)
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
         }
 
         binding.allySortingDefaultButton.setOnCheckedChangeListener { _, isChecked ->

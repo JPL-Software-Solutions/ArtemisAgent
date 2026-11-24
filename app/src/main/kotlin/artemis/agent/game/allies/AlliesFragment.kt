@@ -213,8 +213,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                 .forEach { (button, message) ->
                     button.setOnClickListener {
                         with(viewModel) {
-                            activateHaptic()
-                            soundManager.play(SoundEffect.CONFIRMATION)
+                            hapticAndSound(sound = SoundEffect.CONFIRMATION)
                             sendToServer(CommsOutgoingPacket(ally.obj, message, vesselData))
                             if (!manuallyReturnFromCommands && !isSingleAlly) {
                                 this@AlliesFragment.backPreview.handleOnBackPressed()
@@ -260,18 +259,16 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
         fun bind(entry: Ally, viewModel: AgentViewModel) {
             entryBinding.allyNameLabel.text = entry.fullName
             entryBinding.allyHailButton.setOnClickListener {
-                with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_2)
-                    sendToServer(CommsOutgoingPacket(entry.obj, OtherMessage.Hail, vesselData))
-                }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+                viewModel.sendToServer(
+                    CommsOutgoingPacket(entry.obj, OtherMessage.Hail, viewModel.vesselData),
+                )
             }
 
             entryBinding.allyRecapButton.visibility =
                 if (viewModel.recapsEnabled) {
                     entryBinding.allyRecapButton.setOnClickListener {
-                        viewModel.activateHaptic()
-                        viewModel.soundManager.play(SoundEffect.BEEP_2)
+                        viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                         if (entry.latestHailMessage.isBlank()) return@setOnClickListener
 
                         AlertDialog.Builder(entryBinding.root.context)
@@ -298,8 +295,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
                 root.setBackgroundColor(Color.TRANSPARENT)
                 allyCommandButton.setText(R.string.cancel)
                 allyCommandButton.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_1)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
                     if (!viewModel.isSingleAlly) {
                         backPreview.handleOnBackPressed()
                     }
@@ -307,11 +303,8 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
             } else {
                 root.setBackgroundColor(entry.getBackgroundColor(root.context))
                 allyCommandButton.setOnClickListener {
-                    with(viewModel) {
-                        activateHaptic()
-                        soundManager.play(SoundEffect.BEEP_1)
-                        focusedAlly.value = entry
-                    }
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
+                    viewModel.focusedAlly.value = entry
                 }
             }
 
@@ -446,8 +439,7 @@ class AlliesFragment : Fragment(R.layout.allies_fragment) {
             button.text = obj.name.value
             button.setOnClickListener {
                 with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.CONFIRMATION)
+                    hapticAndSound(sound = SoundEffect.CONFIRMATION)
                     sendToServer(CommsOutgoingPacket(ally, OtherMessage.GoDefend(obj), vesselData))
                     if (!manuallyReturnFromCommands && !isSingleAlly) {
                         backPreview?.handleOnBackPressed()

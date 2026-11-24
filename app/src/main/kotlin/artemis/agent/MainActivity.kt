@@ -615,15 +615,11 @@ class MainActivity : AppCompatActivity() {
                 setupBackPressedCallbacks()
 
                 binding.mainPageSelector.children.forEach { view ->
-                    view.setOnClickListener {
-                        viewModel.activateHaptic()
-                        viewModel.soundManager.play(SoundEffect.BEEP_2)
-                    }
+                    view.setOnClickListener { viewModel.hapticAndSound(sound = SoundEffect.BEEP_2) }
                 }
 
                 binding.updateButton.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     checkForUpdates(UpdateCheck.MANUAL)
                 }
             }
@@ -1002,7 +998,9 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(updateAlert.getTitle(context))
                 .setMessage(updateAlert.getMessage(context))
                 .setCancelable(false)
-                .setNegativeButton(R.string.no) { _, _ -> viewModel.soundManager.play(SoundEffect.BEEP_1) }
+                .setNegativeButton(R.string.no) { _, _ ->
+                    viewModel.soundManager.play(SoundEffect.BEEP_1)
+                }
                 .setPositiveButton(R.string.yes) { _, _ ->
                     viewModel.soundManager.play(SoundEffect.BEEP_2)
                     when (updateAlert) {
@@ -1082,7 +1080,9 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.review_title)
             .setMessage(R.string.review_prompt)
             .setCancelable(true)
-            .setNegativeButton(R.string.no) { _, _ -> viewModel.soundManager.play(SoundEffect.BEEP_1) }
+            .setNegativeButton(R.string.no) { _, _ ->
+                viewModel.soundManager.play(SoundEffect.BEEP_1)
+            }
             .setPositiveButton(R.string.yes) { _, _ ->
                 viewModel.soundManager.play(SoundEffect.BEEP_2)
 

@@ -50,8 +50,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
 
                 val selectorButton = binding.stationSelectorButton
                 selectorButton.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     root.measure(
                         View.MeasureSpec.makeMeasureSpec(
                             it.measuredWidth,
@@ -86,8 +85,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
 
                 val selectorButton = binding.stationBuildSelector
                 selectorButton.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     root.measure(
                         View.MeasureSpec.makeMeasureSpec(
                             selectorButton.measuredWidth,
@@ -179,8 +177,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
                 isEnabled = it != viewModel.stationName.value
 
                 setOnClickListener { _ ->
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_1)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_1)
                     viewModel.stationName.value = it
                 }
             }
@@ -285,27 +282,25 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
         requestStandbyButton.isEnabled = !entry.isStandingBy
 
         requestStatusButton.setOnClickListener { _ ->
-            with(viewModel) {
-                activateHaptic()
-                soundManager.play(SoundEffect.BEEP_2)
-                sendToServer(
-                    CommsOutgoingPacket(entry.obj, BaseMessage.PleaseReportStatus, vesselData),
-                )
-            }
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+            viewModel.sendToServer(
+                CommsOutgoingPacket(
+                    entry.obj,
+                    BaseMessage.PleaseReportStatus,
+                    viewModel.vesselData,
+                ),
+            )
         }
 
         requestStandbyButton.setOnClickListener { _ ->
-            with(viewModel) {
-                activateHaptic()
-                soundManager.play(SoundEffect.BEEP_2)
-                sendToServer(
-                    CommsOutgoingPacket(
-                        entry.obj,
-                        BaseMessage.StandByForDockingOrCeaseOperation,
-                        vesselData,
-                    ),
-                )
-            }
+            viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+            viewModel.sendToServer(
+                CommsOutgoingPacket(
+                    entry.obj,
+                    BaseMessage.StandByForDockingOrCeaseOperation,
+                    viewModel.vesselData,
+                ),
+            )
         }
     }
 
@@ -416,8 +411,7 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
             stations[position].also { (station, flashing) ->
                 holder.bind(station, flashing)
                 holder.itemView.setOnClickListener {
-                    viewModel.activateHaptic()
-                    viewModel.soundManager.play(SoundEffect.BEEP_2)
+                    viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
                     station.obj.name.value?.also { name -> viewModel.stationName.value = name }
                     stationSelectorPopup.dismiss()
                 }
@@ -443,13 +437,14 @@ class StationEntryFragment : Fragment(R.layout.station_entry) {
 
             holder.name = ordnance.getLabelFor(viewModel.version)
             holder.itemView.setOnClickListener {
-                with(viewModel) {
-                    activateHaptic()
-                    soundManager.play(SoundEffect.BEEP_2)
-                    sendToServer(
-                        CommsOutgoingPacket(station.obj, BaseMessage.Build(ordnance), vesselData),
-                    )
-                }
+                viewModel.hapticAndSound(sound = SoundEffect.BEEP_2)
+                viewModel.sendToServer(
+                    CommsOutgoingPacket(
+                        station.obj,
+                        BaseMessage.Build(ordnance),
+                        viewModel.vesselData,
+                    ),
+                )
                 ordnanceSelectorPopup.dismiss()
             }
         }
