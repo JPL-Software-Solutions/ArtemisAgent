@@ -1,6 +1,5 @@
 import artemis.agent.gradle.configure
 import artemis.agent.gradle.configureTests
-import artemis.agent.gradle.dependsOnKonsist
 
 plugins {
     alias(conventions.plugins.ian.library)
@@ -15,8 +14,6 @@ pitest {
     configure(rootPackage = "com.walkertribe.ian", threads = 8)
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
 }
-
-dependsOnKonsist()
 
 dependencies {
     compileOnly(projects.ian.annotations)

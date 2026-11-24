@@ -1,6 +1,5 @@
 import artemis.agent.gradle.configure
 import artemis.agent.gradle.configureTests
-import artemis.agent.gradle.dependsOnKonsist
 
 plugins {
     alias(conventions.plugins.ian.library)
@@ -11,8 +10,6 @@ plugins {
 configureTests()
 
 pitest.configure(rootPackage = "com.walkertribe.ian.util", threads = 2)
-
-dependsOnKonsist()
 
 dependencies {
     api(libs.bundles.ian.util.api)

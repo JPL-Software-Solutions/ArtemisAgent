@@ -22,6 +22,12 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 }
 
+findProject(relativeProjectPath("konsist"))?.also { konsist ->
+    tasks
+        .named { it.startsWith("assemble") }
+        .configureEach { dependsOn("${konsist.path}:test") }
+}
+
 dependencies {
     constraints {
         detekt(libs.kotlin.stdlib) {

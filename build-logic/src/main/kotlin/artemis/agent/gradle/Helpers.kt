@@ -47,9 +47,3 @@ fun Project.configureTests(maxMemoryGb: Int = 2) {
         useJUnitPlatform()
     }
 }
-
-fun Project.dependsOnKonsist() {
-    tasks
-        .named { it.startsWith("assemble") }
-        .configureEach { dependsOn("$path:konsist:test") }
-}
