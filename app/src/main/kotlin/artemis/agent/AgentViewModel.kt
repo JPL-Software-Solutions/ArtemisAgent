@@ -81,7 +81,6 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -1112,7 +1111,6 @@ class AgentViewModel(application: Application) :
         sounds.clear()
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
     fun updateFromSettings(settings: UserSettings) {
         vesselDataManager.index = settings.vesselDataLocationValue
         port = settings.serverPort
@@ -1171,7 +1169,7 @@ class AgentViewModel(application: Application) :
         hapticsEnabled = settings.hapticsEnabled
 
         val oldThemeRes = ThemeResInitializer.splashThemeRes
-        ThemeResInitializer.themeIndex.store(settings.themeValue)
+        ThemeResInitializer.themeIndex.value = settings.themeValue
         if (ThemeResInitializer.splashThemeRes != oldThemeRes) {
             isThemeChanged.value = true
         }
@@ -1234,6 +1232,7 @@ class AgentViewModel(application: Application) :
         themeValue = ThemeResInitializer.themeIndex.load()
         showNetworkInfo = showingNetworkInfo
         alwaysScanPublic = alwaysScanPublicBroadcasts
+        themeValue = ThemeResInitializer.themeIndex.value
         hapticsEnabled = this@AgentViewModel.hapticsEnabled
     }
 
