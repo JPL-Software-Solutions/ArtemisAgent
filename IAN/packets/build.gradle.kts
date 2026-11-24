@@ -9,12 +9,14 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-configureTests(maxMemoryGb = 4)
+configureTests(maxMemoryGb = 4, useByteBuddyAgent = true)
 
 pitest {
     configure(rootPackage = "com.walkertribe.ian", threads = 8)
     jvmArgs = listOf("-Xmx8g", "-Xms1g", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+UseParallelGC")
 }
+
+kover.currentProject.instrumentation.excludedClasses.addAll("io.ktor.utils.io.*", "kotlinx.io.*")
 
 dependsOnKonsist()
 
