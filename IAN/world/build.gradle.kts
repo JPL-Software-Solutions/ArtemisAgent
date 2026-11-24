@@ -7,6 +7,7 @@ plugins {
     alias(conventions.plugins.fixtures)
     alias(conventions.plugins.pitest)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.javaagent.test)
 }
 
 configureTests()
@@ -34,6 +35,7 @@ dependencies {
     testImplementation(testFixtures(projects.ian.vesseldata))
     testImplementation(libs.bundles.ian.world.test)
     testRuntimeOnly(libs.bundles.ian.test.runtime)
+    testJavaagent(libs.byte.buddy.agent)
 
     pitest(testFixtures(projects.ian.util))
     pitest(testFixtures(projects.ian.vesseldata))
