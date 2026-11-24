@@ -22,7 +22,7 @@ class ConnectionSettingsFragment : Fragment(R.layout.settings_connection) {
     private val connectionTimeoutBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.connectionTimeoutTimeInput, minimumSeconds = 1) { seconds ->
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData {
                     it.copy { connectionTimeoutSeconds = seconds }
@@ -34,7 +34,7 @@ class ConnectionSettingsFragment : Fragment(R.layout.settings_connection) {
     private val heartbeatTimeoutBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.heartbeatTimeoutTimeInput, minimumSeconds = 1) { seconds ->
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData {
                     it.copy { serverTimeoutSeconds = seconds }
@@ -46,7 +46,7 @@ class ConnectionSettingsFragment : Fragment(R.layout.settings_connection) {
     private val scanTimeoutBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.scanTimeoutTimeInput, minimumSeconds = 1) { seconds ->
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData {
                     it.copy { scanTimeoutSeconds = seconds }
@@ -67,7 +67,7 @@ class ConnectionSettingsFragment : Fragment(R.layout.settings_connection) {
 
         binding.alwaysScanPublicButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.alwaysScanPublicButton.setOnCheckedChangeListener { _, isChecked ->

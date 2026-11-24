@@ -87,7 +87,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                 if (index < numAvailableOptions) {
                     button.setOnClickListener {
                         viewModel.activateHaptic()
-                        viewModel.playSound(SoundEffect.BEEP_2)
+                        viewModel.soundManager.play(SoundEffect.BEEP_2)
                         clearFocus()
                     }
                     button.setOnCheckedChangeListener { _, isChecked ->
@@ -109,19 +109,19 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
     private fun prepareServerPortSettingField() {
         binding.serverPortField.addTextChangedListener {
             if (playSoundsOnTextChange) {
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
         binding.serverPortField.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.serverPortField.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 return@setOnFocusChangeListener
             }
 
@@ -140,7 +140,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
         binding.serverPortResetButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             binding.serverPortField.setText(
                 UserSettingsSerializer.DEFAULT_SERVER_PORT.formatString(),
             )
@@ -155,7 +155,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
     private fun prepareShowNetworkInfoSettingToggle() {
         binding.showNetworkInfoButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.showNetworkInfoButton.setOnCheckedChangeListener { _, isChecked ->
@@ -170,19 +170,19 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
     private fun prepareAddressLimitSettingField() {
         binding.addressLimitField.addTextChangedListener {
             if (playSoundsOnTextChange) {
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
         binding.addressLimitField.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.addressLimitField.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 return@setOnFocusChangeListener
             }
 
@@ -198,7 +198,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
 
         binding.addressLimitEnableButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             clearFocus()
         }
 
@@ -232,11 +232,11 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                     clearFocus()
                     viewModel.activateHaptic(HapticEffect.TICK)
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     viewModel.viewModelScope.launch {
                         context.userSettings.updateData { settings ->
                             settings.copy { updateInterval = viewModel.updateObjectsInterval }

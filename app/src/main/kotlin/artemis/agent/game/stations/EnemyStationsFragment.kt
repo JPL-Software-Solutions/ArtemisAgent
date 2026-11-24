@@ -69,7 +69,7 @@ class EnemyStationsFragment : Fragment(R.layout.enemy_stations_fragment) {
             root.setOnClickListener {
                 viewModel.apply {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_2)
+                    soundManager.play(SoundEffect.BEEP_2)
                     sendToServer(
                         CommsOutgoingPacket(
                             entry.obj,

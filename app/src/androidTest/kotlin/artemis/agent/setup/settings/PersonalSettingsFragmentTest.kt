@@ -60,9 +60,9 @@ class PersonalSettingsFragmentTest : TestCase() {
                         val viewModel = activity.viewModels<AgentViewModel>().value
                         threeDigits.lazySet(viewModel.threeDigitDirections)
                         soundVolume.lazySet(
-                            (viewModel.volume * AgentViewModel.VOLUME_SCALE).toInt(),
+                            (viewModel.soundManager.volume * SoundManager.VOLUME_SCALE).toInt(),
                         )
-                        soundsMuted.lazySet(viewModel.soundsMuted)
+                        soundsMuted.lazySet(viewModel.soundManager.isMuted)
                         hapticsEnabled.lazySet(viewModel.hapticsEnabled)
                     }
                 }

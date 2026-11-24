@@ -121,13 +121,13 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
         addressBar.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
         addressBar.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         viewLifecycleOwner.collectLatestWhileStarted(viewModel.connectionStatus) {
@@ -147,7 +147,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
         addressBar.addTextChangedListener {
             if (playSoundsOnTextChange) {
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             } else {
                 playSoundsOnTextChange = true
             }
@@ -174,7 +174,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
 
         scanButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             hideKeyboard()
             checkForBroadcastAddress()
             viewModel.scanForServers(broadcastAddress)
@@ -194,7 +194,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
                 noServersLabel.visibility = View.GONE
             } else {
                 if (playSoundOnScanFinished) {
-                    viewModel.playSound(SoundEffect.BEEP_1)
+                    viewModel.soundManager.play(SoundEffect.BEEP_1)
                 }
                 scanSpinner.visibility = View.GONE
                 noServersLabel.visibility =

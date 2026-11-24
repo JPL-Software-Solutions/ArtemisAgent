@@ -12,6 +12,7 @@ import artemis.agent.AgentViewModel.Companion.formatString
 import artemis.agent.R
 import artemis.agent.UserSettingsSerializer.userSettings
 import artemis.agent.copy
+import artemis.agent.cpu.SoundManager
 import artemis.agent.databinding.SettingsPersonalBinding
 import artemis.agent.databinding.fragmentViewBinding
 import artemis.agent.util.HapticEffect
@@ -26,9 +27,9 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
     private var initialized = false
 
     private var volume: Int
-        get() = (viewModel.volume * AgentViewModel.VOLUME_SCALE).toInt()
+        get() = (viewModel.soundManager.volume * SoundManager.VOLUME_SCALE).toInt()
         set(value) {
-            viewModel.volume = value.toFloat()
+            viewModel.soundManager.volume = value.toFloat()
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,7 +64,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
         themeOptionButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
 
             button.setOnCheckedChangeListener { _, isChecked ->
@@ -77,7 +78,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
 
         binding.threeDigitDirectionsButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.threeDigitDirectionsButton.setOnCheckedChangeListener { _, isChecked ->
@@ -88,7 +89,9 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
             }
         }
 
-        binding.enableHapticsButton.setOnClickListener { viewModel.playSound(SoundEffect.BEEP_2) }
+        binding.enableHapticsButton.setOnClickListener {
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
+        }
 
         binding.enableHapticsButton.setOnCheckedChangeListener { _, isChecked ->
             viewModel.viewModelScope.launch {
@@ -109,7 +112,7 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
             viewModel.viewModelScope.launch {
                 context.userSettings.updateData { it.copy { soundMuted = isChecked } }
                 updateSoundVolumeLabel(volume)
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
@@ -130,11 +133,11 @@ class PersonalSettingsFragment : Fragment(R.layout.settings_personal) {
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                     viewModel.activateHaptic(HapticEffect.TICK)
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     viewModel.viewModelScope.launch {
                         context.userSettings.updateData { it.copy { soundVolume = volume } }
                     }

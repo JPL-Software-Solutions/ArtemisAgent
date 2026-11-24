@@ -22,7 +22,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
     private val autoDismissalBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.autoDismissalTimeInput) { seconds ->
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData { settings ->
                     settings.copy { completedMissionDismissalSeconds = seconds }
@@ -67,7 +67,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
 
         autoDismissalButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         autoDismissalButton.setOnCheckedChangeListener { _, isChecked ->
@@ -86,7 +86,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
             (button, isOn) ->
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 viewModel.viewModelScope.launch {
                     context.userSettings.updateData { settings ->
                         settings.copy {
@@ -104,7 +104,7 @@ class MissionSettingsFragment : Fragment(R.layout.settings_missions) {
 
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
 
             button.setOnCheckedChangeListener { _, isChecked ->

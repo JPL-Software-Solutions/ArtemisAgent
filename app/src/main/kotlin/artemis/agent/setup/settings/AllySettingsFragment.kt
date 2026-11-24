@@ -41,7 +41,7 @@ class AllySettingsFragment : Fragment(R.layout.settings_allies) {
 
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
 
             button.setOnCheckedChangeListener { _, isChecked ->
@@ -60,7 +60,7 @@ class AllySettingsFragment : Fragment(R.layout.settings_allies) {
     private fun prepareDefaultSortMethodButton() {
         binding.allySortingDefaultButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.allySortingDefaultButton.setOnCheckedChangeListener { _, isChecked ->

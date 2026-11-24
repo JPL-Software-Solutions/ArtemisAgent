@@ -117,7 +117,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
 
         toggleButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         toggleButton.setOnCheckedChangeListener { _, isChecked ->
@@ -135,19 +135,19 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
 
         clearanceField.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         clearanceField.addTextChangedListener {
             if (playSoundsOnTextChange) {
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
         clearanceField.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 return@setOnFocusChangeListener
             }
 
@@ -181,7 +181,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
 
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 clearFocus()
             }
 
@@ -207,7 +207,7 @@ class RoutingSettingsFragment : Fragment(R.layout.settings_routing) {
                     clearFocus()
                 }
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 viewModel.viewModelScope.launch {
                     button.context.userSettings.updateData { settings ->
                         settings.copy { update(isOn) }

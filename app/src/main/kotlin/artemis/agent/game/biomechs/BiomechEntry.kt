@@ -40,7 +40,7 @@ data class BiomechEntry(val biomech: ArtemisNpc) : Comparable<BiomechEntry> {
         if (isFrozen && !isReadyToReanimate) return
 
         freezeSent = true
-        viewModel.playSound(SoundEffect.BEEP_1)
+        viewModel.soundManager.play(SoundEffect.BEEP_1)
         viewModel.sendToServer(
             CommsOutgoingPacket(biomech, EnemyMessage.entries[++timesFrozen], viewModel.vesselData),
         )

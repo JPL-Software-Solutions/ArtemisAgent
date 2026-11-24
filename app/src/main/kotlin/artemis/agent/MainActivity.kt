@@ -155,10 +155,10 @@ class MainActivity : AppCompatActivity() {
                     .setMessage(messageId)
                     .setCancelable(false)
                     .setNegativeButton(R.string.no) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_2)
+                        viewModel.soundManager.play(SoundEffect.BEEP_2)
                     }
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_2)
+                        viewModel.soundManager.play(SoundEffect.BEEP_2)
                         startUpdateFlow()
                     }
                     .show()
@@ -179,16 +179,16 @@ class MainActivity : AppCompatActivity() {
         object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 isEnabled = false
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 AlertDialog.Builder(this@MainActivity)
                     .setMessage(R.string.exit_message)
                     .setCancelable(false)
                     .setNegativeButton(R.string.no) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_1)
+                        viewModel.soundManager.play(SoundEffect.BEEP_1)
                         isEnabled = true
                     }
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.playSound(SoundEffect.CONFIRMATION)
+                        viewModel.soundManager.play(SoundEffect.CONFIRMATION)
                         viewModel.networkInterface.stop()
                         onBackPressedDispatcher.onBackPressed()
                     }
@@ -222,11 +222,11 @@ class MainActivity : AppCompatActivity() {
                     .setMessage(nextRequest.rationaleMessage)
                     .setCancelable(false)
                     .setNegativeButton(R.string.no) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_1)
+                        viewModel.soundManager.play(SoundEffect.BEEP_1)
                         requestPermissionLauncher?.launch(arrayOf(nextRequest.permission))
                     }
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_1)
+                        viewModel.soundManager.play(SoundEffect.BEEP_1)
                         requestPermissionLauncher?.launch(emptyArray())
                     }
                     .show()
@@ -617,13 +617,13 @@ class MainActivity : AppCompatActivity() {
                 binding.mainPageSelector.children.forEach { view ->
                     view.setOnClickListener {
                         viewModel.activateHaptic()
-                        viewModel.playSound(SoundEffect.BEEP_2)
+                        viewModel.soundManager.play(SoundEffect.BEEP_2)
                     }
                 }
 
                 binding.updateButton.setOnClickListener {
                     viewModel.activateHaptic()
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     checkForUpdates(UpdateCheck.MANUAL)
                 }
             }
@@ -935,7 +935,7 @@ class MainActivity : AppCompatActivity() {
                         launch { userSettings.updateData { viewModel.revertSettings(it) } }
                     }
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.playSound(SoundEffect.BEEP_2)
+                        viewModel.soundManager.play(SoundEffect.BEEP_2)
                         viewModel.disconnectFromServer()
                         viewModel.updateFromSettings(adjustedSettings)
                         launch { userSettings.updateData { adjustedSettings } }
@@ -1002,9 +1002,9 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(updateAlert.getTitle(context))
                 .setMessage(updateAlert.getMessage(context))
                 .setCancelable(false)
-                .setNegativeButton(R.string.no) { _, _ -> viewModel.playSound(SoundEffect.BEEP_1) }
+                .setNegativeButton(R.string.no) { _, _ -> viewModel.soundManager.play(SoundEffect.BEEP_1) }
                 .setPositiveButton(R.string.yes) { _, _ ->
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     when (updateAlert) {
                         is UpdateAlert.Immediate,
                         is UpdateAlert.ArtemisVersion.Update -> {
@@ -1068,10 +1068,10 @@ class MainActivity : AppCompatActivity() {
             .setMessage(R.string.update_ready_message)
             .setCancelable(false)
             .setNegativeButton(R.string.update_later) { _, _ ->
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
             .setPositiveButton(R.string.update_now) { _, _ ->
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 updateManager.completeUpdate()
             }
             .show()
@@ -1082,9 +1082,9 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.review_title)
             .setMessage(R.string.review_prompt)
             .setCancelable(true)
-            .setNegativeButton(R.string.no) { _, _ -> viewModel.playSound(SoundEffect.BEEP_1) }
+            .setNegativeButton(R.string.no) { _, _ -> viewModel.soundManager.play(SoundEffect.BEEP_1) }
             .setPositiveButton(R.string.yes) { _, _ ->
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
 
                 val request = reviewManager.requestReviewFlow()
                 request

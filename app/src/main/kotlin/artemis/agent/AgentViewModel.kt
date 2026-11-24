@@ -2,7 +2,6 @@ package artemis.agent
 
 import android.app.Application
 import android.content.Context
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -19,6 +18,7 @@ import artemis.agent.cpu.MiscManager
 import artemis.agent.cpu.MissionManager
 import artemis.agent.cpu.RoutingGraph
 import artemis.agent.cpu.RoutingGraph.Companion.calculateRouteCost
+import artemis.agent.cpu.SoundManager
 import artemis.agent.cpu.VesselDataManager
 import artemis.agent.cpu.listeners
 import artemis.agent.game.GameFragment
@@ -422,19 +422,7 @@ class AgentViewModel(application: Application) :
         get() = vesselDataManager.vesselData
 
     // Sound effects players
-    private val playSounds: Boolean
-        get() = volume > 0f && !soundsMuted
-
-    private val sounds: MutableList<MediaPlayer?> =
-        SoundEffect.entries
-            .map { MediaPlayer.create(application.applicationContext, it.soundId) }
-            .toMutableList()
-    var volume: Float = 1f
-        set(value) {
-            field = value / VOLUME_SCALE
-        }
-
-    var soundsMuted: Boolean = false
+    val soundManager = SoundManager(application.applicationContext)
 
     /** Populates the RecyclerView in the route fragment. */
     private suspend fun calculateRoute() {
@@ -510,7 +498,7 @@ class AgentViewModel(application: Application) :
 
     /** Selects a player ship by its index. */
     fun selectShip(index: Int) {
-        playSound(SoundEffect.CONFIRMATION)
+        soundManager.play(SoundEffect.CONFIRMATION)
         cpu.launch {
             if (shipIndex.value != index) {
                 playerChange = true
@@ -534,7 +522,7 @@ class AgentViewModel(application: Application) :
     fun connectToServer() {
         disconnectFromServer(resetUrl = false)
         connectionStatus.value = ConnectionStatus.Connecting
-        playSound(SoundEffect.CONFIRMATION)
+        soundManager.play(SoundEffect.CONFIRMATION)
     }
 
     /**
@@ -559,7 +547,7 @@ class AgentViewModel(application: Application) :
                 networkInterface.start()
             } else {
                 connectionStatus.value = ConnectionStatus.Failed
-                playSound(SoundEffect.DISCONNECTED)
+                soundManager.play(SoundEffect.DISCONNECTED)
             }
         }
     }
@@ -569,7 +557,7 @@ class AgentViewModel(application: Application) :
         playerChange = false
         endGame()
         if (resetUrl) {
-            playSound(SoundEffect.DISCONNECTED)
+            soundManager.play(SoundEffect.DISCONNECTED)
             connectedUrl.value = ""
             shipIndex.value = -1
         }
@@ -582,16 +570,6 @@ class AgentViewModel(application: Application) :
     fun sendToServer(vararg packets: Packet.Client) {
         if (isConnected) {
             cpu.launch { packets.forEach(networkInterface::sendPacket) }
-        }
-    }
-
-    /** Plays a sound effect if sound effects are enabled. */
-    fun playSound(sound: SoundEffect) {
-        if (playSounds) {
-            sounds[sound.ordinal]?.also { player ->
-                player.setVolume(volume, volume)
-                player.start()
-            }
         }
     }
 
@@ -993,7 +971,7 @@ class AgentViewModel(application: Application) :
     @Listener
     fun onConnect(@Suppress("UNUSED_PARAMETER") event: ConnectionEvent.Success) {
         connectionStatus.value = ConnectionStatus.Connected
-        playSound(SoundEffect.CONNECTED)
+        soundManager.play(SoundEffect.CONNECTED)
 
         if (lastAttemptedHost != connectedUrl.value) {
             connectedUrl.value = lastAttemptedHost
@@ -1015,7 +993,7 @@ class AgentViewModel(application: Application) :
     @Listener
     fun onHeartbeatLost(@Suppress("UNUSED_PARAMETER") event: ConnectionEvent.HeartbeatLost) {
         connectionStatus.value = ConnectionStatus.HeartbeatLost
-        playSound(SoundEffect.HEARTBEAT_LOST)
+        soundManager.play(SoundEffect.HEARTBEAT_LOST)
     }
 
     @Listener
@@ -1023,7 +1001,7 @@ class AgentViewModel(application: Application) :
         @Suppress("UNUSED_PARAMETER") event: ConnectionEvent.HeartbeatRegained,
     ) {
         connectionStatus.value = ConnectionStatus.Connected
-        playSound(SoundEffect.BEEP_2)
+        soundManager.play(SoundEffect.BEEP_2)
     }
 
     @Listener
@@ -1105,10 +1083,7 @@ class AgentViewModel(application: Application) :
     override fun onCleared() {
         disconnectFromServer(resetUrl = false)
         networkInterface.dispose()
-
-        volume = 0f
-        sounds.forEach { it?.release() }
-        sounds.clear()
+        soundManager.dispose()
     }
 
     fun updateFromSettings(settings: UserSettings) {
@@ -1163,9 +1138,7 @@ class AgentViewModel(application: Application) :
         mineClearance = settings.mineClearance
         typhonClearance = settings.typhonClearance
 
-        threeDigitDirections = settings.threeDigitDirections
-        volume = settings.soundVolume.toFloat()
-        soundsMuted = settings.soundMuted
+        soundManager.updateFromSettings(settings)
         hapticsEnabled = settings.hapticsEnabled
 
         val oldThemeRes = ThemeResInitializer.splashThemeRes
@@ -1175,7 +1148,6 @@ class AgentViewModel(application: Application) :
         }
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
     fun revertSettings(settings: UserSettings): UserSettings = settings.copy {
         vesselDataLocationValue = vesselDataManager.index
         serverPort = port
@@ -1227,11 +1199,10 @@ class AgentViewModel(application: Application) :
         typhonClearance = this@AgentViewModel.typhonClearance
 
         threeDigitDirections = this@AgentViewModel.threeDigitDirections
-        soundVolume = (volume * VOLUME_SCALE).toInt()
-        soundMuted = this@AgentViewModel.soundsMuted
-        themeValue = ThemeResInitializer.themeIndex.load()
         showNetworkInfo = showingNetworkInfo
         alwaysScanPublic = alwaysScanPublicBroadcasts
+        soundManager.revertSettings(this)
+
         themeValue = ThemeResInitializer.themeIndex.value
         hapticsEnabled = this@AgentViewModel.hapticsEnabled
     }
@@ -1253,7 +1224,6 @@ class AgentViewModel(application: Application) :
         private const val DAMAGED_ALPHA = 0.5f
         private const val JUMP_DURATION = 3000
         const val FULL_HEADING_RANGE = 360
-        const val VOLUME_SCALE = 100f
         private const val PADDED_ZEROES = 3
 
         private const val GAME_OVER_REASON_INDEX = 13

@@ -22,7 +22,7 @@ class BiomechSettingsFragment : Fragment(R.layout.settings_biomechs) {
     private val freezeDurationBinder: TimeInputBinder by lazy {
         TimeInputBinder(binding.freezeDurationTimeInput, true) { seconds ->
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
             viewModel.viewModelScope.launch {
                 binding.root.context.userSettings.updateData {
                     it.copy { freezeDurationSeconds = seconds }
@@ -61,7 +61,7 @@ class BiomechSettingsFragment : Fragment(R.layout.settings_biomechs) {
             val button = toggle.getButton(binding)
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
 
             button.setOnCheckedChangeListener { _, isChecked ->
@@ -78,7 +78,7 @@ class BiomechSettingsFragment : Fragment(R.layout.settings_biomechs) {
     private fun prepareDefaultSortMethodButton() {
         binding.biomechSortingDefaultButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         binding.biomechSortingDefaultButton.setOnCheckedChangeListener { _, isChecked ->

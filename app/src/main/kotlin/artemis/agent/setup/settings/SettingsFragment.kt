@@ -176,7 +176,7 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
                                     recentServers += it.recentServersList
                                 }
                             }
-                            viewModel.playSound(SoundEffect.BEEP_2)
+                            viewModel.soundManager.play(SoundEffect.BEEP_2)
                         }
                     }
 
@@ -196,7 +196,7 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
                         viewModel.settingsReset.apply { value = !value }
                         viewModel.viewModelScope.launch {
                             binding.root.context.userSettings.updateData(page::reset)
-                            viewModel.playSound(SoundEffect.BEEP_2)
+                            viewModel.soundManager.play(SoundEffect.BEEP_2)
                         }
                     }
 
@@ -227,7 +227,7 @@ class SettingsFragment : Fragment(R.layout.settings_fragment) {
 
             override fun close() {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_1)
+                viewModel.soundManager.play(SoundEffect.BEEP_1)
             }
         }
     }

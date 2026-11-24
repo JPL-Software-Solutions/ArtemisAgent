@@ -82,7 +82,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
 
         activeMissionsButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         val missionListAdapter = MissionListAdapter()
@@ -116,7 +116,7 @@ class MissionsFragment : Fragment(R.layout.missions_fragment) {
 
         completedMissionsButton.setOnClickListener {
             viewModel.activateHaptic()
-            viewModel.playSound(SoundEffect.BEEP_2)
+            viewModel.soundManager.play(SoundEffect.BEEP_2)
         }
 
         completedMissionsButton.setOnCheckedChangeListener { v, isChecked ->

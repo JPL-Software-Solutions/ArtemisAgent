@@ -45,7 +45,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
                 val selectorButton = binding.routeSuppliesSelector
                 selectorButton.setOnClickListener {
                     viewModel.activateHaptic()
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     root.measure(
                         View.MeasureSpec.makeMeasureSpec(
                             it.measuredWidth,
@@ -128,7 +128,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
         arrayOf(routeTasksButton, routeSuppliesButton).forEach { button ->
             button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
             }
         }
 
@@ -255,7 +255,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             root.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_1)
+                    soundManager.play(SoundEffect.BEEP_1)
                     objEntry.obj.name.value?.also {
                         stationName.value = it
                         stationPage.value = StationsFragment.Page.FRIENDLY
@@ -268,7 +268,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
         private fun sendToStation(objEntry: ObjectEntry.Station, message: BaseMessage) {
             with(viewModel) {
                 activateHaptic()
-                playSound(SoundEffect.BEEP_2)
+                soundManager.play(SoundEffect.BEEP_2)
                 sendToServer(CommsOutgoingPacket(objEntry.obj, message, vesselData))
             }
         }
@@ -289,7 +289,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
                     destAllyCommandButton.setOnClickListener {
                         with(viewModel) {
                             activateHaptic()
-                            playSound(SoundEffect.BEEP_1)
+                            soundManager.play(SoundEffect.BEEP_1)
                             showingDestroyedAllies.value = false
                             scrollToAlly = objEntry
                             focusedAlly.value = objEntry
@@ -304,7 +304,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             root.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_1)
+                    soundManager.play(SoundEffect.BEEP_1)
                     showingDestroyedAllies.value = false
                     scrollToAlly = objEntry
                     currentGamePage.value = GameFragment.Page.ALLIES
@@ -360,7 +360,7 @@ class RouteFragment : Fragment(R.layout.route_fragment) {
             holder.itemView.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_2)
+                    soundManager.play(SoundEffect.BEEP_2)
                     routeObjective.value = boundObjective
                     routeSuppliesIndex = position
                 }

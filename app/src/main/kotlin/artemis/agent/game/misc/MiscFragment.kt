@@ -128,14 +128,14 @@ class MiscFragment : Fragment(R.layout.misc_fragment) {
             entryBinding.playButton.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_2)
+                    soundManager.play(SoundEffect.BEEP_2)
                     sendToServer(entry.playPacket)
                 }
             }
             entryBinding.deleteButton.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_2)
+                    soundManager.play(SoundEffect.BEEP_2)
                     sendToServer(entry.dismissPacket)
                     miscManager.dismissAudio(entry)
                 }
@@ -191,7 +191,7 @@ class MiscFragment : Fragment(R.layout.misc_fragment) {
             button.setOnClickListener {
                 with(viewModel) {
                     activateHaptic()
-                    playSound(SoundEffect.BEEP_2)
+                    soundManager.play(SoundEffect.BEEP_2)
                     sendToServer(entry.clickPacket)
                 }
             }

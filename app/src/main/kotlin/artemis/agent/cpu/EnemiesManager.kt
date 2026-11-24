@@ -85,7 +85,7 @@ class EnemiesManager {
     fun sendSurrenderBurst(enemy: EnemyEntry, viewModel: AgentViewModel) {
         with(viewModel) {
             activateHaptic()
-            playSound(SoundEffect.BEEP_2)
+            soundManager.play(SoundEffect.BEEP_2)
             viewModelScope.launch {
                 val surrenderPacket =
                     CommsOutgoingPacket(enemy.enemy, EnemyMessage.WILL_YOU_SURRENDER, vesselData)

@@ -87,7 +87,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
         viewLifecycleOwner.collectLatestWhileStarted(enemiesManager.selectionIndex) { index ->
             binding.selectedEnemyLabel.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 if (index >= 0) binding.enemyList.scrollToPosition(index)
             }
         }
@@ -179,7 +179,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
 
                     enemyBinding.enemyTauntButton.setOnClickListener {
                         viewModel.activateHaptic()
-                        viewModel.playSound(SoundEffect.BEEP_1)
+                        viewModel.soundManager.play(SoundEffect.BEEP_1)
                         enemiesManager.selection.value = enemyToTaunt
                         enemiesManager.refreshTaunts()
                     }
@@ -243,7 +243,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
             holder.button.text = category.getString(holder.itemView.context)
             holder.button.setOnClickListener {
                 viewModel.activateHaptic()
-                viewModel.playSound(SoundEffect.BEEP_2)
+                viewModel.soundManager.play(SoundEffect.BEEP_2)
                 binding.enemyList.scrollToPosition(category.scrollIndex)
             }
         }
@@ -304,7 +304,7 @@ class EnemiesFragment : Fragment(R.layout.enemies_fragment) {
                     !enemiesManager.disableIneffectiveTaunts || status != TauntStatus.INEFFECTIVE
                 sendButton.setOnClickListener {
                     viewModel.activateHaptic()
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     enemiesManager.selection.value?.also { enemy ->
                         val tauntMessage = EnemyMessage.entries[position + 1]
                         viewModel.sendToServer(

@@ -81,7 +81,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
                 val gamePageSelectorButton = binding.gamePageSelectorButton
                 gamePageSelectorButton.setOnClickListener {
                     viewModel.activateHaptic()
-                    viewModel.playSound(SoundEffect.BEEP_2)
+                    viewModel.soundManager.play(SoundEffect.BEEP_2)
                     root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
                     popup.showAsDropDown(gamePageSelectorButton)
                     popup.update(it.left, it.top, it.measuredWidth, root.measuredHeight)
@@ -207,7 +207,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
         binding.redAlertButton.setOnClickListener {
             with(viewModel) {
                 activateHaptic()
-                playSound(SoundEffect.BEEP_1)
+                soundManager.play(SoundEffect.BEEP_1)
                 sendToServer(ToggleRedAlertPacket())
             }
         }
@@ -233,7 +233,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
         binding.doubleAgentButton.setOnClickListener {
             with(viewModel) {
                 activateHaptic()
-                playSound(SoundEffect.BEEP_1)
+                soundManager.play(SoundEffect.BEEP_1)
                 activateDoubleAgent()
             }
         }
@@ -282,7 +282,7 @@ class GameFragment : Fragment(R.layout.game_fragment) {
                 holder.bind(page, flashing)
                 holder.itemView.setOnClickListener {
                     viewModel.activateHaptic()
-                    viewModel.playSound(
+                    viewModel.soundManager.play(
                         if (viewModel.currentGamePage.value == page) SoundEffect.BEEP_2
                         else SoundEffect.CONFIRMATION,
                     )
