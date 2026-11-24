@@ -14,6 +14,7 @@ import artemis.agent.AgentViewModel
 import artemis.agent.ConnectionStatus
 import artemis.agent.R
 import artemis.agent.UserSettingsSerializer.userSettings
+import artemis.agent.cpu.AgentConfig
 import artemis.agent.databinding.ConnectFragmentBinding
 import artemis.agent.databinding.fragmentViewBinding
 import artemis.agent.generic.GenericDataAdapter
@@ -85,7 +86,7 @@ class ConnectFragment : Fragment(R.layout.connect_fragment) {
     private fun prepareInfoLabels() {
         viewLifecycleOwner.collectLatestWhileStarted(binding.root.context.userSettings.data) {
             val isShowing = it.showNetworkInfo
-            viewModel.showingNetworkInfo = isShowing
+            AgentConfig.showingNetworkInfo = isShowing
 
             val visibility = if (isShowing) View.VISIBLE else View.GONE
             binding.addressLabel.visibility = visibility

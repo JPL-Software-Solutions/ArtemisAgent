@@ -9,6 +9,7 @@ import androidx.test.filters.LargeTest
 import artemis.agent.AgentViewModel
 import artemis.agent.MainActivity
 import artemis.agent.R
+import artemis.agent.cpu.AgentConfig
 import artemis.agent.isCheckedIf
 import artemis.agent.isDisplayedWithText
 import artemis.agent.isRemoved
@@ -24,7 +25,6 @@ import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import io.github.kakaocup.kakao.dialog.KAlertDialog
 import io.github.kakaocup.kakao.text.KButton
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -68,20 +68,14 @@ class ClientSettingsFragmentTest : TestCase() {
     ) {
         run {
             mainScreenTest {
-                val expectedPort = AtomicInteger()
-                val expectedUpdateInterval = AtomicInteger()
                 val vesselDataCount = AtomicInteger()
                 val vesselDataIndex = AtomicInteger()
-                val showingInfo = AtomicBoolean()
 
                 step("Fetch settings") {
                     activityScenarioRule.scenario.onActivity { activity ->
                         val viewModel = activity.viewModels<AgentViewModel>().value
-                        expectedPort.lazySet(viewModel.port)
-                        expectedUpdateInterval.lazySet(viewModel.updateObjectsInterval)
                         vesselDataCount.lazySet(viewModel.vesselDataManager.count)
                         vesselDataIndex.lazySet(viewModel.vesselDataManager.index)
-                        showingInfo.lazySet(viewModel.showingNetworkInfo)
                     }
                 }
 
@@ -94,15 +88,15 @@ class ClientSettingsFragmentTest : TestCase() {
                     shouldTest = shouldTestSettings,
                 )
                 testAddressFieldSetting(shouldTestSettings)
-                testServerPortSetting(expectedPort.get(), shouldTestSettings)
+                testServerPortSetting(AgentConfig.port, shouldTestSettings)
 
                 step("Test showing info setting") {
                     SettingsPageScreen.Client.showNetworkInfoToggleSetting.testSingleToggle(
-                        showingInfo.get(),
+                        AgentConfig.showingNetworkInfo,
                     )
                 }
 
-                testUpdateIntervalSetting(expectedUpdateInterval.get(), shouldTestSettings)
+                testUpdateIntervalSetting(AgentConfig.updateObjectsInterval, shouldTestSettings)
 
                 SettingsPageScreen.Client {
                     step("Close submenu") {
@@ -138,7 +132,6 @@ class ClientSettingsFragmentTest : TestCase() {
                         scenario(
                             ConnectScenario(
                                 ConnectFragmentTest.FAKE_SERVER_IP,
-                                activityScenarioRule.scenario,
                                 shouldCheckConnection = index == 1,
                             ),
                         )

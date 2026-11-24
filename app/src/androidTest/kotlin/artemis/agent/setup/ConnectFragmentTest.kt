@@ -1,12 +1,11 @@
 package artemis.agent.setup
 
-import androidx.activity.viewModels
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import artemis.agent.AgentViewModel
 import artemis.agent.MainActivity
 import artemis.agent.R
+import artemis.agent.cpu.AgentConfig
 import artemis.agent.isDisplayedWithSize
 import artemis.agent.isDisplayedWithText
 import artemis.agent.isRemoved
@@ -22,8 +21,6 @@ import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.kaspersky.kaspresso.testcases.core.testcontext.TestContext
 import dev.tmapps.konnection.Konnection
 import io.github.kakaocup.kakao.screen.Screen
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -40,13 +37,6 @@ class ConnectFragmentTest : TestCase() {
     fun scanTest() {
         run {
             mainScreenTest {
-                val scanTimeout = AtomicInteger()
-                step("Fetch scan timeout") {
-                    activityScenarioRule.scenario.onActivity { activity ->
-                        scanTimeout.lazySet(activity.viewModels<AgentViewModel>().value.scanTimeout)
-                    }
-                }
-
                 ConnectPageScreen {
                     step("Initial state") {
                         scanButton {
@@ -67,7 +57,7 @@ class ConnectFragmentTest : TestCase() {
                     }
 
                     step("Wait for scan to finish") {
-                        Screen.idle(scanTimeout.get().seconds.inWholeMilliseconds)
+                        Screen.idle(AgentConfig.scanTimeout.seconds.inWholeMilliseconds)
                     }
 
                     step("No servers found") {
@@ -114,7 +104,7 @@ class ConnectFragmentTest : TestCase() {
         run {
             mainScreenTest(false) {
                 scenario(
-                    ConnectScenario(FAKE_SERVER_IP, activityScenarioRule.scenario, check = null),
+                    ConnectScenario(FAKE_SERVER_IP, check = null),
                 )
 
                 step("Advance to Ships page") {
@@ -153,7 +143,6 @@ class ConnectFragmentTest : TestCase() {
                 scenario(
                     ConnectScenario(
                         "127.0.0.1",
-                        activityScenarioRule.scenario,
                         shouldCheckConnection = false,
                         check = null,
                     ),
@@ -171,21 +160,7 @@ class ConnectFragmentTest : TestCase() {
 
     @Test
     fun showNetworkInfoTest() {
-        run {
-            mainScreenTest {
-                val showingInfo = AtomicBoolean()
-                step("Fetch showing network info setting") {
-                    activityScenarioRule.scenario.onActivity { activity ->
-                        showingInfo.lazySet(
-                            activity.viewModels<AgentViewModel>().value.showingNetworkInfo,
-                        )
-                    }
-                }
-                val settingValue = showingInfo.get()
-
-                testShowingInfo(settingValue)
-            }
-        }
+        run { mainScreenTest { testShowingInfo(AgentConfig.showingNetworkInfo) } }
     }
 
     companion object {

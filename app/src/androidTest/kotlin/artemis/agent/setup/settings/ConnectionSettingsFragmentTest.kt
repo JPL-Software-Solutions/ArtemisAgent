@@ -8,6 +8,7 @@ import androidx.test.filters.LargeTest
 import artemis.agent.AgentViewModel
 import artemis.agent.MainActivity
 import artemis.agent.R
+import artemis.agent.cpu.AgentConfig
 import artemis.agent.isDisplayedWithText
 import artemis.agent.scenario.SettingsMenuScenario
 import artemis.agent.scenario.SettingsSubmenuOpenScenario
@@ -17,7 +18,6 @@ import artemis.agent.screens.SettingsPageScreen
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import io.github.kakaocup.kakao.common.views.KView
 import io.github.kakaocup.kakao.text.KTextView
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Rule
 import org.junit.Test
@@ -44,17 +44,11 @@ class ConnectionSettingsFragmentTest : TestCase() {
     ) {
         run {
             mainScreenTest {
-                val alwaysPublic = AtomicBoolean()
-                val connectTimeout = AtomicInteger()
-                val scanTimeout = AtomicInteger()
                 val heartbeatTimeout = AtomicInteger()
 
                 step("Fetch settings") {
                     activityScenarioRule.scenario.onActivity { activity ->
                         val viewModel = activity.viewModels<AgentViewModel>().value
-                        alwaysPublic.lazySet(viewModel.alwaysScanPublicBroadcasts)
-                        connectTimeout.lazySet(viewModel.connectTimeout)
-                        scanTimeout.lazySet(viewModel.scanTimeout)
                         heartbeatTimeout.lazySet(viewModel.heartbeatTimeout)
                     }
                 }
@@ -67,9 +61,9 @@ class ConnectionSettingsFragmentTest : TestCase() {
                 SettingsPageScreen.Connection {
                     val timeInputSettings =
                         buildTimeInputSettings(
-                            connectTimeout = connectTimeout.get(),
+                            connectTimeout = AgentConfig.connectTimeout,
                             heartbeatTimeout = heartbeatTimeout.get(),
-                            scanTimeout = scanTimeout.get(),
+                            scanTimeout = AgentConfig.scanTimeout,
                         )
 
                     timeInputSettings.forEach { setting ->
@@ -93,7 +87,9 @@ class ConnectionSettingsFragmentTest : TestCase() {
                     }
 
                     step("Check public scan setting components") {
-                        alwaysScanPublicToggleSetting.testSingleToggle(alwaysPublic.get())
+                        alwaysScanPublicToggleSetting.testSingleToggle(
+                            AgentConfig.alwaysScanPublicBroadcasts,
+                        )
                     }
 
                     step("Close submenu") { closeSubmenu() }

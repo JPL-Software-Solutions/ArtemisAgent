@@ -15,6 +15,7 @@ import artemis.agent.R
 import artemis.agent.UserSettingsSerializer
 import artemis.agent.UserSettingsSerializer.userSettings
 import artemis.agent.copy
+import artemis.agent.cpu.AgentConfig
 import artemis.agent.databinding.SettingsClientBinding
 import artemis.agent.databinding.fragmentViewBinding
 import artemis.agent.util.HapticEffect
@@ -214,7 +215,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
     private fun prepareUpdateIntervalSettingComponents() {
         val context = binding.root.context
 
-        binding.updateIntervalLabel.text = viewModel.updateObjectsInterval.formatString()
+        binding.updateIntervalLabel.text = AgentConfig.updateObjectsInterval.formatString()
 
         binding.updateIntervalBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
@@ -225,7 +226,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                 ) {
                     if (fromUser) viewModel.activateHaptic(HapticEffect.TICK)
                     val updateInterval = getSeekBarValue(progress)
-                    viewModel.updateObjectsInterval = updateInterval
+                    AgentConfig.updateObjectsInterval = updateInterval
                     binding.updateIntervalLabel.text = updateInterval.formatString()
                 }
 
@@ -239,7 +240,7 @@ class ClientSettingsFragment : Fragment(R.layout.settings_client) {
                     viewModel.soundManager.play(SoundEffect.BEEP_2)
                     viewModel.viewModelScope.launch {
                         context.userSettings.updateData { settings ->
-                            settings.copy { updateInterval = viewModel.updateObjectsInterval }
+                            settings.copy { updateInterval = AgentConfig.updateObjectsInterval }
                         }
                     }
                 }

@@ -7,6 +7,8 @@ import androidx.test.filters.LargeTest
 import artemis.agent.AgentViewModel
 import artemis.agent.MainActivity
 import artemis.agent.R
+import artemis.agent.cpu.AgentConfig
+import artemis.agent.cpu.SoundManager
 import artemis.agent.isCheckedIf
 import artemis.agent.isDisplayedWithText
 import artemis.agent.isEnabledIf
@@ -50,7 +52,7 @@ class PersonalSettingsFragmentTest : TestCase() {
     ) {
         run {
             mainScreenTest {
-                val threeDigits = AtomicBoolean()
+                val themeIndex = ThemeResInitializer.themeIndex.value
                 val soundVolume = AtomicInteger()
                 val soundsMuted = AtomicBoolean()
                 val hapticsEnabled = AtomicBoolean()
@@ -58,7 +60,6 @@ class PersonalSettingsFragmentTest : TestCase() {
                 step("Fetch settings") {
                     activityScenarioRule.scenario.onActivity { activity ->
                         val viewModel = activity.viewModels<AgentViewModel>().value
-                        threeDigits.lazySet(viewModel.threeDigitDirections)
                         soundVolume.lazySet(
                             (viewModel.soundManager.volume * SoundManager.VOLUME_SCALE).toInt(),
                         )
@@ -71,7 +72,7 @@ class PersonalSettingsFragmentTest : TestCase() {
                 scenario(SettingsSubmenuOpenScenario.Personal)
 
                 testThemeSetting(themeIndex)
-                testThreeDigitsSetting(shouldTestSettings, threeDigits.get())
+                testThreeDigitsSetting(shouldTestSettings, AgentConfig.threeDigitDirections)
                 testSoundVolume(shouldTestSettings, soundVolume.get(), soundsMuted.get())
 
                 SettingsPageScreen.Personal {

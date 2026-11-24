@@ -11,6 +11,8 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import artemis.agent.UserSettingsOuterClass.UserSettings
+import artemis.agent.cpu.AgentConfig
+import artemis.agent.cpu.AgentConstants
 import artemis.agent.cpu.BiomechManager
 import artemis.agent.cpu.CPU
 import artemis.agent.cpu.EnemiesManager
@@ -133,9 +135,6 @@ class AgentViewModel(application: Application) :
     val isScanningUDP: MutableSharedFlow<Boolean> by lazy {
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     }
-    var showingNetworkInfo: Boolean = false
-    var alwaysScanPublicBroadcasts: Boolean = true
-        private set
 
     // Saved copy of address bar text in connect fragment
     var addressBarText: String = ""
@@ -362,10 +361,6 @@ class AgentViewModel(application: Application) :
     }
     private var updateJob: Job? = null
 
-    // Determines whether directions are shown as padded three-digit numbers
-    var threeDigitDirections = true
-        private set
-
     // Haptics
     private val vibrator =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -391,11 +386,7 @@ class AgentViewModel(application: Application) :
     val helpTopicIndex: MutableStateFlow<Int> by lazy { MutableStateFlow(HelpFragment.MENU) }
 
     // Various numerical settings
-    var port: Int = DEFAULT_PORT
-    var updateObjectsInterval: Int = DEFAULT_UPDATE_INTERVAL
-    var connectTimeout: Int = DEFAULT_CONNECT_TIMEOUT
-    var scanTimeout: Int = DEFAULT_SCAN_TIMEOUT
-    var heartbeatTimeout: Int = DEFAULT_HEARTBEAT_TIMEOUT
+    var heartbeatTimeout: Int = AgentConstants.DEFAULT_HEARTBEAT_TIMEOUT
         set(value) {
             field = value
             if (isConnected) {
@@ -407,7 +398,7 @@ class AgentViewModel(application: Application) :
 
     // UDP server discovery requester
     private val serverDiscoveryRequester: ServerDiscoveryRequester
-        get() = ServerDiscoveryRequester(listener = this, timeout = scanTimeout.seconds)
+        get() = ServerDiscoveryRequester(listener = this, timeout = AgentConfig.scanTimeout.seconds)
 
     // Artemis version
     var version: Version = Version.DEFAULT
@@ -482,7 +473,7 @@ class AgentViewModel(application: Application) :
         entry.obj.id.let { id -> allyShips.containsKey(id) || livingStations.containsKey(id) }
 
     fun formattedHeading(heading: Int): String =
-        heading.toString().padStart(if (threeDigitDirections) PADDED_ZEROES else 0, '0')
+        heading.toString().padStart(if (AgentConfig.threeDigitDirections) PADDED_ZEROES else 0, '0')
 
     /**
      * Calculates the heading from the player ship to the given object and formats it as a string.
@@ -537,8 +528,8 @@ class AgentViewModel(application: Application) :
             val connected =
                 networkInterface.connect(
                     host = url,
-                    port = port,
-                    timeout = connectTimeout.seconds,
+                    port = AgentConfig.port,
+                    timeout = AgentConfig.connectTimeout.seconds,
                 )
             lastAttemptedHost = url
             attemptingConnection = false
@@ -596,7 +587,7 @@ class AgentViewModel(application: Application) :
         cpu.launch {
             try {
                 serverDiscoveryRequester.run(
-                    broadcastAddress?.takeUnless { alwaysScanPublicBroadcasts }
+                    broadcastAddress?.takeUnless { AgentConfig.alwaysScanPublicBroadcasts }
                         ?: ServerDiscoveryRequester.DEFAULT_BROADCAST_ADDRESS,
                 )
             } catch (_: Exception) {
@@ -762,7 +753,7 @@ class AgentViewModel(application: Application) :
         ordnanceUpdated.value = false
 
         val flashTime = startTime % SECONDS_TO_MILLIS
-        val flashOn = flashTime < FLASH_INTERVAL
+        val flashOn = flashTime < AgentConstants.FLASH_INTERVAL
 
         val stationShieldPercents = livingStationNameIndex.mapNotNull {
             livingStations[it.value]?.let { station ->
@@ -918,7 +909,8 @@ class AgentViewModel(application: Application) :
         delay(
             maxOf(
                 Duration.ZERO,
-                (updateObjectsInterval + startTime - System.currentTimeMillis()).milliseconds,
+                (AgentConfig.updateObjectsInterval + startTime - System.currentTimeMillis())
+                    .milliseconds,
             ),
         )
     }
@@ -1088,14 +1080,10 @@ class AgentViewModel(application: Application) :
 
     fun updateFromSettings(settings: UserSettings) {
         vesselDataManager.index = settings.vesselDataLocationValue
-        port = settings.serverPort
-        updateObjectsInterval = settings.updateInterval
 
-        connectTimeout = settings.connectionTimeoutSeconds
-        scanTimeout = settings.scanTimeoutSeconds
         heartbeatTimeout = settings.serverTimeoutSeconds
-        showingNetworkInfo = settings.showNetworkInfo
-        alwaysScanPublicBroadcasts = settings.alwaysScanPublic
+
+        AgentConfig.updateFromSettings(settings)
 
         missionManager.updateFromSettings(settings)
 
@@ -1150,11 +1138,8 @@ class AgentViewModel(application: Application) :
 
     fun revertSettings(settings: UserSettings): UserSettings = settings.copy {
         vesselDataLocationValue = vesselDataManager.index
-        serverPort = port
-        updateInterval = updateObjectsInterval
 
-        connectionTimeoutSeconds = connectTimeout
-        scanTimeoutSeconds = scanTimeout
+        AgentConfig.revertSettings(this)
         serverTimeoutSeconds = heartbeatTimeout
 
         missionManager.revertSettings(this)
@@ -1198,9 +1183,6 @@ class AgentViewModel(application: Application) :
         mineClearance = this@AgentViewModel.mineClearance
         typhonClearance = this@AgentViewModel.typhonClearance
 
-        threeDigitDirections = this@AgentViewModel.threeDigitDirections
-        showNetworkInfo = showingNetworkInfo
-        alwaysScanPublic = alwaysScanPublicBroadcasts
         soundManager.revertSettings(this)
 
         themeValue = ThemeResInitializer.themeIndex.value
@@ -1208,17 +1190,10 @@ class AgentViewModel(application: Application) :
     }
 
     companion object {
-        private const val DEFAULT_PORT = 2010
-        private const val DEFAULT_SCAN_TIMEOUT = 5
-        private const val DEFAULT_CONNECT_TIMEOUT = 9
-        private const val DEFAULT_HEARTBEAT_TIMEOUT = 15
-
         private const val DEFAULT_BLACK_HOLE_CLEARANCE = 500f
         private const val DEFAULT_MINE_CLEARANCE = 1000f
         private const val DEFAULT_TYPHON_CLEARANCE = 3000f
 
-        const val DEFAULT_UPDATE_INTERVAL = 50
-        const val FLASH_INTERVAL = 500L
         const val SECONDS_TO_MILLIS = 1000
         private const val PIRATE_SIDE = 8
         private const val DAMAGED_ALPHA = 0.5f

@@ -44,12 +44,7 @@ class ShipsFragmentTest : TestCase() {
     fun connectedTest() {
         run {
             mainScreenTest(false) {
-                scenario(
-                    ConnectScenario(
-                        ConnectFragmentTest.FAKE_SERVER_IP,
-                        activityScenarioRule.scenario,
-                    ),
-                )
+                scenario(ConnectScenario(ConnectFragmentTest.FAKE_SERVER_IP))
 
                 ShipsPageScreen {
                     step("Ships list populated") {

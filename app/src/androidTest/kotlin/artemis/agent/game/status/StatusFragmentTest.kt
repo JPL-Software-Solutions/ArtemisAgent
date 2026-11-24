@@ -30,10 +30,7 @@ class StatusFragmentTest : TestCase() {
         run {
             mainScreenTest(false) {
                 scenario(
-                    ConnectScenario(
-                        ConnectFragmentTest.FAKE_SERVER_IP,
-                        activityScenarioRule.scenario,
-                    ) {
+                    ConnectScenario(ConnectFragmentTest.FAKE_SERVER_IP) {
                         SetupPageScreen.shipsPageButton.isChecked()
                         ShipsPageScreen.shipsList.isDisplayedWithSize(Artemis.SHIP_COUNT)
                     },
