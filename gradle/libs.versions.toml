@@ -42,6 +42,7 @@ korlibs-string = "6.0.0"
 kotest = "6.2.7"
 kotest-arbs = "2.1.2"
 kotlin = "2.4.21"
+kotlin-atomicfu = "0.33.0"
 kotlin-coroutines = "1.11.0"
 kotlin-io = "0.9.3"
 kotlin-serialization = "1.13.0"
@@ -77,6 +78,7 @@ javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlin-atomicfu" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlinx-coroutines-play = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlin-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
@@ -217,6 +219,7 @@ build-logic-api = [
 
 app = [
     "kotlin-stdlib",
+    "kotlinx-atomicfu",
     "kotlinx-coroutines",
     "kotlinx-coroutines-play",
     "activity",
