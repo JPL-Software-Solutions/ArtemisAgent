@@ -10,6 +10,8 @@ plugins {
 
 configureTests()
 
+kover.useJacoco()
+
 pitest.configure(rootPackage = "com.walkertribe.ian.world", threads = 2)
 
 dependencies {
